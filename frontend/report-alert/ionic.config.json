@@ -1,0 +1,7 @@
+{
+  "name": "Report&Alert",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
