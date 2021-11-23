@@ -1,5 +1,5 @@
 # Report & Alert
-Final proyect of Systems Engineering (UTN FRRo)
+Final project of Systems Engineering (UTN FRRo)
 
 ## Students:
 * Bertone Andres
