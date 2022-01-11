@@ -54,7 +54,7 @@ const Claim = sequelize.define('reclamo', {
             field: 'comentario'
         },
         resolutionQualification: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             field: 'calificacionResolucion'
         },
         photo: {

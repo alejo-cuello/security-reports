@@ -11,7 +11,7 @@ const Status = require('./status');
 
 
 // Associations
-const associations = () => {
+const initAssociations = () => {
         // tipo_reclamo & subcategoria_reclamo
     ClaimType.hasMany(ClaimSubcategory, { foreignKey: 'idTipoReclamo' });
     ClaimSubcategory.belongsTo(ClaimType, { foreignKey: 'idTipoReclamo' });
@@ -45,7 +45,7 @@ const associations = () => {
     Neighbor.belongsToMany(Claim, { through: Favorites, foreignKey: 'idVecino', otherKey: 'idReclamo' });
 };
 
-associations(); // TODO: Revisar que este método funcione bien cuando hagamos un insert o algún otro tipo de operación sobre la base de datos.
+initAssociations(); // TODO: Revisar que este método funcione bien cuando hagamos un insert o algún otro tipo de operación sobre la base de datos.
 
 
 module.exports = {
