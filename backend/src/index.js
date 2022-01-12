@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandler = require('./utils/errorHandler');
-
+const loginController = require('./controllers/loginController');
 
 const PORT = process.env.PORT || 8080;
 
@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+app.use(loginController.verifyToken); // Valida el token en cada petición
 
 // Routes
 app.use(router);
