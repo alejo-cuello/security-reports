@@ -28,6 +28,7 @@ const MunicipalAgent = sequelize.define('agente_municipal', {
         email: {
             type: DataTypes.STRING(100),
             allowNull: false,
+            unique: true,
             field: 'email',
             validate: {
                 isEmail: true
@@ -57,6 +58,14 @@ const MunicipalAgent = sequelize.define('agente_municipal', {
                 using: "BTREE",
                 fields: [
                     { name: "legajo" }
+                ]
+            },
+            {
+                name: "email_UNIQUE",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "email" }
                 ]
             }
         ]

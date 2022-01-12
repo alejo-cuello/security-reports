@@ -60,7 +60,11 @@ const Neighbor = sequelize.define('vecino', {
         email: {
             type: DataTypes.STRING(100),
             allowNull: false,
+            unique: true,
             field: 'email',
+            validate: {
+                isEmail: true
+            }
         },
         phoneNumber: {
             type: DataTypes.STRING(45),
@@ -82,6 +86,14 @@ const Neighbor = sequelize.define('vecino', {
                 using: "BTREE",
                 fields: [
                     { name: "idVecino" }
+                ]
+            },
+            {
+                name: "email_UNIQUE",
+                unique: true,
+                using: "BTREE",
+                fields: [
+                    { name: "email" }
                 ]
             }
         ]
