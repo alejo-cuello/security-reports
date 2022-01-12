@@ -12,6 +12,10 @@ class ApiError {
         return new ApiError(404, message);
     }
 
+    static forbidden(message) {
+        return new ApiError(403, message);
+    }
+
     static internalError(message) {
         return new ApiError(500, message);
     }
