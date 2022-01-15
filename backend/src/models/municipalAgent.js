@@ -38,6 +38,12 @@ const MunicipalAgent = sequelize.define('agente_municipal', {
             type: DataTypes.STRING(100),
             allowNull: false,
             field: 'contraseña'
+        },
+        emailIsVerified: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+            field: 'emailVerificado'
         }
     }, {
         sequelize,
