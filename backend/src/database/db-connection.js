@@ -1,13 +1,12 @@
 const { Sequelize } = require('sequelize');
-const databaseConfig = require('./db-config.json');
 
 const sequelize = new Sequelize(
-    databaseConfig.database, 
-    databaseConfig.username, 
-    databaseConfig.password, 
+    process.env.DATABASE_NAME,
+    process.env.DATABASE_USERNAME, 
+    process.env.DATABASE_PASSWORD,
     {
-        host: databaseConfig.host,
-        dialect: databaseConfig.dialect
+        host: process.env.DATABASE_HOST,
+        dialect: process.env.DATABASE_DIALECT
     }
 );
 
