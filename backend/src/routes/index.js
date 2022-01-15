@@ -6,6 +6,7 @@ const loginRouter = require('./loginRouter');
 
 router.use('/login', loginRouter);
 router.use('/signup', loginRouter);
+router.use('/confirmEmail', loginRouter);
 
 router.use('/claim', claimRouter);
 

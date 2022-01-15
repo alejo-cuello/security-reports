@@ -2,17 +2,20 @@ const models = require('../models');
 const ApiError = require('../utils/apiError');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
 const validator = require('validator');
 const sequelize = require('../database/db-connection');
+const { sendEmail, getEmailTemplate } = require('../config/email-config');
+
+const NEIGHBOR = 'neighbor';
+const MUNICIPAL_AGENT = 'municipalAgent';
 
 
 const verifyToken = (req, res, next) => {
     try {
-        if ( req.originalUrl === '/login' || req.originalUrl === '/signup' ) { // Si es una petición de login o de registro de nuevo usuario, no se valida el token
+        if ( req.originalUrl === '/login' || req.originalUrl === '/signup' || req.baseUrl === '/confirmEmail' ) { // Si es una petición de login o de registro de nuevo usuario, no se valida el token
             next(); // // Ejecuta el la función login
             return;
-        };
+        }; // FIXME: Ver otra manera de hacerlo
 
         const bearerHeader = req.headers['authorization'];
         
@@ -22,7 +25,7 @@ const verifyToken = (req, res, next) => {
 
         const bearerToken = bearerHeader.split(' ')[1];
 
-        jwt.verify(bearerToken, process.env.KEY, (err) => {
+        jwt.verify(bearerToken, process.env.TOKEN_KEY, (err) => {
             if (err) {
                 throw new Error('Invalid token');
             };
@@ -39,7 +42,7 @@ const login = async (req, res, next) => {
         if ( req.originalUrl === '/signup' ) {
             next(); // Ejecuta el la función signup
             return;
-        };
+        }; // FIXME: Ver otra manera de hacerlo
         
         if ( !req.body.email || !req.body.password ) {
             throw new Error('Email and password are required');
@@ -53,12 +56,16 @@ const login = async (req, res, next) => {
             throw new Error('Invalid credentials');
         };
 
-        jwt.sign(req.body, process.env.KEY, { expiresIn: '1h' }, (err, token) => {
-            res.json({
-                token: token
-            });
-        });
+        if ( ! await isEmailVerified(req.body) ) {
+            throw new Error('Email is not verified. Please check your mailbox');
+        };
 
+        // Genera el token
+        const token = await getToken(req.body);
+
+        return res.json({
+            token
+        }); // TODO: Una vez que terminemos, este return no debería estar. Habría que ver la manera de enviarlo en cada ruta.
     } catch (error) {
         next(ApiError.badRequest(error.message));
     }
@@ -68,6 +75,11 @@ const login = async (req, res, next) => {
 const signup = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
+        if ( req.baseUrl === '/confirmEmail' ) {
+            next(); // Ejecuta la función confirmEmail
+            return;
+        }; // FIXME: Ver otra manera de hacerlo
+
         if ( !req.body.dni || 
              !req.body.tramiteNumberDNI || 
              !req.body.firstName || 
@@ -77,8 +89,9 @@ const signup = async (req, res, next) => {
              !req.body.city || 
              !req.body.province || 
              !req.body.email || 
-             !req.body.password ) {
-            throw new Error('Missing data');
+             !req.body.password ||
+             !req.body.termsAndConditionsAccepted ) {
+            throw new Error('Missing data. Please, fill all the fields');
         };
 
         if ( !validator.isNumeric(req.body.dni) ) {
@@ -93,6 +106,31 @@ const signup = async (req, res, next) => {
             throw new Error('Invalid email');
         };
 
+        const emailExists = await models.Neighbor.findOne({
+            where: {
+                email: req.body.email
+            }
+        });
+
+        if ( emailExists ) { // Verifica que el email que intenta registrar no esté usado
+            throw new Error('Email already exists');
+        };
+
+        const dniExists = await models.Neighbor.findOne({
+            where: {
+                dni: req.body.dni
+            }
+        });
+
+        if ( dniExists ) {
+            throw new Error('An account with that dni already exists');
+        };
+
+        if ( req.body.termsAndConditionsAccepted === "false" ) {
+            throw new Error('You must accept the terms and conditions');
+        };
+
+        // Encripta la contraseña // TODO: Hacer una función aparte y ver si se puede hacer async
         const saltRounds = 10;
         const salt = bcrypt.genSaltSync(saltRounds);
         const hash = bcrypt.hashSync(req.body.password, salt);
@@ -100,11 +138,20 @@ const signup = async (req, res, next) => {
         req.body.password = hash;
 
         await models.Neighbor.create(req.body, { transaction });
+
+        // Genera el token
+        const token = await getToken({ email: req.body.email });
+
+        // Obtener el template para el email
+        const emailTemplate = getEmailTemplate(req.body.firstName, token);
+
+        // Envía un correo al nuevo usuario para confirmar el email
+        await sendEmail(req.body.email, 'Confirme su correo electrónico', emailTemplate);
         
         await transaction.commit();
 
         return res.status(201).json({
-            message: 'Neighbor created successfully'
+            message: 'Account created successfully'
         });
 
     } catch (error) {
@@ -114,53 +161,148 @@ const signup = async (req, res, next) => {
 };
 
 
+const confirmEmail = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtener los datos del token
+        const data = await getTokenData(req.params.token);
+        
+        // Verifica que el usuario con el email a confirmar exista y que ya no haya sido confirmado
+        const neighborToUpdate = await models.Neighbor.findOne({
+            where: {
+                email: data.email
+            }
+        });
+
+        if ( !neighborToUpdate ) {
+            throw new Error('User with that email not found');
+        };
+
+        if ( neighborToUpdate.emailIsVerified ) {
+            throw new Error('Email is already verified');
+        };
+
+        // Actualizar el neighbor con el email confirmado
+        const updatedNeighbor = await models.Neighbor.update({
+            emailIsVerified: 1
+        }, { 
+            where: {
+                email: data.email
+        }, transaction });
+
+        if ( updatedNeighbor === 0 ) {
+            throw new Error('Email not found');
+        };
+
+        await transaction.commit();
+
+        return res.status(200).json({
+            message: 'Email confirmed successfully'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(ApiError.badRequest(error.message));
+    }
+};
+
+
 /**
-* Validate that the email, password and user type (neighbor or municipalAgent) are correct
+ * Validate that the email, password and user type (neighbor or municipalAgent) are correct
 */
 const userCredentialsAreValid = async (userData) => {
-    const NEIGHBOR = 'neighbor';
-    const MUNICIPAL_AGENT = 'municipalAgent';
     try {
+        let user = null;
         if ( userData.role === NEIGHBOR ) { // Si es un vecino quien quiere ingresar, se valida que exista en la tabla Vecino
-
-            const neighbor = await models.Neighbor.findOne({
+            user = await models.Neighbor.findOne({
                 where: {
                     email: userData.email
                 }
             });
-
-            if ( neighbor ) {
-                const match = await bcrypt.compare(userData.password, neighbor.password);
-                return match; // Retorna 'true' si las contraseñas coinciden
-                              // Retorna 'false' si las contraseñas no coinciden
-            } else {
-                return false;
-            }
         };
         
         if ( userData.role === MUNICIPAL_AGENT ) { // Si es un agente municipal quien quiere ingresar, se valida que exista en la tabla AgenteMunicipal
-
-            const municipalAgent = await models.MunicipalAgent.findOne({
+            user = await models.MunicipalAgent.findOne({
                 where: {
                     email: userData.email,
                 }
             });
+        };
 
-            if ( municipalAgent ) {
-                const match = await bcrypt.compare(userData.password, municipalAgent.password);
-                return match; // Retorna 'true' si las contraseñas coinciden
-                              // Retorna 'false' si las contraseñas no coinciden
-            } else {
-                return false;
-            }
-        }
+        if ( user ) {
+            const match = await bcrypt.compare(userData.password, user.password);
+            return match; // Retorna 'true' si las contraseñas coinciden
+                          // Retorna 'false' si las contraseñas no coinciden
+        } else {
+            return false;
+        };
     } catch (error) {
-        next(ApiError(error.message));
-    }
-}
+        throw error;
+    };
+};
+
+/**
+* Validate that the email is verified before logging in
+*/
+const isEmailVerified = async (userData) => {
+    try {
+        let user = null;
+        if ( userData.role === NEIGHBOR ) {
+            user = await models.Neighbor.findOne({
+                attributes: ['emailIsVerified'],
+                where: {
+                    email: userData.email
+                }
+            });
+        };
+
+        if ( userData.role === MUNICIPAL_AGENT ) {
+            user = await models.MunicipalAgent.findOne({
+                attributes: ['emailIsVerified'],
+                where: {
+                    email: userData.email
+                }
+            });
+        };
+
+        if ( user.emailIsVerified ) {
+            return true;
+        } else {
+            return false;
+        };
+    } catch (error) {
+        throw error;
+    };
+};
+
+
+const getToken = ( payload ) => {
+    return new Promise( (resolve, reject ) => {
+        jwt.sign(payload, process.env.TOKEN_KEY, { expiresIn: '1h' }, (err, token) => {
+            if ( err ) {
+                reject(err);
+            } else {
+                resolve(token);
+            }
+        });
+    });
+};
+
+
+const getTokenData = async (token) => {
+    let data = null;
+    jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
+        if ( err ) {
+            throw new Error(err);
+        };
+        data = decoded;
+    });
+    return data;
+};
+
 
 module.exports = {
     verifyToken,
     login,
-    signup
+    signup,
+    confirmEmail
 }
