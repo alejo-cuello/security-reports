@@ -12,11 +12,6 @@ const MUNICIPAL_AGENT = 'municipalAgent';
 
 const verifyToken = (req, res, next) => {
     try {
-        if ( req.originalUrl === '/login' || req.originalUrl === '/signup' || req.baseUrl === '/confirmEmail' ) { // Si es una petición de login o de registro de nuevo usuario, no se valida el token
-            next(); // // Ejecuta el la función login
-            return;
-        }; // FIXME: Ver otra manera de hacerlo
-
         const bearerHeader = req.headers['authorization'];
         
         if (typeof bearerHeader === 'undefined') {
@@ -38,12 +33,7 @@ const verifyToken = (req, res, next) => {
 
 
 const login = async (req, res, next) => {
-    try {
-        if ( req.originalUrl === '/signup' ) {
-            next(); // Ejecuta el la función signup
-            return;
-        }; // FIXME: Ver otra manera de hacerlo
-        
+    try {        
         if ( !req.body.email || !req.body.password ) {
             throw new Error('Email and password are required');
         };
@@ -60,12 +50,12 @@ const login = async (req, res, next) => {
             throw new Error('Email is not verified. Please check your mailbox');
         };
 
-        // Genera el token
-        const token = await getToken(req.body);
+        // Genera y devuelve el token
+        const token = await generateAndGetToken(req.body);
 
         return res.json({
             token
-        }); // TODO: Una vez que terminemos, este return no debería estar. Habría que ver la manera de enviarlo en cada ruta.
+        });
     } catch (error) {
         next(ApiError.badRequest(error.message));
     }
@@ -75,11 +65,6 @@ const login = async (req, res, next) => {
 const signup = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        if ( req.baseUrl === '/confirmEmail' ) {
-            next(); // Ejecuta la función confirmEmail
-            return;
-        }; // FIXME: Ver otra manera de hacerlo
-
         if ( !req.body.dni || 
              !req.body.tramiteNumberDNI || 
              !req.body.firstName || 
@@ -130,17 +115,15 @@ const signup = async (req, res, next) => {
             throw new Error('You must accept the terms and conditions');
         };
 
-        // Encripta la contraseña // TODO: Hacer una función aparte y ver si se puede hacer async
-        const saltRounds = 10;
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hash = bcrypt.hashSync(req.body.password, salt);
+        // Encripta la contraseña y la duelve hasheada
+        const hash = await encryptAndGetPassword(req.body.password);
 
         req.body.password = hash;
 
         await models.Neighbor.create(req.body, { transaction });
 
-        // Genera el token
-        const token = await getToken({ email: req.body.email });
+        // Genera y devuelve el token
+        const token = await generateAndGetToken({ email: req.body.email });
 
         // Obtener el template para el email
         const emailTemplate = getEmailTemplate(req.body.firstName, token);
@@ -274,9 +257,11 @@ const isEmailVerified = async (userData) => {
     };
 };
 
-
-const getToken = ( payload ) => {
-    return new Promise( (resolve, reject ) => {
+/**
+ * Generate token and return it
+*/
+const generateAndGetToken = ( payload ) => {
+    return new Promise( (resolve, reject) => {
         jwt.sign(payload, process.env.TOKEN_KEY, { expiresIn: '1h' }, (err, token) => {
             if ( err ) {
                 reject(err);
@@ -287,7 +272,9 @@ const getToken = ( payload ) => {
     });
 };
 
-
+/**
+ * Validate token and return its data 
+*/
 const getTokenData = async (token) => {
     let data = null;
     jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
@@ -297,6 +284,28 @@ const getTokenData = async (token) => {
         data = decoded;
     });
     return data;
+};
+
+/**
+ * Encrypt password and return it hashed
+*/
+const encryptAndGetPassword = (password) => {
+    return new Promise( (resolve, reject) => {
+        const saltRounds = 10;
+        bcrypt.genSalt(saltRounds, (err, salt) => {
+            if ( err ) {
+                reject(err);
+            } else {
+                bcrypt.hash(password, salt, (err, hash) => {
+                    if ( err ) {
+                        reject(err);
+                    } else {
+                        resolve(hash);
+                    };
+                });
+            };
+        });
+    });
 };
 
 

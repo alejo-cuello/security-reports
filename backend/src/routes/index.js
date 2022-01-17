@@ -3,10 +3,7 @@ const router = express.Router();
 const claimRouter = require('./claimRouter');
 const loginRouter = require('./loginRouter');
 
-
-router.use('/login', loginRouter);
-router.use('/signup', loginRouter);
-router.use('/confirmEmail', loginRouter);
+router.use('/user', loginRouter);
 
 router.use('/claim', claimRouter);
 

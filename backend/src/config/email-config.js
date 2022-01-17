@@ -35,12 +35,12 @@ const getEmailTemplate = (firstName, token) => {
         <h1>Hola ${ firstName }, gracias por registrarse</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="http://localhost:3000/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="http://localhost:3000/user/confirmEmail/${ token }">aquí</a>.
         </p>
     </div>
     `
     // TODO: Llegado el caso de subir el backend a heroku, cambiar la URL del href por el de heroku
-}
+};
 
 module.exports = {
     sendEmail,

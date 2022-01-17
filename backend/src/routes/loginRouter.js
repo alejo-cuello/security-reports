@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const loginController = require('../controllers/loginController');
 
-router.post('/', [], loginController.login); // TODO: Ver el middleware de autenticación
-router.post('/', [], loginController.signup);
-router.get('/:token', [], loginController.confirmEmail);
+router.post('/login', loginController.login);
+router.post('/signup', loginController.signup);
+router.get('/confirmEmail/:token', loginController.confirmEmail);
 
 module.exports = router;
