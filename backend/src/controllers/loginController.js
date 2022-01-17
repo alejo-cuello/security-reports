@@ -15,19 +15,19 @@ const verifyToken = (req, res, next) => {
         const bearerHeader = req.headers['authorization'];
         
         if (typeof bearerHeader === 'undefined') {
-            throw new Error('No token provided. You must login first');
+            throw ApiError.forbidden('No token provided. You must login first');
         };
 
         const bearerToken = bearerHeader.split(' ')[1];
 
         jwt.verify(bearerToken, process.env.TOKEN_KEY, (err) => {
             if (err) {
-                throw new Error('Invalid token');
+                throw ApiError.forbidden('Invalid token');
             };
             next();
         });
     } catch (error) {
-        next(ApiError.forbidden(error.message));
+        next(error);
     }
 };
 
@@ -35,19 +35,19 @@ const verifyToken = (req, res, next) => {
 const login = async (req, res, next) => {
     try {        
         if ( !req.body.email || !req.body.password ) {
-            throw new Error('Email and password are required');
+            throw ApiError.badRequest('Email and password are required');
         };
 
         if ( !validator.isEmail(req.body.email)  ) {
-            throw new Error('Invalid email');
+            throw ApiError.badRequest('Invalid email');
         };
         
         if ( ! await userCredentialsAreValid(req.body) ) { 
-            throw new Error('Invalid credentials');
+            throw ApiError.badRequest('Invalid credentials');
         };
 
         if ( ! await isEmailVerified(req.body) ) {
-            throw new Error('Email is not verified. Please check your mailbox');
+            throw ApiError.badRequest('Email is not verified. Please check your mailbox');
         };
 
         // Genera y devuelve el token
@@ -57,7 +57,7 @@ const login = async (req, res, next) => {
             token
         });
     } catch (error) {
-        next(ApiError.badRequest(error.message));
+        next(error);
     }
 };
 
@@ -76,19 +76,19 @@ const signup = async (req, res, next) => {
              !req.body.email || 
              !req.body.password ||
              !req.body.termsAndConditionsAccepted ) {
-            throw new Error('Missing data. Please, fill all the fields');
+            throw ApiError.badRequest('Missing data. Please, fill all the fields');
         };
 
         if ( !validator.isNumeric(req.body.dni) ) {
-            throw new Error('DNI must be contains only numbers');
+            throw ApiError.badRequest('DNI must be contains only numbers');
         };
 
         if ( !validator.isNumeric(req.body.tramiteNumberDNI) ) {
-            throw new Error('tramiteNumberDNI must be contains only numbers');
+            throw ApiError.badRequest('tramiteNumberDNI must be contains only numbers');
         };
 
         if ( !validator.isEmail(req.body.email)  ) {
-            throw new Error('Invalid email');
+            throw ApiError.badRequest('Invalid email');
         };
 
         const emailExists = await models.Neighbor.findOne({
@@ -98,7 +98,7 @@ const signup = async (req, res, next) => {
         });
 
         if ( emailExists ) { // Verifica que el email que intenta registrar no esté usado
-            throw new Error('Email already exists');
+            throw ApiError.badRequest('Email already exists');
         };
 
         const dniExists = await models.Neighbor.findOne({
@@ -108,14 +108,14 @@ const signup = async (req, res, next) => {
         });
 
         if ( dniExists ) {
-            throw new Error('An account with that dni already exists');
+            throw ApiError.badRequest('An account with that dni already exists');
         };
 
         if ( req.body.termsAndConditionsAccepted === "false" ) {
-            throw new Error('You must accept the terms and conditions');
+            throw ApiError.badRequest('You must accept the terms and conditions');
         };
 
-        // Encripta la contraseña y la duelve hasheada
+        // Encripta la contraseña y la devuelve hasheada
         const hash = await encryptAndGetPassword(req.body.password);
 
         req.body.password = hash;
@@ -139,7 +139,7 @@ const signup = async (req, res, next) => {
 
     } catch (error) {
         await transaction.rollback();
-        next(ApiError.badRequest(error.message));
+        next(error);
     }
 };
 
@@ -158,11 +158,11 @@ const confirmEmail = async (req, res, next) => {
         });
 
         if ( !neighborToUpdate ) {
-            throw new Error('User with that email not found');
+            throw ApiError.notFound('User with that email not found');
         };
 
         if ( neighborToUpdate.emailIsVerified ) {
-            throw new Error('Email is already verified');
+            throw ApiError.badRequest('Email is already verified');
         };
 
         // Actualizar el neighbor con el email confirmado
@@ -173,10 +173,6 @@ const confirmEmail = async (req, res, next) => {
                 email: data.email
         }, transaction });
 
-        if ( updatedNeighbor === 0 ) {
-            throw new Error('Email not found');
-        };
-
         await transaction.commit();
 
         return res.status(200).json({
@@ -184,13 +180,14 @@ const confirmEmail = async (req, res, next) => {
         });
     } catch (error) {
         await transaction.rollback();
-        next(ApiError.badRequest(error.message));
+        next(error);
     }
 };
 
 
 /**
  * Validate that the email, password and user type (neighbor or municipalAgent) are correct
+ * @param {object} userData - Object with the user data
 */
 const userCredentialsAreValid = async (userData) => {
     try {
@@ -223,8 +220,10 @@ const userCredentialsAreValid = async (userData) => {
     };
 };
 
+
 /**
-* Validate that the email is verified before logging in
+ * Validate that the email is verified before logging in
+ * @param {object} userData - Object with the user data
 */
 const isEmailVerified = async (userData) => {
     try {
@@ -257,10 +256,12 @@ const isEmailVerified = async (userData) => {
     };
 };
 
+
 /**
  * Generate token and return it
+ * @param {object} payload - Object with the data to generate the token
 */
-const generateAndGetToken = ( payload ) => {
+const generateAndGetToken = (payload) => {
     return new Promise( (resolve, reject) => {
         jwt.sign(payload, process.env.TOKEN_KEY, { expiresIn: '1h' }, (err, token) => {
             if ( err ) {
@@ -272,8 +273,10 @@ const generateAndGetToken = ( payload ) => {
     });
 };
 
+
 /**
  * Validate token and return its data 
+ * @param {string} token - Token to validate
 */
 const getTokenData = async (token) => {
     let data = null;
@@ -286,8 +289,10 @@ const getTokenData = async (token) => {
     return data;
 };
 
+
 /**
  * Encrypt password and return it hashed
+ * @param {string} password - Password to encrypt
 */
 const encryptAndGetPassword = (password) => {
     return new Promise( (resolve, reject) => {
