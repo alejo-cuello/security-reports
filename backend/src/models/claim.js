@@ -26,7 +26,6 @@ const Claim = sequelize.define('reclamo', {
         },
         dateTimeEnd: {
             type: DataTypes.DATE,
-            allowNull: false,
             field: 'fechaHoraFin'
         },
         street: {

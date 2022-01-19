@@ -1,6 +1,7 @@
 const { QueryTypes } = require('sequelize');
 const sequelize = require('../database/db-connection');
 const models = require('../models');
+const dayjs = require('dayjs');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 
@@ -83,6 +84,67 @@ const getClaims = async (req, res, next) => {
     }
 };
 
+
+// Crear un nuevo reclamo
+const createClaim = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        // Valida que sea o un reclamo o un hecho de inseguridad
+        if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
+            throw ApiError.badRequest('You can only create a claim or an insecurity fact');
+        };
+
+        // Valida que los datos obligatorios son proporcionados
+        if ( !req.body.dateTimeObservation || !dataFromToken.neighborId ) {
+            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+        };
+
+        req.body.neighborId = dataFromToken.neighborId;
+        
+        // Valida que la fecha de observación sea menor a la fecha actual
+        if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
+            throw ApiError.badRequest('The date of observation is greater than the current date');
+        };
+
+        // Crea el nuevo reclamo
+        const newClaim = await models.Claim.create(req.body, { transaction });
+
+        // Crea un nuevo registro en favoritos que pertenece al vecino que lo crea
+        await models.Favorites.create({
+            neighborId: dataFromToken.neighborId,
+            claimId: newClaim.claimId             // El claimId viene del id del reclamo que se crea arriba
+        }, { transaction });
+
+        if ( req.body.claimSubcategoryId ) {
+            // Busca el estado donde la descripción sea 'Pendiente'
+            const status = await models.Status.findOne({
+                where: {
+                    STAdescription: 'Pendiente'
+                }
+            });
+    
+            // Crea un nuevo registro en estado_reclamo
+            await models.StatusClaim.create({
+                statusId: status.statusId,
+                claimId: newClaim.claimId 
+            }, { transaction });
+        };
+
+        await transaction.commit();
+
+        res.status(201).json({
+            message: 'Claim created successfully',
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
 module.exports = {
-    getClaims
+    getClaims,
+    createClaim
 }

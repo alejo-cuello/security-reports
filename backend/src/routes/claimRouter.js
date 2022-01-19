@@ -4,5 +4,6 @@ const verifyToken = require('../middlewares/verifyToken');
 const claimController = require('../controllers/claimController');
 
 router.get('/', verifyToken, claimController.getClaims);
+router.post('/', verifyToken, claimController.createClaim);
 
 module.exports = router;
