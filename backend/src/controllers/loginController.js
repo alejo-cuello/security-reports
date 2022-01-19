@@ -10,28 +10,6 @@ const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
 
 
-const verifyToken = (req, res, next) => {
-    try {
-        const bearerHeader = req.headers['authorization'];
-        
-        if (typeof bearerHeader === 'undefined') {
-            throw ApiError.forbidden('No token provided. You must login first');
-        };
-
-        const bearerToken = bearerHeader.split(' ')[1];
-
-        jwt.verify(bearerToken, process.env.TOKEN_KEY, (err) => {
-            if (err) {
-                throw ApiError.forbidden('Invalid token');
-            };
-            next();
-        });
-    } catch (error) {
-        next(error);
-    }
-};
-
-
 const login = async (req, res, next) => {
     try {        
         if ( !req.body.email || !req.body.password ) {
@@ -42,12 +20,22 @@ const login = async (req, res, next) => {
             throw ApiError.badRequest('Invalid email');
         };
         
-        if ( ! await userCredentialsAreValid(req.body) ) { 
+        const user = await getUser(req.body);
+        
+        if ( ! await userCredentialsAreValid(user, req.body) ) { 
             throw ApiError.badRequest('Invalid credentials');
         };
 
         if ( ! await isEmailVerified(req.body) ) {
             throw ApiError.badRequest('Email is not verified. Please check your mailbox');
+        };
+
+        if ( req.body.role === NEIGHBOR ) {
+            req.body.neighborId = user.neighborId;
+        };
+        
+        if ( req.body.role === MUNICIPAL_AGENT ) {
+            req.body.municipalAgentId = user.municipalAgentId;
         };
 
         // Genera y devuelve el token
@@ -186,10 +174,10 @@ const confirmEmail = async (req, res, next) => {
 
 
 /**
- * Validate that the email, password and user type (neighbor or municipalAgent) are correct
  * @param {object} userData - Object with the user data
+ * @return {Promise<object>} Promise with the user model
 */
-const userCredentialsAreValid = async (userData) => {
+const getUser = async (userData) => {
     try {
         let user = null;
         if ( userData.role === NEIGHBOR ) { // Si es un vecino quien quiere ingresar, se valida que exista en la tabla Vecino
@@ -208,15 +196,25 @@ const userCredentialsAreValid = async (userData) => {
             });
         };
 
-        if ( user ) {
-            const match = await bcrypt.compare(userData.password, user.password);
-            return match; // Retorna 'true' si las contraseñas coinciden
-                          // Retorna 'false' si las contraseñas no coinciden
-        } else {
-            return false;
-        };
+        return user;
     } catch (error) {
         throw error;
+    };
+};
+
+/**
+ * Validate that the user credentials are correct
+ * @param {Model<any>} user - Neighbor or MunicipalAgent model
+ * @param {object} userData - Object with the user data
+ * @return {Promise<boolean>} Promise with the result of the validation
+*/
+const userCredentialsAreValid = async (user, userData) => {
+    if ( user ) { // Si existe el usuario, verifica que la password coincida con la guardada y que pertenezcan a ese usuario
+        const match = await bcrypt.compare(userData.password, user.password);
+        return match; // Retorna true si las credenciales son correctas
+                      // Retorna false si las credenciales son incorrectas
+    } else {  // Si no existe el usuario, lanza un error de credenciales inválidas
+        return false;
     };
 };
 
@@ -315,7 +313,6 @@ const encryptAndGetPassword = (password) => {
 
 
 module.exports = {
-    verifyToken,
     login,
     signup,
     confirmEmail
