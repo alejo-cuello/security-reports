@@ -33,16 +33,28 @@ const initAssociations = () => {
     Claim.belongsTo(InsecurityFactType, { foreignKey: 'insecurityFactTypeId', as: 'insecurityFactType' });
 
         // vecino & reclamo
-    Neighbor.hasMany(Claim, { foreignKey: 'neighborId', as: 'claim', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
+    Neighbor.hasMany(Claim, { foreignKey: 'neighborId', as: 'claims', onUpdate: 'CASCADE', onDelete: 'RESTRICT' });
     Claim.belongsTo(Neighbor, { foreignKey: 'neighborId', as: 'neighbor' });
 
-        // reclamo & estado a través de la tabla estado_reclamo
-    Claim.belongsToMany(Status, { through: StatusClaim, foreignKey: 'claimId', otherKey: 'statusId', as: 'status_claim' }); // TODO: Revisar que el 'as' esté correcto
-    Status.belongsToMany(Claim, { through: StatusClaim, foreignKey: 'statusId', otherKey: 'claimId', as: 'status_claim' }); // TODO: Revisar que el 'as' esté correcto
+
+        // reclamo & estado a través de la tabla estado_reclamo        
+            // reclamo & estado_reclamo
+    Claim.hasMany(StatusClaim, { foreignKey: 'claimId', as: 'status_claim' });
+    StatusClaim.belongsTo(Claim, { foreignKey: 'claimId', as: 'claim' });
+            
+            // estado & estado_reclamo
+    Status.hasMany(StatusClaim, { foreignKey: 'statusId', as: 'status_claim' });
+    StatusClaim.belongsTo(Status, { foreignKey: 'statusId', as: 'status' });
 
         // reclamo & vecino a través de la tabla favoritos
-    Claim.belongsToMany(Neighbor, { through: Favorites, foreignKey: 'claimId', otherKey: 'neighborId', as: 'favorites' }); // TODO: Revisar que el 'as' esté correcto
-    Neighbor.belongsToMany(Claim, { through: Favorites, foreignKey: 'neighborId', otherKey: 'claimId', as: 'favorites' }); // TODO: Revisar que el 'as' esté correcto
+            // reclamo & favoritos
+    Claim.hasMany(Favorites, { foreignKey: 'claimId', as: 'favorites' });
+    Favorites.belongsTo(Claim, { foreignKey: 'claimId', as: 'claim' });
+
+            // vecino & favoritos
+    Neighbor.hasMany(Favorites, { foreignKey: 'neighborId', as: 'favorites' });
+    Favorites.belongsTo(Neighbor, { foreignKey: 'neighborId', as: 'neighbor' });
+    
 };
 
 initAssociations();
