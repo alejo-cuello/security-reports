@@ -2,6 +2,7 @@ const { QueryTypes } = require('sequelize');
 const sequelize = require('../database/db-connection');
 const models = require('../models');
 const dayjs = require('dayjs');
+const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 
@@ -194,23 +195,26 @@ const createClaim = async (req, res, next) => {
 
         req.body.neighborId = dataFromToken.neighborId;
         
+        // Valida que el formato de la fecha de observación sea correcto
+        if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
+            throw ApiError.badRequest('The dateTimeObservation format is incorrect');
+        };
+
         // Valida que la fecha de observación sea menor a la fecha actual
-        if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
+        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
             throw ApiError.badRequest('The datetime of observation is greater than the current date');
         };
 
         // Valida que el id de la subcategoría de reclamo sea válido
         if ( req.body.claimSubcategoryId ) {
-            const claimSubcategory = await models.ClaimSubcategory.findByPk(req.body.claimSubcategoryId);
-            if ( !claimSubcategory ) {
+            if ( ! await claimSubcategoryIdIsValid(req.body.claimSubcategoryId) ) {
                 throw ApiError.badRequest('Invalid claim subcategory id');
             };
         };
 
         // Valida que el id del tipo de hecho de inseguridad sea válido
         if ( req.body.insecurityFactTypeId ) {
-            const insecurityFactType = await models.InsecurityFactType.findByPk(req.body.insecurityFactTypeId);
-            if ( !insecurityFactType ) {
+            if ( ! await insecurityFactTypeIdIsValid(req.body.insecurityFactTypeId) ) {
                 throw ApiError.badRequest('Invalid insecurity fact type id');
             };
         };
@@ -222,15 +226,15 @@ const createClaim = async (req, res, next) => {
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(req.body, { transaction });
 
-        // Crea un nuevo registro en favoritos que pertenece al vecino que lo crea
+        // Crea un nuevo registro en favoritos
         await models.Favorites.create({
             neighborId: dataFromToken.neighborId,
             claimId: newClaim.claimId             // El claimId viene del id del reclamo que se crea arriba
         }, { transaction });
 
         if ( req.body.claimSubcategoryId ) {        // Si viene el id de la subcategoría del reclamo, 
-                                                    // entonces crea un nuevo reclamo, sino un hecho de 
-                                                    // inseguridad
+                                                    // entonces crea un nuevo registro en la tabla 
+                                                    // estado_reclamo
 
             // Busca el estado donde la descripción sea 'Pendiente'
             const status = await models.Status.findOne({
@@ -248,9 +252,17 @@ const createClaim = async (req, res, next) => {
 
         await transaction.commit();
 
-        res.status(201).json({
-            message: 'Claim created successfully',
-        });
+        if ( req.body.claimSubcategoryId ) {
+            return res.status(201).json({
+                message: 'Claim created successfully',
+            });
+        };
+
+        if ( req.body.insecurityFactTypeId ) {
+            return res.status(201).json({
+                message: 'Insecurity fact created successfully',
+            });
+        }
     } catch (error) {
         await transaction.rollback();
         next(error);
@@ -275,8 +287,13 @@ const editClaim = async (req, res, next) => {
             throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
+        // Valida que el formato de la fecha de observación sea correcto
+        if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
+            throw ApiError.badRequest('The dateTimeObservation format is incorrect');
+        };
+
         // Valida que la fecha de observación sea menor a la fecha actual
-        if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
+        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
             throw ApiError.badRequest('The datetime of observation is greater than the current date');
         };
 
@@ -298,9 +315,9 @@ const editClaim = async (req, res, next) => {
             throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
         }
 
-        // TODO: Ver como manejamos las fotos
+        // TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
 
-        // TODO: Ver como manejamos la ubicación con la api de google maps
+        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada.
 
         // Actualiza el reclamo
         await models.Claim.update(req.body, { 
@@ -364,6 +381,49 @@ const deleteClaim = async (req, res, next) => {
         next(error);
     }
 };
+
+
+/**
+ * Valida que la fecha de observación sea menor a la fecha actual
+*/
+const dateTimeObservationIsValid = (dateTimeObservation) => {
+    return dateTimeObservation < dayjs().format('YYYY-MM-DD HH:mm:ss');
+};
+
+
+/**
+ * Valida que el id de la subcategoría de reclamo sea válido
+*/
+const claimSubcategoryIdIsValid = async (claimSubcategoryId) => {
+    try {
+        const claimSubcategory = await models.ClaimSubcategory.findByPk(claimSubcategoryId);
+        if ( claimSubcategory ) {
+            return true;
+        } else {
+            return false;
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+/**
+ * Valida que el id del tipo de hecho de inseguridad sea válido
+*/
+const insecurityFactTypeIdIsValid = async (insecurityFactTypeId) => {
+    try {
+        const insecurityFactType = await models.InsecurityFactType.findByPk(insecurityFactTypeId);
+        if ( insecurityFactType ) {
+            return true;
+        } else {
+            return false;
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 module.exports = {
     getClaims,

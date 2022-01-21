@@ -53,18 +53,14 @@ const login = async (req, res, next) => {
 const signup = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        if ( !req.body.dni || 
-             !req.body.tramiteNumberDNI || 
-             !req.body.firstName || 
-             !req.body.lastName || 
-             !req.body.street || 
-             !req.body.streetNumber || 
-             !req.body.city || 
-             !req.body.province || 
-             !req.body.email || 
-             !req.body.password ||
-             !req.body.termsAndConditionsAccepted ) {
+        // Valida que los campos obligatorios estén completos
+        if ( !requiredFieldsAreCompleted(req.body) ) {
             throw ApiError.badRequest('Missing data. Please, fill all the fields');
+        };
+        
+        // Verifica que los términos y condiciones estén aceptados
+        if ( !req.body.termsAndConditionsAccepted ) {
+            throw ApiError.badRequest('You must accept the terms and conditions');
         };
 
         if ( !validator.isNumeric(req.body.dni) ) {
@@ -85,7 +81,8 @@ const signup = async (req, res, next) => {
             }
         });
 
-        if ( emailExists ) { // Verifica que el email que intenta registrar no esté usado
+        // Verifica que el email que ingresó no esté usado
+        if ( emailExists ) {
             throw ApiError.badRequest('Email already exists');
         };
 
@@ -95,12 +92,9 @@ const signup = async (req, res, next) => {
             }
         });
 
+        // Verifica que el dni que ingresó no esté usado
         if ( dniExists ) {
             throw ApiError.badRequest('An account with that dni already exists');
-        };
-
-        if ( req.body.termsAndConditionsAccepted === "false" ) {
-            throw ApiError.badRequest('You must accept the terms and conditions');
         };
 
         // Encripta la contraseña y la devuelve hasheada
@@ -122,9 +116,8 @@ const signup = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(201).json({
-            message: 'Account created successfully'
+            message: 'Account created successfully. Please check your mailbox'
         });
-
     } catch (error) {
         await transaction.rollback();
         next(error);
@@ -154,7 +147,7 @@ const confirmEmail = async (req, res, next) => {
         };
 
         // Actualizar el neighbor con el email confirmado
-        const updatedNeighbor = await models.Neighbor.update({
+        await models.Neighbor.update({
             emailIsVerified: 1
         }, { 
             where: {
@@ -170,6 +163,27 @@ const confirmEmail = async (req, res, next) => {
         await transaction.rollback();
         next(error);
     }
+};
+
+
+/**
+ * Valida que los campos obligatorios estén completos
+*/
+const requiredFieldsAreCompleted = (body) => {
+    if ( body.dni && 
+         body.tramiteNumberDNI && 
+         body.firstName && 
+         body.lastName && 
+         body.street && 
+         body.streetNumber && 
+         body.city && 
+         body.province && 
+         body.email && 
+         body.password ) {
+       return true;
+   } else {
+       return false;
+   };
 };
 
 
@@ -209,13 +223,17 @@ const getUser = async (userData) => {
  * @return {Promise<boolean>} Promise with the result of the validation
 */
 const userCredentialsAreValid = async (user, userData) => {
-    if ( user ) { // Si existe el usuario, verifica que la password coincida con la guardada y que pertenezcan a ese usuario
-        const match = await bcrypt.compare(userData.password, user.password);
-        return match; // Retorna true si las credenciales son correctas
-                      // Retorna false si las credenciales son incorrectas
-    } else {  // Si no existe el usuario, lanza un error de credenciales inválidas
-        return false;
-    };
+    try {
+        if ( user ) { // Si existe el usuario, verifica que la password coincida con la guardada y que pertenezcan a ese usuario
+            const match = await bcrypt.compare(userData.password, user.password);
+            return match; // Retorna true si las credenciales son correctas
+                          // Retorna false si las credenciales son incorrectas
+        } else {  // Si no existe el usuario, lanza un error de credenciales inválidas
+            return false;
+        };
+    } catch (error) {
+        throw error;
+    }
 };
 
 
@@ -277,14 +295,18 @@ const generateAndGetToken = (payload) => {
  * @param {string} token - Token to validate
 */
 const getTokenData = async (token) => {
-    let data = null;
-    jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
-        if ( err ) {
-            throw new Error(err);
-        };
-        data = decoded;
-    });
-    return data;
+    try {
+        let data = null;
+        jwt.verify(token, process.env.TOKEN_KEY, (err, decoded) => {
+            if ( err ) {
+                throw new Error(err);
+            };
+            data = decoded;
+        });
+        return data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 
