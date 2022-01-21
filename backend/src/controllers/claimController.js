@@ -100,8 +100,8 @@ const queryClaimById =
 "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
 
 
-// Se usa en la función deleteClaim
-const queryClaimToDelete = 
+// Se usa en la función editClaim y deleteClaim
+const queryClaimTo = 
 "SELECT " +
     "rec.idReclamo 'claimId', " +
     "rec.idVecino 'neighborId', " +
@@ -123,7 +123,7 @@ const queryClaimToDelete =
 // Listar todos los reclamos
 const getClaims = async (req, res, next) => {
     try {
-        // Obtiene la información contenida en el token para poder usar el userId
+        // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         let myFavoritesClaims = [];
@@ -154,7 +154,7 @@ const getClaims = async (req, res, next) => {
 // Devuelve un reclamo en específico por id
 const getClaimById = async (req, res, next) => {
     try {
-        // Obtiene la información contenida en el token para poder usar el userId
+        // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         const claim = await sequelize.query( queryClaimById,
@@ -179,7 +179,7 @@ const getClaimById = async (req, res, next) => {
 const createClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        // Obtiene la información contenida en el token para poder usar el userId
+        // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         // Valida que sea o un reclamo o un hecho de inseguridad
@@ -196,7 +196,7 @@ const createClaim = async (req, res, next) => {
         
         // Valida que la fecha de observación sea menor a la fecha actual
         if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
-            throw ApiError.badRequest('The date of observation is greater than the current date');
+            throw ApiError.badRequest('The datetime of observation is greater than the current date');
         };
 
         // Crea el nuevo reclamo
@@ -235,12 +235,78 @@ const createClaim = async (req, res, next) => {
 };
 
 
+// Editar un reclamo existente
+const editClaim = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        // Valida que sea o un reclamo o un hecho de inseguridad
+        if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
+            throw ApiError.badRequest('You can only update a claim or an insecurity fact');
+        };
+
+        // Valida que los datos obligatorios son proporcionados
+        if ( !req.body.dateTimeObservation || !dataFromToken.neighborId ) {
+            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+        };
+
+        // Valida que la fecha de observación sea menor a la fecha actual
+        if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
+            throw ApiError.badRequest('The datetime of observation is greater than the current date');
+        };
+
+        const queryClaimToUpdate = queryClaimTo;
+
+        const claimToUpdate = await sequelize.query( queryClaimToUpdate,
+            {
+                replacements: [req.params.claimId, dataFromToken.neighborId],
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if ( claimToUpdate.length === 0 ) {
+            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+        };
+
+        // Valida que el estado del reclamo sea 'Pendiente'
+        if ( claimToUpdate[0].statusId !== 1 ) {
+            throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
+        }
+
+        // TODO: Ver como manejamos las fotos
+
+        // TODO: Ver como manejamos la ubicación con la api de google maps
+
+        // Actualiza el reclamo
+        await models.Claim.update(req.body, { 
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            },
+            transaction });
+
+        await transaction.commit();
+
+        res.status(200).json({
+            message: 'Claim updated successfully'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
 // Eliminar un reclamo
 const deleteClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        // Obtiene la información contenida en el token para poder usar el userId
+        // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        const queryClaimToDelete = queryClaimTo;
 
         const claimToDelete = await sequelize.query( queryClaimToDelete, 
             {
@@ -280,5 +346,6 @@ module.exports = {
     getClaims,
     getClaimById,
     createClaim,
+    editClaim,
     deleteClaim
 }
