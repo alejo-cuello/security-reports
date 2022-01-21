@@ -5,71 +5,118 @@ const dayjs = require('dayjs');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 
+
 // Se usa en la función getClaims
 const queryMyFavoritesClaims = 
-"SELECT \n" +
-    "fav.idFavoritos 'favoriteId', \n" +
-    "er.idEstadoReclamo 'statusClaimId', \n" +
-    "rec.idReclamo 'claimId', \n" + 
-    "rec.fechaHoraCreacion 'dateTimeCreation', \n" +
-    "rec.fechaHoraObservacion 'dateTimeObservation', \n" +
-    "rec.fechaHoraFin 'dateTimeEnd', \n" +
-    "rec.calle 'street', \n" +
-    "rec.numeroCalle 'streetNumber', \n" +
-    "rec.latitud 'latitude', \n" +
-    "rec.longitud 'longitude', \n" +
-    "rec.direccionMapa 'mapAddress', \n" +
-    "rec.comentario 'comment', \n" +
-    "rec.calificacionResolucion 'resolutionQualification', \n" +
-    "rec.foto 'photo', \n" +
-    "rec.idAgenteMunicipal 'municipalAgentId', \n" +
-    "rec.idVecino 'neighborId', \n" +
-    "scr.idSubcategoriaReclamo 'claimSubcategoryId', \n" +
-    "scr.descripcionSCR 'CSCdescription', \n" +
-    "tr.idTipoReclamo 'claimTypeId', \n" +
-    "tr.descripcionTR 'CTdescription', \n" +
-    "est.idEstado 'statusId', \n" +
-    "est.descripcionEST 'STAdescription', \n" +
-    "er.fechaHoraInicioEstado 'dateTimeStatusStart' \n" +
-"FROM estado_reclamo er \n" +
-"INNER JOIN \n" + 
-    "( SELECT \n" +
-        "er.idReclamo, \n" +
-        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' \n" +
-    "FROM estado_reclamo er \n" +
-    "GROUP BY er.idReclamo ) ultimos_estado_reclamo \n" +
-    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo \n" +
-        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado \n" +
-"LEFT JOIN reclamo rec \n" +
-    "ON er.idReclamo = rec.idReclamo \n" +
-"LEFT JOIN favoritos fav \n" +
-    "ON fav.idReclamo = rec.idReclamo \n" +
-"LEFT JOIN subcategoria_reclamo scr \n" +
-    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo \n" +
-"LEFT JOIN tipo_reclamo tr \n" +
-    "ON scr.idTipoReclamo = tr.idTipoReclamo \n" +
-"LEFT JOIN estado est \n" +
-    "ON er.idEstado = est.idEstado \n" +
-"WHERE fav.idVecino = ? \n" +               // Es importante el uso de '?'
+"SELECT " +
+    "fav.idFavoritos 'favoriteId', " +
+    "er.idEstadoReclamo 'statusClaimId', " +
+    "rec.idReclamo 'claimId', " + 
+    "rec.fechaHoraCreacion 'dateTimeCreation', " +
+    "rec.fechaHoraObservacion 'dateTimeObservation', " +
+    "rec.fechaHoraFin 'dateTimeEnd', " +
+    "rec.calle 'street', " +
+    "rec.numeroCalle 'streetNumber', " +
+    "rec.latitud 'latitude', " +
+    "rec.longitud 'longitude', " +
+    "rec.direccionMapa 'mapAddress', " +
+    "rec.comentario 'comment', " +
+    "rec.calificacionResolucion 'resolutionQualification', " +
+    "rec.foto 'photo', " +
+    "rec.idAgenteMunicipal 'municipalAgentId', " +
+    "rec.idVecino 'neighborId', " +
+    "scr.idSubcategoriaReclamo 'claimSubcategoryId', " +
+    "scr.descripcionSCR 'CSCdescription', " +
+    "tr.idTipoReclamo 'claimTypeId', " +
+    "tr.descripcionTR 'CTdescription', " +
+    "est.idEstado 'statusId', " +
+    "est.descripcionEST 'STAdescription', " +
+    "er.fechaHoraInicioEstado 'dateTimeStatusStart' " +
+"FROM estado_reclamo er " +
+"INNER JOIN " + 
+    "( SELECT " +
+        "er.idReclamo, " +
+        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+    "FROM estado_reclamo er " +
+    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
+    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+"LEFT JOIN reclamo rec " +
+    "ON er.idReclamo = rec.idReclamo " +
+"LEFT JOIN favoritos fav " +
+    "ON fav.idReclamo = rec.idReclamo " +
+"LEFT JOIN subcategoria_reclamo scr " +
+    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+"LEFT JOIN tipo_reclamo tr " +
+    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+"LEFT JOIN estado est " +
+    "ON er.idEstado = est.idEstado " +
+"WHERE fav.idVecino = ? " +               // Es importante el uso de '?' para evitar inyección SQL
 "ORDER BY rec.fechaHoraCreacion DESC";
+
+
+// Se usa en la función getClaimById
+const queryClaimById = 
+"SELECT " +
+    "er.idEstadoReclamo 'statusClaimId', " +
+    "rec.idReclamo 'claimId', " +
+    "rec.fechaHoraCreacion 'dateTimeCreation', " +
+    "rec.fechaHoraObservacion 'dateTimeObservation', " +
+    "rec.fechaHoraFin 'dateTimeEnd', " +
+    "rec.calle 'street', " +
+    "rec.numeroCalle 'streetNumber', " +
+    "rec.latitud 'latitude', " +
+    "rec.longitud 'longitude', " +
+    "rec.direccionMapa 'mapAddress', " +
+    "rec.comentario 'comment', " +
+    "rec.calificacionResolucion 'resolutionQualification', " +
+    "rec.foto 'photo', " +
+    "rec.idAgenteMunicipal 'municipalAgentId', " +
+    "rec.idVecino 'neighborId', " +
+    "scr.idSubcategoriaReclamo 'claimSubcategoryId', " +
+    "scr.descripcionSCR 'CSCdescription', " +
+    "tr.idTipoReclamo 'claimTypeId', " +
+    "tr.descripcionTR 'CTdescription', " +
+    "est.idEstado 'statusId', " +
+    "est.descripcionEST 'STAdescription', " +
+    "er.fechaHoraInicioEstado 'dateTimeStatusStart' " +
+"FROM estado_reclamo er " +
+"INNER JOIN " + 
+    "( SELECT " +
+        "er.idReclamo, " +
+        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+    "FROM estado_reclamo er " +
+    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
+    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+"INNER JOIN reclamo rec " +
+    "ON er.idReclamo = rec.idReclamo " +
+"INNER JOIN subcategoria_reclamo scr " +
+    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+"INNER JOIN tipo_reclamo tr " +
+    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+"INNER JOIN estado est " +
+    "ON er.idEstado = est.idEstado " +
+"WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+
 
 // Se usa en la función deleteClaim
 const queryClaimToDelete = 
-"SELECT \n" +
-    "rec.idReclamo 'claimId', \n" +
-    "rec.idVecino 'neighborId', \n" +
-    "er.idEstado 'statusId' \n" +
-"FROM estado_reclamo er \n" +
-"INNER JOIN \n" + 
-    "( SELECT \n" +
-        "er.idReclamo, \n" +
-        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' \n" +
-    "FROM estado_reclamo er \n" +
-    "GROUP BY er.idReclamo ) ultimos_estado_reclamo \n" +
-    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo \n" +
-        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado \n" +
-"INNER JOIN reclamo rec \n" +
-    "ON er.idReclamo = rec.idReclamo \n" +
+"SELECT " +
+    "rec.idReclamo 'claimId', " +
+    "rec.idVecino 'neighborId', " +
+    "er.idEstado 'statusId' " +
+"FROM estado_reclamo er " +
+"INNER JOIN " + 
+    "( SELECT " +
+        "er.idReclamo, " +
+        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+    "FROM estado_reclamo er " +
+    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
+    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+"INNER JOIN reclamo rec " +
+    "ON er.idReclamo = rec.idReclamo " +
 "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
 
 
@@ -104,11 +151,35 @@ const getClaims = async (req, res, next) => {
 };
 
 
+// Devuelve un reclamo en específico por id
+const getClaimById = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el userId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        const claim = await sequelize.query( queryClaimById,
+            {
+                replacements: [req.params.claimId, dataFromToken.neighborId],
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if ( claim.length === 0 ) {
+            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+        };
+
+        res.status(200).json(claim);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // Crear un nuevo reclamo
 const createClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        // Obtiene la información contenida en el token para poder usar el neighborId
+        // Obtiene la información contenida en el token para poder usar el userId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         // Valida que sea o un reclamo o un hecho de inseguridad
@@ -168,6 +239,7 @@ const createClaim = async (req, res, next) => {
 const deleteClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
+        // Obtiene la información contenida en el token para poder usar el userId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         const claimToDelete = await sequelize.query( queryClaimToDelete, 
@@ -187,8 +259,8 @@ const deleteClaim = async (req, res, next) => {
 
         await models.Claim.destroy({
             where: {
-                idReclamo: req.params.claimId,
-                idVecino: dataFromToken.neighborId
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
             },
             transaction
         });
@@ -206,6 +278,7 @@ const deleteClaim = async (req, res, next) => {
 
 module.exports = {
     getClaims,
+    getClaimById,
     createClaim,
     deleteClaim
 }
