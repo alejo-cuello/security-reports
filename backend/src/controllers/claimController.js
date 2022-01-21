@@ -77,7 +77,7 @@ const getClaims = async (req, res, next) => {
         if ( myFavoritesClaims.length === 0 ) {
             throw ApiError.notFound('No claims to show');
         };
-        
+
         return res.status(200).json(myFavoritesClaims);
     } catch (error) {
         next(error);
@@ -108,6 +108,10 @@ const createClaim = async (req, res, next) => {
         if ( req.body.dateTimeObservation > dayjs().format('YYYY-MM-DD HH:mm:ss') ) {
             throw ApiError.badRequest('The date of observation is greater than the current date');
         };
+
+        //TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
+
+        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada.
 
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(req.body, { transaction });
