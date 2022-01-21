@@ -175,7 +175,7 @@ const getClaimById = async (req, res, next) => {
 };
 
 
-// Crear un nuevo reclamo
+// Crear un nuevo reclamo o un nuevo hecho de inseguridad
 const createClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
@@ -199,6 +199,22 @@ const createClaim = async (req, res, next) => {
             throw ApiError.badRequest('The date of observation is greater than the current date');
         };
 
+        // Valida que el id de la subcategoría de reclamo sea válido
+        if ( req.body.claimSubcategoryId ) {
+            const claimSubcategory = await models.ClaimSubcategory.findByPk(req.body.claimSubcategoryId);
+            if ( !claimSubcategory ) {
+                throw ApiError.badRequest('Invalid claim subcategory id');
+            };
+        };
+
+        // Valida que el id del tipo de hecho de inseguridad sea válido
+        if ( req.body.insecurityFactTypeId ) {
+            const insecurityFactType = await models.InsecurityFactType.findByPk(req.body.insecurityFactTypeId);
+            if ( !insecurityFactType ) {
+                throw ApiError.badRequest('Invalid insecurity fact type id');
+            };
+        };
+
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(req.body, { transaction });
 
@@ -208,7 +224,10 @@ const createClaim = async (req, res, next) => {
             claimId: newClaim.claimId             // El claimId viene del id del reclamo que se crea arriba
         }, { transaction });
 
-        if ( req.body.claimSubcategoryId ) {
+        if ( req.body.claimSubcategoryId ) {        // Si viene el id de la subcategoría del reclamo, 
+                                                    // entonces crea un nuevo reclamo, sino un hecho de 
+                                                    // inseguridad
+
             // Busca el estado donde la descripción sea 'Pendiente'
             const status = await models.Status.findOne({
                 where: {
