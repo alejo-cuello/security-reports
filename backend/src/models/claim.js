@@ -57,7 +57,7 @@ const Claim = sequelize.define('reclamo', {
             field: 'calificacionResolucion'
         },
         photo: {
-            type: DataTypes.BLOB,
+            type: DataTypes.TEXT,
             field: 'foto'
         },
         municipalAgentId: {
