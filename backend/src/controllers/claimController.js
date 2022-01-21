@@ -5,7 +5,7 @@ const dayjs = require('dayjs');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 
-
+// Se usa en la función getClaims
 const queryMyFavoritesClaims = 
 "SELECT \n" +
     "fav.idFavoritos 'favoriteId', \n" +
@@ -52,6 +52,25 @@ const queryMyFavoritesClaims =
     "ON er.idEstado = est.idEstado \n" +
 "WHERE fav.idVecino = ? \n" +               // Es importante el uso de '?'
 "ORDER BY rec.fechaHoraCreacion DESC";
+
+// Se usa en la función deleteClaim
+const queryClaimToDelete = 
+"SELECT \n" +
+    "rec.idReclamo 'claimId', \n" +
+    "rec.idVecino 'neighborId', \n" +
+    "er.idEstado 'statusId' \n" +
+"FROM estado_reclamo er \n" +
+"INNER JOIN \n" + 
+    "( SELECT \n" +
+        "er.idReclamo, \n" +
+        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' \n" +
+    "FROM estado_reclamo er \n" +
+    "GROUP BY er.idReclamo ) ultimos_estado_reclamo \n" +
+    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo \n" +
+        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado \n" +
+"INNER JOIN reclamo rec \n" +
+    "ON er.idReclamo = rec.idReclamo \n" +
+"WHERE rec.idReclamo = ? AND rec.idVecino = ?";
 
 
 // Listar todos los reclamos
@@ -144,7 +163,49 @@ const createClaim = async (req, res, next) => {
     }
 };
 
+
+// Eliminar un reclamo
+const deleteClaim = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        const claimToDelete = await sequelize.query( queryClaimToDelete, 
+            {
+                replacements: [req.params.claimId, dataFromToken.neighborId],
+                type: QueryTypes.SELECT
+            }
+        );
+
+        if ( claimToDelete.length === 0 ) {
+            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+        };
+
+        if ( claimToDelete[0].statusId !== 1 ) {
+            throw ApiError.badRequest(`The claim cannot be deleted because the status is other than 'Pendiente'`);
+        };
+
+        await models.Claim.destroy({
+            where: {
+                idReclamo: req.params.claimId,
+                idVecino: dataFromToken.neighborId
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        res.status(200).json({
+            message: 'Claim deleted successfully'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
 module.exports = {
     getClaims,
-    createClaim
+    createClaim,
+    deleteClaim
 }

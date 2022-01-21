@@ -5,5 +5,6 @@ const claimController = require('../controllers/claimController');
 
 router.get('/', verifyToken, claimController.getClaims);
 router.post('/', verifyToken, claimController.createClaim);
+router.delete('/:claimId', verifyToken, claimController.deleteClaim);
 
 module.exports = router;
