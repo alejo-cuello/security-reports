@@ -1,4 +1,4 @@
-const { QueryTypes } = require('sequelize');
+const { QueryTypes, Op } = require('sequelize');
 const sequelize = require('../database/db-connection');
 const models = require('../models');
 const dayjs = require('dayjs');
@@ -121,7 +121,7 @@ const queryClaimTo =
 "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
 
 
-// Listar todos los reclamos
+// Listar todos los reclamos favoritos del vecino
 const getClaims = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
@@ -169,7 +169,7 @@ const getClaimById = async (req, res, next) => {
             throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
         };
 
-        res.status(200).json(claim);
+        return res.status(200).json(claim);
     } catch (error) {
         next(error);
     }
@@ -329,7 +329,7 @@ const editClaim = async (req, res, next) => {
 
         await transaction.commit();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Claim updated successfully'
         });
     } catch (error) {
@@ -373,11 +373,51 @@ const deleteClaim = async (req, res, next) => {
 
         await transaction.commit();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Claim deleted successfully'
         });
     } catch (error) {
         await transaction.rollback();
+        next(error);
+    }
+};
+
+
+// Listar todos los hechos de inseguridad favoritos del vecino
+const getInsecurityFacts = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        const myFavoritesInsecurityFacts = await models.Favorites.findAll({
+            where: {
+                neighborId: dataFromToken.neighborId
+            },
+            include: [
+                {
+                    model: models.Claim,
+                    as: 'claim',
+                    where: {
+                        insecurityFactTypeId: {
+                            [Op.not]: null
+                        }
+                    },
+                    include: [
+                        {
+                            model: models.InsecurityFactType,
+                            as: 'insecurityFactType'
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if ( myFavoritesInsecurityFacts.length === 0 ) {
+            throw ApiError.notFound('There are not insecurity facts to show');
+        };
+
+        return res.status(200).json(myFavoritesInsecurityFacts);
+    } catch (error) {
         next(error);
     }
 };
@@ -430,5 +470,6 @@ module.exports = {
     getClaimById,
     createClaim,
     editClaim,
-    deleteClaim
+    deleteClaim,
+    getInsecurityFacts
 }
