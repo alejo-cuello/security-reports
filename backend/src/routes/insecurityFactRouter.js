@@ -4,7 +4,8 @@ const verifyToken = require('../middlewares/verifyToken');
 const claimController = require('../controllers/claimController');
 
 router.get('/', verifyToken, claimController.getInsecurityFacts);
-router.get('/:insecurityFactId', verifyToken, claimController.getInsecurityFactById);
+router.get('/:claimId', verifyToken, claimController.getInsecurityFactById);
 router.post('/', verifyToken, claimController.createClaim);
+router.put('/:claimId', verifyToken, claimController.editClaim);
 
 module.exports = router;

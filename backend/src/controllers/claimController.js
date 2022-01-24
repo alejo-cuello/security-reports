@@ -197,12 +197,12 @@ const createClaim = async (req, res, next) => {
         
         // Valida que el formato de la fecha de observación sea correcto
         if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The dateTimeObservation format is incorrect');
+            throw ApiError.badRequest('The format of the observation date and time field is incorrect');
         };
 
         // Valida que la fecha de observación sea menor a la fecha actual
         if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The datetime of observation is greater than the current date');
+            throw ApiError.badRequest('Observation date and time are greater than the current date');
         };
 
         // Valida que el id de la subcategoría de reclamo sea válido
@@ -270,7 +270,7 @@ const createClaim = async (req, res, next) => {
 };
 
 
-// Editar un reclamo existente
+// Editar un reclamo o un hecho de inseguridad existente
 const editClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
@@ -289,31 +289,56 @@ const editClaim = async (req, res, next) => {
 
         // Valida que el formato de la fecha de observación sea correcto
         if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The dateTimeObservation format is incorrect');
+            throw ApiError.badRequest('The format of the observation date and time field is incorrect');
         };
 
         // Valida que la fecha de observación sea menor a la fecha actual
         if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The datetime of observation is greater than the current date');
+            throw ApiError.badRequest('Observation date and time are greater than the current date');
         };
 
-        const queryClaimToUpdate = queryClaimTo;
+        if ( req.body.claimSubcategoryId ) {
+            // Valida que el id de la subcategoría de reclamo sea válido
+            if ( ! await claimSubcategoryIdIsValid(req.body.claimSubcategoryId) ) {
+                throw ApiError.badRequest('Invalid claim subcategory id');
+            };
 
-        const claimToUpdate = await sequelize.query( queryClaimToUpdate,
-            {
-                replacements: [req.params.claimId, dataFromToken.neighborId],
-                type: QueryTypes.SELECT
-            }
-        );
+            const queryClaimToUpdate = queryClaimTo;
 
-        if ( claimToUpdate.length === 0 ) {
-            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+            const claimToUpdate = await sequelize.query( queryClaimToUpdate,
+                {
+                    replacements: [req.params.claimId, dataFromToken.neighborId],
+                    type: QueryTypes.SELECT
+                }
+            );
+
+            if ( claimToUpdate.length === 0 ) {
+                throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+            };
+
+            // Valida que el estado del reclamo sea 'Pendiente'
+            if ( claimToUpdate[0].statusId !== 1 ) {
+                throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
+            };
         };
 
-        // Valida que el estado del reclamo sea 'Pendiente'
-        if ( claimToUpdate[0].statusId !== 1 ) {
-            throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
-        }
+        if ( req.body.insecurityFactTypeId ) {
+            // Valida que el id del tipo de hecho de inseguridad sea válido
+            if ( ! await insecurityFactTypeIdIsValid(req.body.insecurityFactTypeId) ) {
+                throw ApiError.badRequest('Invalid insecurity fact type id');
+            };
+
+            const insecurityFactToUpdate = await models.Claim.findOne({
+                where: {
+                    claimId: req.params.claimId,
+                    neighborId: dataFromToken.neighborId
+                }
+            });
+
+            if ( !insecurityFactToUpdate ) {
+                throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
+            };
+        };
 
         // TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
 
@@ -431,7 +456,7 @@ const getInsecurityFactById = async (req, res, next) => {
         
         const insecurityFact = await models.Claim.findOne({
             where: {
-                claimId: req.params.insecurityFactId,
+                claimId: req.params.claimId,
                 neighborId: dataFromToken.neighborId
             },
             include: [
@@ -444,7 +469,7 @@ const getInsecurityFactById = async (req, res, next) => {
         });
 
         if ( !insecurityFact ) {
-            throw ApiError.notFound(`Insecurity fact with id ${ req.params.insecurityFactId } not found for this neighbor`);
+            throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
         };
 
         return res.status(200).json(insecurityFact);
@@ -463,7 +488,7 @@ const dateTimeObservationIsValid = (dateTimeObservation) => {
 
 
 /**
- * Valida que el id de la subcategoría de reclamo sea válido
+ * Valida que el id de la subcategoría de reclamo pertenezca a una subcategoría definida en la Base de Datos
 */
 const claimSubcategoryIdIsValid = async (claimSubcategoryId) => {
     try {
@@ -480,7 +505,7 @@ const claimSubcategoryIdIsValid = async (claimSubcategoryId) => {
 
 
 /**
- * Valida que el id del tipo de hecho de inseguridad sea válido
+ * Valida que el id del tipo de hecho de inseguridad pertenezca a un tipo definido en la Base de Datos
 */
 const insecurityFactTypeIdIsValid = async (insecurityFactTypeId) => {
     try {
