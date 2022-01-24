@@ -423,6 +423,37 @@ const getInsecurityFacts = async (req, res, next) => {
 };
 
 
+// Devuelve un hecho de inseguridad en específico por id
+const getInsecurityFactById = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+        
+        const insecurityFact = await models.Claim.findOne({
+            where: {
+                claimId: req.params.insecurityFactId,
+                neighborId: dataFromToken.neighborId
+            },
+            include: [
+                {
+                    model: models.InsecurityFactType,
+                    as: 'insecurityFactType',
+                    required: true                      // Para hacer un inner join
+                }
+            ]
+        });
+
+        if ( !insecurityFact ) {
+            throw ApiError.notFound(`Insecurity fact with id ${ req.params.insecurityFactId } not found for this neighbor`);
+        };
+
+        return res.status(200).json(insecurityFact);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 /**
  * Valida que la fecha de observación sea menor a la fecha actual
 */
@@ -471,5 +502,6 @@ module.exports = {
     createClaim,
     editClaim,
     deleteClaim,
-    getInsecurityFacts
+    getInsecurityFacts,
+    getInsecurityFactById
 }
