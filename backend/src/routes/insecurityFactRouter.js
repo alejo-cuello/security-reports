@@ -7,5 +7,6 @@ router.get('/', verifyToken, claimController.getInsecurityFacts);
 router.get('/:claimId', verifyToken, claimController.getInsecurityFactById);
 router.post('/', verifyToken, claimController.createClaim);
 router.put('/:claimId', verifyToken, claimController.editClaim);
+router.delete('/:claimId', verifyToken, claimController.deleteInsecurityFact);
 
 module.exports = router;

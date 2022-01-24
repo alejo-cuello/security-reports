@@ -293,7 +293,7 @@ const editClaim = async (req, res, next) => {
         };
 
         // Valida que la fecha de observación sea menor a la fecha actual
-        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
+        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) { // FIXME: Ver la funcion validator.isAfter(req.body.dateTimeObservation) 
             throw ApiError.badRequest('Observation date and time are greater than the current date');
         };
 
@@ -479,6 +479,56 @@ const getInsecurityFactById = async (req, res, next) => {
 };
 
 
+// Elimina un hecho de inseguridad
+const deleteInsecurityFact = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        const insecurityFactToDelete = await models.Claim.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId,
+                insecurityFactTypeId: {
+                    [Op.not]: null
+                }
+            }
+        });
+
+        if ( !insecurityFactToDelete ) {
+            throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
+        };
+    
+        const differenceInHours = calculateHoursOfDifference(insecurityFactToDelete.dateTimeCreation);
+        // Valida que la diferencia entre la fecha de creación y la fecha de hoy no sea mayor a 24hs
+        if ( differenceInHours >= 24 ) {
+            throw ApiError.badRequest('The insecurity fact cannot be deleted because it was created more than 24 hours ago');
+        };
+
+        await models.Claim.destroy({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId,
+                insecurityFactTypeId: {
+                    [Op.not]: null
+                }
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        return res.status(200).json({
+            message: 'Insecurity fact deleted successfully'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
 /**
  * Valida que la fecha de observación sea menor a la fecha actual
 */
@@ -521,6 +571,16 @@ const insecurityFactTypeIdIsValid = async (insecurityFactTypeId) => {
 };
 
 
+/**
+ * Calcula la diferencia entre la fecha de creación del reclamo y la fecha de hoy
+*/
+const calculateHoursOfDifference = (dateTimeCreation) => {
+    const today = new Date();
+    const todayInHours = today.getTime() / 1000 / 60 / 60;
+    const dateTimeCreationInHours = dateTimeCreation.getTime() / 1000 / 60 / 60;
+    return todayInHours - dateTimeCreationInHours;
+};
+
 module.exports = {
     getClaims,
     getClaimById,
@@ -528,5 +588,6 @@ module.exports = {
     editClaim,
     deleteClaim,
     getInsecurityFacts,
-    getInsecurityFactById
+    getInsecurityFactById,
+    deleteInsecurityFact
 }
