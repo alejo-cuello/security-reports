@@ -293,7 +293,7 @@ const editClaim = async (req, res, next) => {
         };
 
         // Valida que la fecha de observación sea menor a la fecha actual
-        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) { // FIXME: Ver la funcion validator.isAfter(req.body.dateTimeObservation) 
+        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
             throw ApiError.badRequest('Observation date and time are greater than the current date');
         };
 
