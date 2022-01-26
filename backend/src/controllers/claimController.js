@@ -470,6 +470,13 @@ const getInsecurityFacts = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
+        let where = {};
+        if ( req.query.insecurityFactType ) { // Si se quiere filtrar por tipo de hecho de inseguridad
+            where = {
+                insecurityFactTypeId: req.query.insecurityFactType
+            }
+        };
+
         const myFavoritesInsecurityFacts = await models.Favorites.findAll({
             where: {
                 neighborId: dataFromToken.neighborId
@@ -486,7 +493,8 @@ const getInsecurityFacts = async (req, res, next) => {
                     include: [
                         {
                             model: models.InsecurityFactType,
-                            as: 'insecurityFactType'
+                            as: 'insecurityFactType',
+                            where      // Solo en caso que se quiera filtrar por tipo de hecho de inseguridad
                         }
                     ]
                 }
