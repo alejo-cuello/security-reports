@@ -146,15 +146,17 @@ const setFilter = (filter) => {
     let partialWhere = "";
     where = "";
     if ( Array.isArray(filter) ) { // Verifica si filter es un array
-        partialWhere = ` AND tr.descripcionTR LIKE ?`;
+        partialWhere = ` AND tr.idTipoReclamo IN (?`;
         filter.forEach( (eachFilter) => {
             replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
             where = where + partialWhere; // Se arma la cláusula where con los filtros
-            partialWhere = ` OR tr.descripcionTR LIKE ?`;
+            partialWhere = `,?`;
         });
+        partialWhere = `)`;
+        where = where + partialWhere;
     } else { // Si el filter no es un array, solo se agrega el filtro
         replacements.push(filter); // Al array de reemplazos se le agrega el filtro
-        where = ` AND tr.descripcionTR LIKE ?`;
+        where = ` AND tr.idTipoReclamo = ?`;
     };
 };
 
@@ -193,7 +195,7 @@ const getClaims = async (req, res, next) => {
         };
 
         if ( myFavoritesClaims.length === 0 ) {
-            throw ApiError.notFound('No claims to show');
+            throw ApiError.notFound('There are no claims to show');
         };
 
         return res.status(200).json(myFavoritesClaims);
