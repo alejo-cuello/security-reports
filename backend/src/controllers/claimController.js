@@ -7,118 +7,156 @@ const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 
 
-// Se usa en la función getClaims
-const queryMyFavoritesClaims = 
-"SELECT " +
-    "fav.idFavoritos 'favoriteId', " +
-    "er.idEstadoReclamo 'statusClaimId', " +
-    "rec.idReclamo 'claimId', " + 
-    "rec.fechaHoraCreacion 'dateTimeCreation', " +
-    "rec.fechaHoraObservacion 'dateTimeObservation', " +
-    "rec.fechaHoraFin 'dateTimeEnd', " +
-    "rec.calle 'street', " +
-    "rec.numeroCalle 'streetNumber', " +
-    "rec.latitud 'latitude', " +
-    "rec.longitud 'longitude', " +
-    "rec.direccionMapa 'mapAddress', " +
-    "rec.comentario 'comment', " +
-    "rec.calificacionResolucion 'resolutionQualification', " +
-    "rec.foto 'photo', " +
-    "rec.idAgenteMunicipal 'municipalAgentId', " +
-    "rec.idVecino 'neighborId', " +
-    "scr.idSubcategoriaReclamo 'claimSubcategoryId', " +
-    "scr.descripcionSCR 'CSCdescription', " +
-    "tr.idTipoReclamo 'claimTypeId', " +
-    "tr.descripcionTR 'CTdescription', " +
-    "est.idEstado 'statusId', " +
-    "est.descripcionEST 'STAdescription', " +
-    "er.fechaHoraInicioEstado 'dateTimeStatusStart' " +
-"FROM estado_reclamo er " +
-"INNER JOIN " + 
-    "( SELECT " +
-        "er.idReclamo, " +
-        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+// Variables globales
+let replacements = [];
+let where = "";
+// -----------------------------
+
+
+/**
+ * Devuelve la subconsulta para obtener el último estado de un reclamo 
+*/
+const getSubQueryLastClaimStatus = () => {
+    return "( SELECT " +
+                "er.idReclamo, " +
+                "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+            "FROM estado_reclamo er " +
+            "INNER JOIN reclamo rec " + 
+                "ON er.idReclamo = rec.idReclamo " +
+            "INNER JOIN favoritos fav " +
+                "ON rec.idReclamo = fav.idReclamo " +
+            "WHERE fav.idVecino = ? " +
+            "GROUP BY er.idReclamo ) ultimos_estado_reclamo ";
+};
+
+
+/**
+ * Devuelve el select de la query para obtener los reclamos 
+*/
+const getSelectQuery = () => {
+    return "er.idEstadoReclamo 'statusClaimId', " +
+            "rec.idReclamo 'claimId', " + 
+            "rec.fechaHoraCreacion 'dateTimeCreation', " +
+            "rec.fechaHoraObservacion 'dateTimeObservation', " +
+            "rec.fechaHoraFin 'dateTimeEnd', " +
+            "rec.calle 'street', " +
+            "rec.numeroCalle 'streetNumber', " +
+            "rec.latitud 'latitude', " +
+            "rec.longitud 'longitude', " +
+            "rec.direccionMapa 'mapAddress', " +
+            "rec.comentario 'comment', " +
+            "rec.calificacionResolucion 'resolutionQualification', " +
+            "rec.foto 'photo', " +
+            "rec.idAgenteMunicipal 'municipalAgentId', " +
+            "rec.idVecino 'neighborId', " +
+            "scr.idSubcategoriaReclamo 'claimSubcategoryId', " +
+            "scr.descripcionSCR 'CSCdescription', " +
+            "tr.idTipoReclamo 'claimTypeId', " +
+            "tr.descripcionTR 'CTdescription', " +
+            "est.idEstado 'statusId', " +
+            "est.descripcionEST 'STAdescription', " +
+            "er.fechaHoraInicioEstado 'dateTimeStatusStart' ";
+};
+
+
+/**
+ * Devuelve la query para obtener todos los reclamos favoritos de un vecino 
+ * @param {string} where - Condición para filtrar los reclamos. Si no es provisto, por defecto es un string vacío
+*/
+const getQueryMyFavoritesClaims = ( where = "" ) => {
+    let query = 
+    "SELECT " +
+        "fav.idFavoritos 'favoriteId', " +
+        getSelectQuery() +
     "FROM estado_reclamo er " +
-    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
-    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-"LEFT JOIN reclamo rec " +
-    "ON er.idReclamo = rec.idReclamo " +
-"LEFT JOIN favoritos fav " +
-    "ON fav.idReclamo = rec.idReclamo " +
-"LEFT JOIN subcategoria_reclamo scr " +
-    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-"LEFT JOIN tipo_reclamo tr " +
-    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-"LEFT JOIN estado est " +
-    "ON er.idEstado = est.idEstado " +
-"WHERE fav.idVecino = ? " +               // Es importante el uso de '?' para evitar inyección SQL
-"ORDER BY rec.fechaHoraCreacion DESC";
+    "INNER JOIN " + 
+        getSubQueryLastClaimStatus() +
+        "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+            "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+    "LEFT JOIN reclamo rec " +
+        "ON er.idReclamo = rec.idReclamo " +
+    "LEFT JOIN favoritos fav " +
+        "ON fav.idReclamo = rec.idReclamo " +
+    "LEFT JOIN subcategoria_reclamo scr " +
+        "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+    "LEFT JOIN tipo_reclamo tr " +
+        "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+    "LEFT JOIN estado est " +
+        "ON er.idEstado = est.idEstado " +
+    "WHERE fav.idVecino = ?";
+    
+    if ( where !== "" ) {
+        query = query + where;
+    };
+    
+    query = query + " ORDER BY rec.fechaHoraCreacion DESC";
+    return query;
+};
 
 
+/**
+ * Devuelve la query para obtener un reclamo por su id 
+*/
 // Se usa en la función getClaimById
-const queryClaimById = 
-"SELECT " +
-    "er.idEstadoReclamo 'statusClaimId', " +
-    "rec.idReclamo 'claimId', " +
-    "rec.fechaHoraCreacion 'dateTimeCreation', " +
-    "rec.fechaHoraObservacion 'dateTimeObservation', " +
-    "rec.fechaHoraFin 'dateTimeEnd', " +
-    "rec.calle 'street', " +
-    "rec.numeroCalle 'streetNumber', " +
-    "rec.latitud 'latitude', " +
-    "rec.longitud 'longitude', " +
-    "rec.direccionMapa 'mapAddress', " +
-    "rec.comentario 'comment', " +
-    "rec.calificacionResolucion 'resolutionQualification', " +
-    "rec.foto 'photo', " +
-    "rec.idAgenteMunicipal 'municipalAgentId', " +
-    "rec.idVecino 'neighborId', " +
-    "scr.idSubcategoriaReclamo 'claimSubcategoryId', " +
-    "scr.descripcionSCR 'CSCdescription', " +
-    "tr.idTipoReclamo 'claimTypeId', " +
-    "tr.descripcionTR 'CTdescription', " +
-    "est.idEstado 'statusId', " +
-    "est.descripcionEST 'STAdescription', " +
-    "er.fechaHoraInicioEstado 'dateTimeStatusStart' " +
-"FROM estado_reclamo er " +
-"INNER JOIN " + 
-    "( SELECT " +
-        "er.idReclamo, " +
-        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
-    "FROM estado_reclamo er " +
-    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
-    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-"INNER JOIN reclamo rec " +
-    "ON er.idReclamo = rec.idReclamo " +
-"INNER JOIN subcategoria_reclamo scr " +
-    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-"INNER JOIN tipo_reclamo tr " +
-    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-"INNER JOIN estado est " +
-    "ON er.idEstado = est.idEstado " +
-"WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+const getQueryClaimById = () => {
+    return "SELECT " +
+                getSelectQuery() +
+            "FROM estado_reclamo er " +
+            "INNER JOIN " + 
+                getSubQueryLastClaimStatus() +
+                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+            "INNER JOIN reclamo rec " +
+                "ON er.idReclamo = rec.idReclamo " +
+            "INNER JOIN subcategoria_reclamo scr " +
+                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+            "INNER JOIN tipo_reclamo tr " +
+                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+            "INNER JOIN estado est " +
+                "ON er.idEstado = est.idEstado " +
+            "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+};
 
 
+/**
+ * Devuelve la query para editar o eliminar un reclamo 
+*/
 // Se usa en la función editClaim y deleteClaim
-const queryClaimTo = 
-"SELECT " +
-    "rec.idReclamo 'claimId', " +
-    "rec.idVecino 'neighborId', " +
-    "er.idEstado 'statusId' " +
-"FROM estado_reclamo er " +
-"INNER JOIN " + 
-    "( SELECT " +
-        "er.idReclamo, " +
-        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
-    "FROM estado_reclamo er " +
-    "GROUP BY er.idReclamo ) ultimos_estado_reclamo " +
-    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-"INNER JOIN reclamo rec " +
-    "ON er.idReclamo = rec.idReclamo " +
-"WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+const getQueryClaimTo = () => {
+    return "SELECT " +
+                "rec.idReclamo 'claimId', " +
+                "rec.idVecino 'neighborId', " +
+                "er.idEstado 'statusId' " +
+            "FROM estado_reclamo er " +
+            "INNER JOIN " + 
+                getSubQueryLastClaimStatus() +
+                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+            "INNER JOIN reclamo rec " +
+                "ON er.idReclamo = rec.idReclamo " +
+            "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+};
+
+
+/**
+ * Setea el o los filtros para la query de obtener los reclamos
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where para obtener los reclamos
+*/
+const setFilter = (filter) => {
+    let partialWhere = "";
+    where = "";
+    if ( Array.isArray(filter) ) { // Verifica si filter es un array
+        partialWhere = ` AND tr.descripcionTR LIKE ?`;
+        filter.forEach( (eachFilter) => {
+            replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
+            where = where + partialWhere; // Se arma la cláusula where con los filtros
+            partialWhere = ` OR tr.descripcionTR LIKE ?`;
+        });
+    } else { // Si el filter no es un array, solo se agrega el filtro
+        replacements.push(filter); // Al array de reemplazos se le agrega el filtro
+        where = ` AND tr.descripcionTR LIKE ?`;
+    };
+};
 
 
 // Listar todos los reclamos favoritos del vecino
@@ -129,13 +167,26 @@ const getClaims = async (req, res, next) => {
 
         let myFavoritesClaims = [];
 
+        let queryMyFavoritesClaims = "";
+
         if ( dataFromToken.neighborId ) {
+
+            replacements = [];
+            replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
+
+            if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
+                setFilter(req.query.claimType);
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
+            } else { // En caso de que no se aplique ningún filtro
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims();
+            };
+
             myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
                 {
-                    replacements: [dataFromToken.neighborId],   // El signo '?' (ver query) se reemplaza por 
-                                                                // lo que está dentro de este arreglo según
-                                                                // aparición. 
-                                                                // Con esto evitamos la inyección SQL.
+                    replacements,   // El signo '?' (ver query) se reemplaza por 
+                                    // lo que está dentro de este arreglo según
+                                    // aparición. 
+                                    // Con esto evitamos la inyección SQL.
                     type: QueryTypes.SELECT
                 }
             );
@@ -158,9 +209,11 @@ const getClaimById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
+        const queryClaimById = getQueryClaimById();
+
         const claim = await sequelize.query( queryClaimById,
             {
-                replacements: [req.params.claimId, dataFromToken.neighborId],
+                replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
                 type: QueryTypes.SELECT
             }
         );
@@ -303,11 +356,12 @@ const editClaim = async (req, res, next) => {
                 throw ApiError.badRequest('Invalid claim subcategory id');
             };
 
-            const queryClaimToUpdate = queryClaimTo;
+            const queryClaimToUpdate = getQueryClaimTo();
 
+            // Busca el reclamo a actualizar
             const claimToUpdate = await sequelize.query( queryClaimToUpdate,
                 {
-                    replacements: [req.params.claimId, dataFromToken.neighborId],
+                    replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
                     type: QueryTypes.SELECT
                 }
             );
@@ -328,6 +382,7 @@ const editClaim = async (req, res, next) => {
                 throw ApiError.badRequest('Invalid insecurity fact type id');
             };
 
+            // Busca el hecho de inseguridad a actualizar
             const insecurityFactToUpdate = await models.Claim.findOne({
                 where: {
                     claimId: req.params.claimId,
@@ -371,11 +426,12 @@ const deleteClaim = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        const queryClaimToDelete = queryClaimTo;
+        const queryClaimToDelete = getQueryClaimTo();
 
+        // Busca el reclamo a eliminar
         const claimToDelete = await sequelize.query( queryClaimToDelete, 
             {
-                replacements: [req.params.claimId, dataFromToken.neighborId],
+                replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
                 type: QueryTypes.SELECT
             }
         );
