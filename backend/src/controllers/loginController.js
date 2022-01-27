@@ -22,15 +22,24 @@ const login = async (req, res, next) => {
         
         const user = await getUser(req.body);
         
-        if ( ! await userCredentialsAreValid(user, req.body) ) { 
-            throw ApiError.badRequest('Invalid credentials');
-        };
+        // if ( ! await userCredentialsAreValid(user, req.body) ) { 
+        //     throw ApiError.badRequest('Invalid credentials');
+        // };
 
-        if ( ! await isEmailVerified(req.body) ) {
-            throw ApiError.badRequest('Email is not verified. Please check your mailbox');
-        };
+        // if ( ! await isEmailVerified(req.body) ) {
+        //     throw ApiError.badRequest('Email is not verified. Please check your mailbox');
+        // };
 
         if ( req.body.role === NEIGHBOR ) {
+
+            if ( ! await userCredentialsAreValid(user, req.body) ) { 
+                throw ApiError.badRequest('Invalid credentials');
+            };
+    
+            if ( ! await isEmailVerified(req.body) ) {
+                throw ApiError.badRequest('Email is not verified. Please check your mailbox');
+            };
+            
             req.body.neighborId = user.neighborId;
         };
         

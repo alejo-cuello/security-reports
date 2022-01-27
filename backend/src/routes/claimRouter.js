@@ -8,6 +8,7 @@ router.get('/pending', verifyToken, claimController.getPendingClaims);
 router.get('/:claimId', verifyToken, claimController.getClaimById);
 router.post('/', verifyToken, claimController.createClaim);
 router.put('/:claimId', verifyToken, claimController.editClaim);
+router.put('/updateStatus/:claimId', verifyToken, claimController.changeStatusToClaim);
 router.delete('/:claimId', verifyToken, claimController.deleteClaim);
 
 module.exports = router;

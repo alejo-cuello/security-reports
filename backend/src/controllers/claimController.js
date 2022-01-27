@@ -202,28 +202,29 @@ const getFavoriteClaims = async (req, res, next) => {
 
         let queryMyFavoritesClaims = "";
 
-        if ( dataFromToken.neighborId ) {
-
-            replacements = [];
-            replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
-
-            if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
-                setFilter(req.query.claimType);
-                queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
-            } else { // En caso de que no se aplique ningún filtro
-                queryMyFavoritesClaims = getQueryMyFavoritesClaims();
-            };
-
-            myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
-                {
-                    replacements,   // El signo '?' (ver query) se reemplaza por 
-                                    // lo que está dentro de este arreglo según
-                                    // aparición. 
-                                    // Con esto evitamos la inyección SQL.
-                    type: QueryTypes.SELECT
-                }
-            );
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
         };
+
+        replacements = [];
+        replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
+
+        if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
+            setFilter(req.query.claimType);
+            queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
+        } else { // En caso de que no se aplique ningún filtro
+            queryMyFavoritesClaims = getQueryMyFavoritesClaims();
+        };
+
+        myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
+            {
+                replacements,   // El signo '?' (ver query) se reemplaza por 
+                                // lo que está dentro de este arreglo según
+                                // aparición. 
+                                // Con esto evitamos la inyección SQL.
+                type: QueryTypes.SELECT
+            }
+        );
 
         if ( myFavoritesClaims.length === 0 ) {
             throw ApiError.notFound('There are no claims to show');
@@ -473,6 +474,60 @@ const editClaim = async (req, res, next) => {
 };
 
 
+// Se usa para que el agente municipal pueda cambiar el estado del reclamo (realizar el seguimiento)
+const changeStatusToClaim = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el municipalAgentId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.municipalAgentId ) {
+            throw ApiError.forbidden(`You do not have permission to change the status of the claim`);
+        };
+
+        // Busca el reclamo para luego verificar si ya tiene un agente asignado o no
+        const claim = await models.Claim.findOne({
+            where: {
+                claimId: req.params.claimId,
+                claimSubcategoryId: {
+                    [Op.not]: null
+                }
+            }
+        });
+
+        if ( !claim ) {
+            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found`);
+        };
+
+        // Valida que si el reclamo encontrado ya tiene asignado un id de agente municipal, entonces el agente que intenta cambiar el estado del reclamo sea el mismo agente municipal
+        if ( claim.municipalAgentId ) {
+            if ( claim.municipalAgentId !== dataFromToken.municipalAgentId ) {
+                throw ApiError.badRequest(`The claim with id ${ req.params.claimId } has already been assigned to a municipal agent`);
+            };
+        };
+
+        req.body.municipalAgentId = dataFromToken.municipalAgentId;
+        req.body.claimId = req.params.claimId;
+
+        await models.Claim.update(req.body, {
+            where: {
+                claimId: req.params.claimId
+            }, transaction
+        });
+
+        await models.StatusClaim.create(req.body, { transaction });
+
+        await transaction.commit();
+        return res.status(200).json({
+            message: 'Claim status updated successfully'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
 // Eliminar un reclamo
 const deleteClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
@@ -705,6 +760,7 @@ module.exports = {
     getClaimById,
     createClaim,
     editClaim,
+    changeStatusToClaim,
     deleteClaim,
     getInsecurityFacts,
     getInsecurityFactById,
