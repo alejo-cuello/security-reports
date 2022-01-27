@@ -14,19 +14,26 @@ let where = "";
 
 
 /**
- * Devuelve la subconsulta para obtener el último estado de un reclamo 
+ * Devuelve la subconsulta para obtener el último estado de un reclamo
+ * @param {boolean} withJoin - Indica si es necesario hacer inner join para agregarlo a la query
 */
-const getSubQueryLastClaimStatus = () => {
-    return "( SELECT " +
-                "er.idReclamo, " +
-                "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
-            "FROM estado_reclamo er " +
-            "INNER JOIN reclamo rec " + 
-                "ON er.idReclamo = rec.idReclamo " +
-            "INNER JOIN favoritos fav " +
-                "ON rec.idReclamo = fav.idReclamo " +
-            "WHERE fav.idVecino = ? " +
-            "GROUP BY er.idReclamo ) ultimos_estado_reclamo ";
+const getSubQueryLastClaimStatus = ( withJoin ) => {
+    let query = 
+    "( SELECT " +
+        "er.idReclamo, " +
+        "max(er.fechaHoraInicioEstado) 'ultFechaHoraInicioEstado' " +
+    "FROM estado_reclamo er ";
+
+    if ( withJoin ) {
+        query = query + "INNER JOIN reclamo rec " + 
+                            "ON er.idReclamo = rec.idReclamo " +
+                        "INNER JOIN favoritos fav " +
+                            "ON rec.idReclamo = fav.idReclamo " +
+                        "WHERE fav.idVecino = ? ";
+    };
+
+    query = query + "GROUP BY er.idReclamo ) ultimos_estado_reclamo ";
+    return query;
 };
 
 
@@ -70,7 +77,7 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
         getSelectQuery() +
     "FROM estado_reclamo er " +
     "INNER JOIN " + 
-        getSubQueryLastClaimStatus() +
+        getSubQueryLastClaimStatus( true ) +
         "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
             "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
     "LEFT JOIN reclamo rec " +
@@ -95,6 +102,30 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
 
 
 /**
+ * Devuelve la query para obtener los reclamos que están en estado pendiente 
+*/
+const getQueryPendingClaims = () => {
+    return  "SELECT " +
+                getSelectQuery() +
+            "FROM estado_reclamo er " +
+            "INNER JOIN " +
+                getSubQueryLastClaimStatus( false ) +
+                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+            "INNER JOIN estado est " +
+                "ON er.idEstado = est.idEstado " +
+            "INNER JOIN reclamo rec " +
+                "ON er.idReclamo = rec.idReclamo " + 
+            "INNER JOIN subcategoria_reclamo scr " +
+                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+            "INNER JOIN tipo_reclamo tr " +
+                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+            "WHERE est.descripcionEST = 'Pendiente' " +
+            "ORDER BY rec.fechaHoraCreacion ASC ";
+};
+
+
+/**
  * Devuelve la query para obtener un reclamo por su id 
 */
 // Se usa en la función getClaimById
@@ -103,7 +134,7 @@ const getQueryClaimById = () => {
                 getSelectQuery() +
             "FROM estado_reclamo er " +
             "INNER JOIN " + 
-                getSubQueryLastClaimStatus() +
+                getSubQueryLastClaimStatus( true ) +
                 "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
                     "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
             "INNER JOIN reclamo rec " +
@@ -129,7 +160,7 @@ const getQueryClaimTo = () => {
                 "er.idEstado 'statusId' " +
             "FROM estado_reclamo er " +
             "INNER JOIN " + 
-                getSubQueryLastClaimStatus() +
+                getSubQueryLastClaimStatus( true ) +
                 "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
                     "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
             "INNER JOIN reclamo rec " +
@@ -162,7 +193,7 @@ const setFilter = (filter) => {
 
 
 // Listar todos los reclamos favoritos del vecino
-const getClaims = async (req, res, next) => {
+const getFavoriteClaims = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
@@ -203,6 +234,27 @@ const getClaims = async (req, res, next) => {
         next(error);
     }
 };
+
+
+// Funcionalidad para el agente municipal: Listar todos los reclamos pendientes
+const getPendingClaims = async (req, res, next) => {
+    try {
+        const queryPendingClaims = getQueryPendingClaims();
+        
+        // Query para obtener los reclamos pendientes
+        const pendingClaims = await sequelize.query( queryPendingClaims, {
+            type: QueryTypes.SELECT
+        });
+
+        if ( pendingClaims.length === 0 ) {
+            throw ApiError.notFound('There are no pending claims to show');
+        };
+
+        return res.status(200).json(pendingClaims);
+    } catch (error) {
+        next(error);
+    }
+}; 
 
 
 // Devuelve un reclamo en específico por id
@@ -648,7 +700,8 @@ const calculateHoursOfDifference = (dateTimeCreation) => {
 };
 
 module.exports = {
-    getClaims,
+    getFavoriteClaims,
+    getPendingClaims,
     getClaimById,
     createClaim,
     editClaim,
