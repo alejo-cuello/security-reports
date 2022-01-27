@@ -276,7 +276,7 @@ const createClaim = async (req, res, next) => {
 
         // TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
 
-        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada.
+        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada. (Se maneja desde el frontend)
 
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(req.body, { transaction });
