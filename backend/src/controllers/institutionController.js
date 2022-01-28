@@ -22,6 +22,7 @@ const getSecurityInstitutions = async (req, res, next) => {
     }
 };
 
+
 const getHealthInstitutions = async (req, res, next) => {
     try {
         const limit = req.query.limit || 6; // Si no se especifió un limite, se asigna 6 por defecto

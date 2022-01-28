@@ -5,6 +5,8 @@ const dayjs = require('dayjs');
 const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
+const fs = require('fs/promises');
+
 
 
 // Variables globales
@@ -15,7 +17,8 @@ let where = "";
 
 /**
  * Devuelve la subconsulta para obtener el último estado de un reclamo
- * @param {boolean} withJoin - Indica si es necesario hacer inner join para agregarlo a la query
+ * @param {boolean} withJoin - Indica si es necesario hacer inner join con las tablas reclamo y favoritos para agregarlo a la query
+ * @return {string} Subconsulta
 */
 const getSubQueryLastClaimStatus = ( withJoin ) => {
     let query = 
@@ -38,7 +41,8 @@ const getSubQueryLastClaimStatus = ( withJoin ) => {
 
 
 /**
- * Devuelve el select de la query para obtener los reclamos 
+ * Devuelve el select de la query para obtener los reclamos
+ * @returns {string} Select de la query
 */
 const getSelectQuery = () => {
     return "er.idEstadoReclamo 'statusClaimId', " +
@@ -69,6 +73,7 @@ const getSelectQuery = () => {
 /**
  * Devuelve la query para obtener todos los reclamos favoritos de un vecino 
  * @param {string} where - Condición para filtrar los reclamos. Si no es provisto, por defecto es un string vacío
+ * @returns {string} Query completa para obtener los reclamos favoritos de un vecino
 */
 const getQueryMyFavoritesClaims = ( where = "" ) => {
     let query = 
@@ -102,7 +107,8 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
 
 
 /**
- * Devuelve la query para obtener los reclamos que están en estado pendiente 
+ * Devuelve la query para obtener los reclamos que están en estado pendiente. Es usada por el agente municipal
+ * @returns {string} Query completa para obtener los reclamos que están en estado pendiente
 */
 const getQueryPendingClaims = () => {
     return  "SELECT " +
@@ -126,7 +132,8 @@ const getQueryPendingClaims = () => {
 
 
 /**
- * Devuelve la query para obtener un reclamo por su id 
+ * Devuelve la query para obtener un reclamo por su id
+ * @returns {string} Query completa para obtener un reclamo por su id
 */
 // Se usa en la función getClaimById
 const getQueryClaimById = () => {
@@ -151,12 +158,14 @@ const getQueryClaimById = () => {
 
 /**
  * Devuelve la query para editar o eliminar un reclamo 
+ * @return {string} Query completa para editar o eliminar un reclamo
 */
 // Se usa en la función editClaim y deleteClaim
 const getQueryClaimTo = () => {
     return "SELECT " +
                 "rec.idReclamo 'claimId', " +
                 "rec.idVecino 'neighborId', " +
+                "rec.foto 'photo', " +
                 "er.idEstado 'statusId' " +
             "FROM estado_reclamo er " +
             "INNER JOIN " + 
@@ -240,6 +249,13 @@ const getFavoriteClaims = async (req, res, next) => {
 // Funcionalidad para el agente municipal: Listar todos los reclamos pendientes
 const getPendingClaims = async (req, res, next) => {
     try {
+        // Obtiene la información contenida en el token para poder usar el municipalAgentId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.municipalAgentId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
         const queryPendingClaims = getQueryPendingClaims();
         
         // Query para obtener los reclamos pendientes
@@ -263,6 +279,10 @@ const getClaimById = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
 
         const queryClaimById = getQueryClaimById();
 
@@ -290,6 +310,10 @@ const createClaim = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
 
         // Valida que sea o un reclamo o un hecho de inseguridad
         if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
@@ -327,9 +351,10 @@ const createClaim = async (req, res, next) => {
             };
         };
 
-        // TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
-
-        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada. (Se maneja desde el frontend)
+        if ( req.file ) {
+            // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+            req.body.photo = req.file.path;
+        };
 
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(req.body, { transaction });
@@ -373,6 +398,9 @@ const createClaim = async (req, res, next) => {
         }
     } catch (error) {
         await transaction.rollback();
+        if ( req.file ) {
+            await deleteImage(req.file.path);
+        };
         next(error);
     }
 };
@@ -384,6 +412,10 @@ const editClaim = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
 
         // Valida que sea o un reclamo o un hecho de inseguridad
         if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
@@ -405,6 +437,8 @@ const editClaim = async (req, res, next) => {
             throw ApiError.badRequest('Observation date and time are greater than the current date');
         };
 
+        let claimToUpdate = [];
+
         if ( req.body.claimSubcategoryId ) {
             // Valida que el id de la subcategoría de reclamo sea válido
             if ( ! await claimSubcategoryIdIsValid(req.body.claimSubcategoryId) ) {
@@ -414,7 +448,7 @@ const editClaim = async (req, res, next) => {
             const queryClaimToUpdate = getQueryClaimTo();
 
             // Busca el reclamo a actualizar
-            const claimToUpdate = await sequelize.query( queryClaimToUpdate,
+            claimToUpdate = await sequelize.query( queryClaimToUpdate,
                 {
                     replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
                     type: QueryTypes.SELECT
@@ -431,6 +465,8 @@ const editClaim = async (req, res, next) => {
             };
         };
 
+        let insecurityFactToUpdate = {};
+
         if ( req.body.insecurityFactTypeId ) {
             // Valida que el id del tipo de hecho de inseguridad sea válido
             if ( ! await insecurityFactTypeIdIsValid(req.body.insecurityFactTypeId) ) {
@@ -438,7 +474,7 @@ const editClaim = async (req, res, next) => {
             };
 
             // Busca el hecho de inseguridad a actualizar
-            const insecurityFactToUpdate = await models.Claim.findOne({
+            insecurityFactToUpdate = await models.Claim.findOne({
                 where: {
                     claimId: req.params.claimId,
                     neighborId: dataFromToken.neighborId
@@ -450,9 +486,21 @@ const editClaim = async (req, res, next) => {
             };
         };
 
-        // TODO: Queda pendiente ver dónde subimos las fotos cuando se crea un nuevo reclamo
-
-        // TODO: Queda pendiente la conexión con la api de google maps para obtener la dirección del reclamo en caso de que sea proporcionada.
+        if ( claimToUpdate[0].photo || insecurityFactToUpdate.photo ) { // Si el reclamo ya tiene foto
+            if ( req.file ) { // Si el usuario envía una foto
+                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                req.body.photo = req.file.path;
+            } else { // Si el usuario no envía una foto
+                req.body.photo = null;
+            };
+            // Borra la foto del servidor
+            await deleteImage(claimToUpdate[0].photo || insecurityFactToUpdate.photo);
+        } else { // Si el reclamo no tiene foto
+            if ( req.file ) { // Si el usuario envía una foto
+                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                req.body.photo = req.file.path;
+            };
+        };
 
         // Actualiza el reclamo
         await models.Claim.update(req.body, { 
@@ -469,6 +517,9 @@ const editClaim = async (req, res, next) => {
         });
     } catch (error) {
         await transaction.rollback();
+        if ( req.file ) {
+            await deleteImage(req.file.path);
+        };
         next(error);
     }
 };
@@ -535,6 +586,10 @@ const deleteClaim = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+        
         const queryClaimToDelete = getQueryClaimTo();
 
         // Busca el reclamo a eliminar
@@ -579,6 +634,10 @@ const getInsecurityFacts = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+        
         let where = {};
         if ( req.query.insecurityFactType ) { // Si se quiere filtrar por tipo de hecho de inseguridad
             where = {
@@ -627,6 +686,10 @@ const getInsecurityFactById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
         
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
         const insecurityFact = await models.Claim.findOne({
             where: {
                 claimId: req.params.claimId,
@@ -658,6 +721,10 @@ const deleteInsecurityFact = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
 
         const insecurityFactToDelete = await models.Claim.findOne({
             where: {
@@ -704,6 +771,8 @@ const deleteInsecurityFact = async (req, res, next) => {
 
 /**
  * Valida que la fecha de observación sea menor a la fecha actual
+ * @param {Date} dateTimeObservation - Fecha de observación del reclamo
+ * @returns {boolean} Retorna true si la fecha de observación es menor a la fecha actual, false si no
 */
 const dateTimeObservationIsValid = (dateTimeObservation) => {
     return dateTimeObservation < dayjs().format('YYYY-MM-DD HH:mm:ss');
@@ -712,6 +781,8 @@ const dateTimeObservationIsValid = (dateTimeObservation) => {
 
 /**
  * Valida que el id de la subcategoría de reclamo pertenezca a una subcategoría definida en la Base de Datos
+ * @param {number} claimSubcategoryId - Id de la subcategoría de reclamo
+ * @returns {Promise<boolean>} Retorna true si el id de la subcategoría pertenece a una subcategoría definida en la Base de Datos, false si no
 */
 const claimSubcategoryIdIsValid = async (claimSubcategoryId) => {
     try {
@@ -729,6 +800,8 @@ const claimSubcategoryIdIsValid = async (claimSubcategoryId) => {
 
 /**
  * Valida que el id del tipo de hecho de inseguridad pertenezca a un tipo definido en la Base de Datos
+ * @param {number} insecurityFactTypeId - Id del tipo de hecho de inseguridad
+ * @returns {Promise<boolean>} Retorna true si el id del tipo de hecho de inseguridad pertenece a un tipo definido en la Base de Datos, false si no 
 */
 const insecurityFactTypeIdIsValid = async (insecurityFactTypeId) => {
     try {
@@ -746,12 +819,27 @@ const insecurityFactTypeIdIsValid = async (insecurityFactTypeId) => {
 
 /**
  * Calcula la diferencia entre la fecha de creación del reclamo y la fecha de hoy
+ * @param {Date} dateTimeCreation - Fecha de creación del reclamo
+ * @returns {number} Retorna la diferencia en horas entre la fecha de creación del reclamo y la fecha de hoy
 */
 const calculateHoursOfDifference = (dateTimeCreation) => {
     const today = new Date();
     const todayInHours = today.getTime() / 1000 / 60 / 60;
     const dateTimeCreationInHours = dateTimeCreation.getTime() / 1000 / 60 / 60;
     return todayInHours - dateTimeCreationInHours;
+};
+
+
+/**
+ * Elimina la imagen almacenada en el servidor en caso de que se produzca un error
+ * @param {string} path - Ruta donde está alojada la imagen
+*/
+const deleteImage = async (path) => {
+    try {
+        await fs.unlink(path);
+    } catch (error) {
+        throw error;
+    }
 };
 
 module.exports = {

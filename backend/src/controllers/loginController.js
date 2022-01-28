@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const sequelize = require('../database/db-connection');
-const { sendEmail, getEmailTemplate } = require('../config/email-config');
+const { sendEmail, getEmailTemplate } = require('../config/emailConfig');
 
 const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
@@ -20,7 +20,7 @@ const login = async (req, res, next) => {
             throw ApiError.badRequest('Invalid email format');
         };
         
-        const user = await getUser(req.body);
+        const user = await getUserByEmail(req.body);
 
         if ( ! await userCredentialsAreValid(user, req.body) ) { 
             throw ApiError.badRequest('Invalid credentials');
@@ -96,12 +96,13 @@ const signup = async (req, res, next) => {
                 }
             });
 
+            // Verifica que el legajo que ingresó no esté usado
             if ( registrationNumberExists ) {
                 throw ApiError.badRequest('An account with that registration number already exists');
             };
         };
 
-        const emailExists = await getUser(req.body);
+        const emailExists = await getUserByEmail(req.body);
 
         // Verifica que el email que ingresó no esté usado
         if ( emailExists ) {
@@ -142,25 +143,6 @@ const signup = async (req, res, next) => {
     }
 };
 
-/**
- * Crea la cuenta de un vecino o agente municipal según corresponda 
- * @param {object} userData - Objeto con los datos del usuario
- * @param {*} transaction - Transacción para el insert en la base de datos
-*/
-const createAccount = async (userData, transaction) => {
-    try {
-        if ( userData.role === NEIGHBOR ) {
-            await models.Neighbor.create(userData, { transaction });
-        };
-
-        if ( userData.role === MUNICIPAL_AGENT ) {
-            await models.MunicipalAgent.create(userData, { transaction });
-        };
-    } catch (error) {
-        throw error;
-    }
-};
-
 
 const confirmEmail = async (req, res, next) => {
     const transaction = await sequelize.transaction();
@@ -168,7 +150,7 @@ const confirmEmail = async (req, res, next) => {
         // Obtener los datos del token
         const data = await getTokenData(req.params.token);
 
-        const user = await getUser(data);
+        const user = await getUserByEmail(data);
 
         // Verifica que el usuario con el email a confirmar exista
         if ( !user ) {
@@ -180,25 +162,8 @@ const confirmEmail = async (req, res, next) => {
             throw ApiError.badRequest('Email is already verified');
         };
 
-        if ( data.role === NEIGHBOR ) {
-            // Actualizar el neighbor con el email confirmado
-            await models.Neighbor.update({
-                emailIsVerified: 1
-            }, { 
-                where: {
-                    email: data.email
-            }, transaction });
-        };
-        
-        if ( data.role === MUNICIPAL_AGENT ) {
-            // Actualizar el neighbor con el email confirmado
-            await models.MunicipalAgent.update({
-                emailIsVerified: 1
-            }, { 
-                where: {
-                    email: data.email
-            }, transaction });
-        };
+        // Actualiza el email como verificado
+        await updateConfirmedEmail(data, transaction);
 
         await transaction.commit();
 
@@ -214,6 +179,8 @@ const confirmEmail = async (req, res, next) => {
 
 /**
  * Valida que los campos obligatorios estén completos
+ * @param {object} body - Datos de registro del usuario
+ * @returns {boolean} True si los campos obligatorios están completos, false si no
 */
 const requiredFieldsAreCompleted = (body) => {
     if ( body.role === NEIGHBOR ) {
@@ -252,7 +219,7 @@ const requiredFieldsAreCompleted = (body) => {
  * @param {object} userData - Object with the user data
  * @return {Promise<object>|null} Promise with the user model or null if not found
 */
-const getUser = async (userData) => {
+const getUserByEmail = async (userData) => {
     try {
         let user = null;
         if ( userData.role === NEIGHBOR ) { // Si es un vecino quien quiere ingresar, se valida que exista en la tabla Vecino
@@ -276,6 +243,59 @@ const getUser = async (userData) => {
         throw error;
     };
 };
+
+
+/**
+ * Genera un nuevo registro en la BD para un vecino o agente municipal según corresponda 
+ * @param {object} userData - Objeto con los datos del usuario
+ * @param {Transaction} transaction - Transacción para el insert en la base de datos
+*/
+const createAccount = async (userData, transaction) => {
+    try {
+        if ( userData.role === NEIGHBOR ) {
+            await models.Neighbor.create(userData, { transaction });
+        };
+
+        if ( userData.role === MUNICIPAL_AGENT ) {
+            await models.MunicipalAgent.create(userData, { transaction });
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+/**
+ * Función para actualizar el campo emailIsVerified de un usuario para que se pueda loguear
+ * @param {object} data - Objeto con los datos del token (contiene email y role)
+ * @param {Transaction} transaction - Transacción para el update en la base de datos
+*/
+const updateConfirmedEmail = async (data, transaction) => {
+    try {
+        if ( data.role === NEIGHBOR ) {
+            // Actualizar el vecino con el email confirmado
+            await models.Neighbor.update({
+                emailIsVerified: 1
+            }, { 
+                where: {
+                    email: data.email
+            }, transaction });
+        };
+        
+        if ( data.role === MUNICIPAL_AGENT ) {
+            // Actualizar el agente municipal con el email confirmado
+            await models.MunicipalAgent.update({
+                emailIsVerified: 1
+            }, { 
+                where: {
+                    email: data.email
+            }, transaction });
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 /**
  * Validate that the user credentials are correct
@@ -301,6 +321,7 @@ const userCredentialsAreValid = async (user, userData) => {
 /**
  * Validate that the email is verified before logging in
  * @param {object} userData - Object with the user data
+ * @return {Promise<boolean>} Promise with the result of the validation
 */
 const isEmailVerified = async (userData) => {
     try {
@@ -337,6 +358,7 @@ const isEmailVerified = async (userData) => {
 /**
  * Generate token and return it
  * @param {object} payload - Object with the data to generate the token
+ * @return {Promise<string>} Promise with the token
 */
 const generateAndGetToken = (payload) => {
     return new Promise( (resolve, reject) => {
@@ -354,6 +376,7 @@ const generateAndGetToken = (payload) => {
 /**
  * Validate token and return its data 
  * @param {string} token - Token to validate
+ * @return {Promise<object>} Promise with the token data
 */
 const getTokenData = async (token) => {
     try {
@@ -374,6 +397,7 @@ const getTokenData = async (token) => {
 /**
  * Encrypt password and return it hashed
  * @param {string} password - Password to encrypt
+ * @return {Promise<string>} Promise with the password hashed
 */
 const encryptAndGetPassword = (password) => {
     return new Promise( (resolve, reject) => {
