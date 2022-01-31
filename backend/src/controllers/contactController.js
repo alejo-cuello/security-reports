@@ -3,6 +3,10 @@ const sequelize = require('../database/db-connection');
 const getDataFromToken = require('../utils/getDataFromToken');
 const ApiError = require('../utils/apiError');
 
+/**
+ * Define la cantidad máxima de contactos que puede tener un vecino
+*/
+const maxQuantityOfContacts = 1;
 
 const newContact = async (req, res, next) => {
     const transaction = await sequelize.transaction(); 
@@ -16,6 +20,16 @@ const newContact = async (req, res, next) => {
 
         if ( !req.body.name || !req.body.phoneNumber || !dataFromToken.neighborId ) {
             throw ApiError.badRequest(`Missing required fields. Please, fill all fields`);
+        };
+
+        const neighborContacts = await models.Contact.findAll({
+            where: {
+                neighborId: dataFromToken.neighborId
+            }
+        });
+
+        if ( neighborContacts.length >= maxQuantityOfContacts ) {
+            throw ApiError.badRequest(`You can't add more contacts`);
         };
 
         req.body.neighborId = dataFromToken.neighborId;
