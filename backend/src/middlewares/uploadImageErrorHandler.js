@@ -13,7 +13,7 @@ const multerErrorHandler = (req, res, next) => {
             });
         };
 
-        // Everything went fine and save document in DB here.
+        // Everything went fine.
         next();
     });
 };
