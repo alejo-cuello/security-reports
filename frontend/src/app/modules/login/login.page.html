@@ -1,0 +1,49 @@
+<ion-content>
+
+  <ion-grid class="class-grid">
+    <ion-row class="ion-justify-content-center ion-margin-top">
+      <ion-col size="10" class="ion-text-center">
+        <img src="assets/imgs/no-image.jpg" class="image-login">
+      </ion-col>
+    </ion-row>
+
+
+    <form class="inverse ion-margin-top" #loginForm="ngForm" [formGroup]="form">
+      <ion-item>
+        <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+        <ion-label position="floating">
+          Email</ion-label>
+        <ion-input type="email" formControlName='username'></ion-input>
+      </ion-item>
+
+      <ion-item class="ion-margin-top">
+        <ion-icon name="key" slot="start" color="primary"></ion-icon>
+        <ion-label position="floating">Contraseña</ion-label>
+        <ion-input type="password" formControlName='password'></ion-input>
+      </ion-item>
+
+      <ion-text color="primary" class="ion-text-center" type="button" (click)="goToRecoverPassword()">
+        <p class="pass">¿Olvidaste tu contraseña?</p>
+      </ion-text>
+    </form>
+  </ion-grid>
+
+</ion-content>
+
+<ion-footer>
+
+  <div class="btn-container">
+    <ion-button expand="block" type="button" (click)="goToClaims()">
+      <ion-text color="light">
+        Ingresar
+      </ion-text>
+    </ion-button>
+  </div>
+
+  <div class="register">
+    <ion-text color="primary" (click)="goToRegister()">
+      <p>¿No tenés cuenta? Registrate</p>
+    </ion-text>
+  </div>
+  
+</ion-footer>

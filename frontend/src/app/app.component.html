@@ -1,0 +1,19 @@
+<ion-app>
+  <ion-split-pane contentId="main-content">
+    <ion-menu contentId="main-content" type="overlay">
+      <ion-content>
+        <ion-list id="inbox-list">
+          <ng-container *ngFor="let page of appPages">
+            <ion-menu-toggle auto-hide="false">
+              <ion-item  routerDirection="root" [routerLink]="[page.url]" lines="none"
+                detail="false">
+                <ion-label>{{ page.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ng-container>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>

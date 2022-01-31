@@ -1,0 +1,15 @@
+*~
+.DS_Store
+node_modules
+plugins
+admin/images
+app/.sourcemaps
+platforms
+web/dist
+adm/dist
+adm/files
+register/dist
+package-lock.json
+.sourcemaps
+app/www
+www/

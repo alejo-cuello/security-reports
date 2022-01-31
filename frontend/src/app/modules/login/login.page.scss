@@ -1,0 +1,54 @@
+ion-content {
+
+    --background: var(--ion-color-light);
+
+    .submit-container {
+        margin-top: 5rem;
+    }
+
+    .class-grid {
+        justify-content: center;
+        margin-top: 10vh;
+        padding: 16px;
+
+        .image-login {
+            width: 260px;
+            object-fit: cover;
+        }
+    }
+
+    .pass {
+        margin-top: 16px;
+        font-weight: 500;
+    }
+
+    .register {
+        color: var(--ion-color-tertiary);
+    }
+
+    .remember {
+        font-size: 0.8rem;
+    }
+
+    .title {
+        font-weight: 400;
+    }
+
+    ion-button {
+        --border-radius: 5px;
+    }
+
+}
+
+ion-footer {
+
+    .register {
+        justify-content: center;
+        width: 100%;
+        p {
+            font-weight: 600;
+            text-align: center;
+        }
+    }
+    
+}

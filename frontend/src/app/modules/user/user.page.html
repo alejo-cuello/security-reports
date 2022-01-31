@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button *ngIf="!creating"></ion-menu-button>
+      <ion-back-button *ngIf="creating"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="creating">Registro</ion-title>
+    <ion-title *ngIf="!creating">Mi perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="floating">Apellido</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">DNI</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Número de Trámite del DNI</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Email</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Teléfono</ion-label>
+      <ion-input type="text" formControlName="fullName"></ion-input>
+    </ion-item>
+
+    <ion-item lines="none" class="class-input">
+      <ion-label>Dirección</ion-label>
+      <ion-input type="text" readonly=true></ion-input>
+      <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
+        Localizar
+      </ion-button>
+    </ion-item>
+
+    <ion-item *ngIf="creating">
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input type="password" formControlName="password"></ion-input>
+    </ion-item>
+    
+    <ion-item *ngIf="creating">
+      <ion-label position="floating">Confirmar Contraseña</ion-label>
+      <ion-input type="password" formControlName="passwordVerify"></ion-input>
+    </ion-item>
+    
+    <div>
+          <ion-button expand="block" color="medium" (click)="goToChangePassword()">
+            Cambiar contraseña
+          </ion-button>
+
+          <ion-button expand="block" color="primary">
+            <ion-text color="light">
+              {{ creating ? 'Registrarse' : 'Guardar' }}
+            </ion-text>
+          </ion-button>
+    </div>
+  </form>
+</ion-content>

@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis reclamos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <ion-grid>
+
+    <ion-row>
+      <ion-col>
+        <p class="title">Categoría</p>
+      </ion-col>
+      <ion-col>
+        <ion-select class="select-md"></ion-select>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        Subcategoría
+      </ion-col>
+      <ion-col>
+        <ion-select class="select-md"></ion-select>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="header">
+      <ion-col>
+        Fecha de observación
+      </ion-col>
+      <ion-col>
+        Dirección
+      </ion-col>
+      <ion-col>
+        Estado
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngFor="let claim of claims; index as i" [ngClass]="(i%2) ? 'even' : 'odd'">
+      <ion-col>
+        {{claim.date}}
+      </ion-col>
+      <ion-col>
+        {{claim.address}}
+      </ion-col>
+      <ion-col>
+        {{claim.status}}
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
+
+  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
+  </ion-fab>
+  
+</ion-content>

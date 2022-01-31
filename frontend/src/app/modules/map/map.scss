@@ -1,0 +1,12 @@
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+ion-footer {
+    background-color: var(--ion-color-gray);
+
+    .address {
+      border-bottom: 1px solid var(--ion-color-primary)
+    }
+}
