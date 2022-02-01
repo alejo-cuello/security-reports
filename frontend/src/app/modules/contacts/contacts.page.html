@@ -9,9 +9,37 @@
 
 
 <ion-content>
-  Lista de contactos
+  <ion-grid>
 
-  <ion-fab (click)="goToContact()" slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
+    <ion-row class="header">
+      <ion-col size="5">
+        Nombre
+      </ion-col>
+      <ion-col size="5">
+        Número
+      </ion-col>
+      <ion-col size="2">
+        <!-- Esta columna va vacía, es para poner los íconos de edición y borrado -->
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngFor="let contact of contacts; index as i" [ngClass]="(i%2) ? 'even' : 'odd'">
+      <ion-col size="5">
+        {{contact.name}}
+      </ion-col>
+      <ion-col size="5">
+        {{contact.number}}
+      </ion-col>
+      <ion-col size="2">
+        <ion-icon name="pencil-outline"></ion-icon>
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="goToContact()"><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
+    <ion-fab-button (click)="refreshContacts()" color="light"><ion-icon name="refresh-outline"></ion-icon></ion-fab-button>
   </ion-fab>
 </ion-content>

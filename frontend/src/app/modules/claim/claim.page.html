@@ -7,6 +7,42 @@
     </ion-toolbar>
   </ion-header>
   
-<ion-content>
-Formulario de reclamo
-</ion-content>
+  <ion-content>
+    <form>
+      <ion-item>
+        <ion-label position="floating">Categoría</ion-label>
+        <ion-select></ion-select>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label position="floating">Subcategoría</ion-label>
+        <ion-select></ion-select>
+      </ion-item>
+       
+      <ion-item class="class-input">
+        <ion-label>Dirección</ion-label>
+        <ion-input type="text" readonly=true></ion-input>
+        <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
+          Localizar
+        </ion-button>
+      </ion-item>
+  
+      <ion-item>
+        <ion-label position="floating">Comentario</ion-label>
+        <ion-input type="text"></ion-input>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label position="floating">Fecha de ocurrencia</ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+      </ion-item>
+
+      <div>
+            <ion-button expand="block" color="primary" (click)="goToHome()">
+              <ion-text color="light">
+                Crear
+              </ion-text>
+            </ion-button>
+      </div>
+    </form>
+  </ion-content>

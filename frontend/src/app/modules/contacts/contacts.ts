@@ -8,8 +8,24 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class ContactsPage extends BasePage {
 
+  contacts = [
+    {
+      name: 'Jorge Perez',
+      number: '15151515'
+    },
+    {
+      name: 'Roberto Ramirez',
+      number: '15202020'
+    }
+  ];
+  
+  refreshContacts() {
+    this.pageService.showSuccess('¡Contactos actualizados exitosamente!');
+  }
+  
   goToContact() {
     this.pageService.navigateRoute('contact');
   }
+
 }
 

@@ -7,5 +7,8 @@ import { BasePage } from 'src/app/core/base.page';
   styleUrls: ['./recover-password.page.scss'],
 })
 export class RecoverPasswordPage extends BasePage {
-
+  
+  goToLogin() {
+    this.pageService.navigateRoute('login');
+  }
 }

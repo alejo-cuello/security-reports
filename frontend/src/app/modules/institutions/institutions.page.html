@@ -8,9 +8,37 @@
 </ion-header>
 
 <ion-content>
-  Listado de instituciones
+  <ion-grid>
 
-  <ion-fab (click)="goToInstitution()" slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
-  </ion-fab>
+    <ion-row>
+      <ion-col>
+        <ion-searchbar placeholder="Nombre de la institución"></ion-searchbar>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="header">
+      <ion-col size="5">
+        Nombre
+      </ion-col>
+      <ion-col size="5">
+        Dirección
+      </ion-col>
+      <ion-col size="2">
+        <!-- Esta columna va vacía, es para poner los íconos de edición y borrado -->
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngFor="let institution of institutions; index as i" [ngClass]="(i%2) ? 'even' : 'odd'">
+      <ion-col size="5" (click)="goToInstitution()">
+        {{institution.name}}
+      </ion-col>
+      <ion-col size="5">
+        {{institution.address}}
+      </ion-col>
+      <ion-col size="2">
+        <ion-icon name="call-outline"></ion-icon>
+      </ion-col>
+    </ion-row>
+
+  </ion-grid>
 </ion-content>

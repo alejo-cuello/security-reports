@@ -85,8 +85,8 @@ export class UserPage extends ItemPage {
     this.pageService.navigateRoute('change-password');
   }
 
-  goToHome() {
-    this.pageService.navigateRoute('home');
+  goToClaims() {
+    this.pageService.navigateRoute('/tabs/claims');
   }
 
   goToMap() {
