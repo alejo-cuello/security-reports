@@ -7,14 +7,14 @@ const verifyToken = (req, res, next) => {
         const bearerHeader = req.headers['authorization'];
         
         if (typeof bearerHeader === 'undefined') {
-            throw ApiError.forbidden('No token provided. You must login first');
+            throw ApiError.unauthorized('No token provided. You must login first');
         };
 
         const bearerToken = bearerHeader.split(' ')[1];
 
         jwt.verify(bearerToken, process.env.TOKEN_KEY, (err) => {
             if (err) {
-                throw ApiError.forbidden('Invalid token');
+                throw ApiError.unauthorized('Invalid token');
             };
             next();
         });
