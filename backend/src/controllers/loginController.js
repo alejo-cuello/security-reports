@@ -38,6 +38,11 @@ const login = async (req, res, next) => {
             req.body.municipalAgentId = user.municipalAgentId;
         };
 
+        // Encripta la contraseña y la devuelve hasheada
+        const hashedPassword = await encryptAndGetPassword(req.body.password);
+
+        req.body.password = hashedPassword;
+
         // Genera y devuelve el token
         const token = await generateAndGetToken(req.body);
 
