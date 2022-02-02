@@ -108,10 +108,12 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
 
 /**
  * Devuelve la query para obtener los reclamos que están en estado pendiente. Es usada por el agente municipal
+ * @param {number} limit - Cantidad de reclamos a devolver
+ * @param {number} offset - Cantidad de reclamos a saltar
  * @returns {string} Query completa para obtener los reclamos que están en estado pendiente
 */
 const getQueryPendingClaims = () => {
-    return  "SELECT " +
+    return "SELECT " +
                 getSelectQuery() +
             "FROM estado_reclamo er " +
             "INNER JOIN " +
@@ -256,7 +258,7 @@ const getPendingClaims = async (req, res, next) => {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
-        const queryPendingClaims = getQueryPendingClaims();
+        const queryPendingClaims = getQueryPendingClaims(); // TODO: Posiblemente haya que agregar un LIMIT y OFFSET
         
         // Query para obtener los reclamos pendientes
         const pendingClaims = await sequelize.query( queryPendingClaims, {
@@ -313,6 +315,10 @@ const createClaim = async (req, res, next) => {
 
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
+        if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
+            throw ApiError.badRequest('Claim subcategory ID or insecurity fact type ID is required');
         };
 
         // Valida que sea o un reclamo o un hecho de inseguridad
@@ -417,6 +423,10 @@ const editClaim = async (req, res, next) => {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
+        if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
+            throw ApiError.badRequest('Claim subcategory ID or insecurity fact type ID is required');
+        };
+
         // Valida que sea o un reclamo o un hecho de inseguridad
         if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
             throw ApiError.badRequest('You can only update a claim or an insecurity fact');
@@ -477,7 +487,10 @@ const editClaim = async (req, res, next) => {
             insecurityFactToUpdate = await models.Claim.findOne({
                 where: {
                     claimId: req.params.claimId,
-                    neighborId: dataFromToken.neighborId
+                    neighborId: dataFromToken.neighborId,
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
                 }
             });
 
@@ -486,20 +499,10 @@ const editClaim = async (req, res, next) => {
             };
         };
 
-        if ( claimToUpdate[0].photo || insecurityFactToUpdate.photo ) { // Si el reclamo ya tiene foto
-            if ( req.file ) { // Si el usuario envía una foto
-                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                req.body.photo = req.file.path;
-            } else { // Si el usuario no envía una foto
-                req.body.photo = null;
-            };
-            // Borra la foto del servidor
-            await deleteImage(claimToUpdate[0].photo || insecurityFactToUpdate.photo);
-        } else { // Si el reclamo no tiene foto
-            if ( req.file ) { // Si el usuario envía una foto
-                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                req.body.photo = req.file.path;
-            };
+        if ( claimToUpdate.length !== 0 ) {
+            req.body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+        } else {
+            req.body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
         };
 
         // Actualiza el reclamo
@@ -512,9 +515,17 @@ const editClaim = async (req, res, next) => {
 
         await transaction.commit();
 
-        return res.status(200).json({
-            message: 'Claim updated successfully'
-        });
+        if ( req.body.claimSubcategoryId ) {
+            return res.status(200).json({
+                message: 'Claim updated successfully',
+            });
+        };
+
+        if ( req.body.insecurityFactTypeId ) {
+            return res.status(200).json({
+                message: 'Insecurity fact updated successfully',
+            });
+        }
     } catch (error) {
         await transaction.rollback();
         if ( req.file ) {
@@ -618,6 +629,10 @@ const deleteClaim = async (req, res, next) => {
 
         await transaction.commit();
 
+        if ( claimToDelete[0].photo ) {
+            await deleteImage(claimToDelete[0].photo);
+        };
+
         return res.status(200).json({
             message: 'Claim deleted successfully'
         });
@@ -629,7 +644,7 @@ const deleteClaim = async (req, res, next) => {
 
 
 // Listar todos los hechos de inseguridad favoritos del vecino
-const getInsecurityFacts = async (req, res, next) => {
+const getFavoriteInsecurityFacts = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
@@ -757,6 +772,10 @@ const deleteInsecurityFact = async (req, res, next) => {
             transaction
         });
 
+        if ( insecurityFactToDelete.photo ) {
+            await deleteImage(insecurityFactToDelete.photo);
+        };
+
         await transaction.commit();
 
         return res.status(200).json({
@@ -765,6 +784,37 @@ const deleteInsecurityFact = async (req, res, next) => {
     } catch (error) {
         await transaction.rollback();
         next(error);
+    }
+};
+
+
+/**
+ * Maneja la actualización de la foto de un reclamo
+ * @param {object} file - Objeto con la imagen que envía el usuario
+ * @param {string|null} previousPhoto - Ruta donde se encuentra la foto antigua del reclamo. Null si no tiene foto
+*/
+const photoUpdateHandler = async (file, previousPhoto) => {
+    try {
+        let newPhoto = "";
+        if ( previousPhoto ) { // Si el reclamo ya tiene foto
+            if ( file ) { // Si el usuario envía una foto
+                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                newPhoto = file.path;
+            } else { // Si el usuario no envía una foto
+                newPhoto = null;
+            };
+            const path = previousPhoto;
+            // Borra la foto del servidor
+            await deleteImage(path);
+        } else { // Si el reclamo no tiene foto
+            if ( file ) { // Si el usuario envía una foto
+                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                newPhoto = file.path;
+            };
+        };
+        return newPhoto;
+    } catch (error) {
+        throw error;
     }
 };
 
@@ -831,7 +881,7 @@ const calculateHoursOfDifference = (dateTimeCreation) => {
 
 
 /**
- * Elimina la imagen almacenada en el servidor en caso de que se produzca un error
+ * Elimina la imagen almacenada en el servidor
  * @param {string} path - Ruta donde está alojada la imagen
 */
 const deleteImage = async (path) => {
@@ -850,7 +900,7 @@ module.exports = {
     editClaim,
     changeStatusToClaim,
     deleteClaim,
-    getInsecurityFacts,
+    getFavoriteInsecurityFacts,
     getInsecurityFactById,
     deleteInsecurityFact
 }
