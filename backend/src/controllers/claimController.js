@@ -327,7 +327,7 @@ const createClaim = async (req, res, next) => {
         };
 
         // Valida que los datos obligatorios son proporcionados
-        if ( !req.body.dateTimeObservation || !dataFromToken.neighborId ) {
+        if ( !req.body.dateTimeObservation || !req.body.street || !req.body.streetNumber || !dataFromToken.neighborId ) {
             throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
@@ -433,7 +433,7 @@ const editClaim = async (req, res, next) => {
         };
 
         // Valida que los datos obligatorios son proporcionados
-        if ( !req.body.dateTimeObservation || !dataFromToken.neighborId ) {
+        if ( !req.body.dateTimeObservation || !req.body.street || !req.body.streetNumber || !dataFromToken.neighborId ) {
             throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
@@ -544,7 +544,7 @@ const changeStatusToClaim = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`You do not have permission to change the status of the claim`);
+            throw ApiError.forbidden(`You can't access to this resource`);
         };
 
         // Busca el reclamo para luego verificar si ya tiene un agente asignado o no

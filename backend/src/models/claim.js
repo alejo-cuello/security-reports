@@ -30,10 +30,12 @@ const Claim = sequelize.define('reclamo', {
         },
         street: {
             type: DataTypes.STRING(45),
+            allowNull: false,
             field: 'calle'
         },
         streetNumber: {
             type: DataTypes.STRING(45),
+            allowNull: false,
             field: 'numeroCalle'
         },
         latitude: {
