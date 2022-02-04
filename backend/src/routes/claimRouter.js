@@ -10,7 +10,7 @@ router.get('/pending', verifyToken, claimController.getPendingClaims);
 
 router.get('/takenClaims', verifyToken, claimController.getTakenClaims);
 
-router.put('/updateStatus/:claimId', verifyToken, claimController.changeStatusToClaim);
+router.put('/updateStatus/:claimId', verifyToken, claimController.changeClaimStatus);
 
 
 // Rutas del Vecino

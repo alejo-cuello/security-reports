@@ -572,7 +572,7 @@ const editClaim = async (req, res, next) => {
 
 
 // Se usa para que el agente municipal pueda cambiar el estado del reclamo (realizar el seguimiento)
-const changeStatusToClaim = async (req, res, next) => {
+const changeClaimStatus = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
         // Obtiene la información contenida en el token para poder usar el municipalAgentId
@@ -603,6 +603,23 @@ const changeStatusToClaim = async (req, res, next) => {
             };
         };
 
+        // Busca la descripción del estado al cual quiere actualizar el reclamo
+        const status = await models.Status.findOne({
+            attributes: ['STAdescription'],
+            where: {
+                statusId: req.body.statusId
+            }
+        });
+
+        // Si la descripción del estado es algunos de estos, entonces setea la fecha de fin del reclamo
+        if ( status.STAdescription === 'Terminado' || 
+             status.STAdescription === 'Rechazado' || 
+             status.STAdescription === 'Rechazado por falsedad' ) {
+            req.body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
+        } else { // Si la descripción del estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
+            req.body.dateTimeEnd = null;
+        };
+
         req.body.municipalAgentId = dataFromToken.municipalAgentId;
         req.body.claimId = req.params.claimId;
 
@@ -615,6 +632,7 @@ const changeStatusToClaim = async (req, res, next) => {
         await models.StatusClaim.create(req.body, { transaction });
 
         await transaction.commit();
+        
         return res.status(200).json({
             message: 'Claim status updated successfully'
         });
@@ -934,7 +952,7 @@ module.exports = {
     getClaimById,
     createClaim,
     editClaim,
-    changeStatusToClaim,
+    changeClaimStatus,
     deleteClaim,
     getFavoriteInsecurityFacts,
     getInsecurityFactById,
