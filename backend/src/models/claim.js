@@ -56,6 +56,10 @@ const Claim = sequelize.define('reclamo', {
         },
         resolutionRating: {
             type: DataTypes.INTEGER,
+            validate: {
+                min: 1,
+                max: 10
+            },
             field: 'calificacionResolucion'
         },
         photo: {

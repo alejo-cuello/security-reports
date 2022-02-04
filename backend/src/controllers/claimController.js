@@ -510,6 +510,11 @@ const editClaim = async (req, res, next) => {
                 if ( claimToUpdate[0].statusId !== 5 ) {
                     throw ApiError.badRequest(`Cannot update the claim resolution rating because the status is other than 'Terminado'`);
                 };
+
+                // Valida que el número de la calificación esté entre 1 y 10
+                if ( req.body.resolutionRating < 1 || req.body.resolutionRating > 10 ) {
+                    throw ApiError.badRequest(`The resolution rating must be an integer between 1 and 10`);
+                };
             } else { // El usuario no envía una calificación
                 // Valida que el estado sea 'Pendiente'. Si no tiene ese estado, entonces no se puede actualizar
                 if ( claimToUpdate[0].statusId !== 1 ) {
@@ -611,20 +616,20 @@ const changeClaimStatus = async (req, res, next) => {
             };
         };
 
-        // Busca la descripción del estado al cual quiere actualizar el reclamo
-        const status = await models.Status.findOne({
+        // Busca la descripción del estado que le quiere asignar al reclamo
+        const newStatus = await models.Status.findOne({
             attributes: ['STAdescription'],
             where: {
                 statusId: req.body.statusId
             }
         });
 
-        // Si la descripción del estado es algunos de estos, entonces setea la fecha de fin del reclamo
-        if ( status.STAdescription === 'Terminado' || 
-             status.STAdescription === 'Rechazado' || 
-             status.STAdescription === 'Rechazado por falsedad' ) {
+        // Si la descripción del nuevo estado es algunos de estos, entonces setea la fecha de fin del reclamo
+        if ( newStatus.STAdescription === 'Terminado' || 
+             newStatus.STAdescription === 'Rechazado' || 
+             newStatus.STAdescription === 'Rechazado por falsedad' ) {
             req.body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
-        } else { // Si la descripción del estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
+        } else { // Si la descripción del nuevo estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
             req.body.dateTimeEnd = null;
         };
 
