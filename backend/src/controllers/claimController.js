@@ -18,7 +18,7 @@ let where = "";
 /**
  * Devuelve la subconsulta para obtener el último estado de un reclamo
  * @param {boolean} withJoin - Indica si es necesario hacer inner join con las tablas reclamo y favoritos para agregarlo a la query
- * @return {string} Subconsulta
+ * @returns {string} Subconsulta
 */
 const getSubQueryLastClaimStatus = ( withJoin ) => {
     let query = 
@@ -107,12 +107,11 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
 
 
 /**
- * Devuelve la query para obtener los reclamos que están en estado pendiente. Es usada por el agente municipal
- * @param {number} limit - Cantidad de reclamos a devolver
- * @param {number} offset - Cantidad de reclamos a saltar
+ * Devuelve la query para obtener los reclamos que están en estado pendiente o tomados por el agente municipal según la condición "where". Es usada por el agente municipal
+ * @param {string} where - Condición para filtrar los reclamos
  * @returns {string} Query completa para obtener los reclamos que están en estado pendiente
 */
-const getQueryPendingClaims = () => {
+const getQueryClaimsForMunicipalAgent = (where) => {
     return "SELECT " +
                 getSelectQuery() +
             "FROM estado_reclamo er " +
@@ -128,7 +127,7 @@ const getQueryPendingClaims = () => {
                 "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
             "INNER JOIN tipo_reclamo tr " +
                 "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-            "WHERE est.descripcionEST = 'Pendiente' " +
+            where +
             "ORDER BY rec.fechaHoraCreacion ASC ";
 };
 
@@ -258,7 +257,9 @@ const getPendingClaims = async (req, res, next) => {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
-        const queryPendingClaims = getQueryPendingClaims(); // TODO: Posiblemente haya que agregar un LIMIT y OFFSET
+        where = "";
+        where = `WHERE est.descripcionEST = 'Pendiente' `;
+        const queryPendingClaims = getQueryClaimsForMunicipalAgent(where); // TODO: Posiblemente haya que agregar un LIMIT y OFFSET
         
         // Query para obtener los reclamos pendientes
         const pendingClaims = await sequelize.query( queryPendingClaims, {
@@ -274,6 +275,40 @@ const getPendingClaims = async (req, res, next) => {
         next(error);
     }
 }; 
+
+
+// Funcionalidad para el agente municipal: Devuelve los reclamos tomados por el agente municipal
+const getTakenClaims = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el municipalAgentId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.municipalAgentId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
+        replacements = [];
+        where = "";
+
+        replacements.push(dataFromToken.municipalAgentId);
+        where = `WHERE rec.idAgenteMunicipal = ? `;
+
+        const queryTakenClaims = getQueryClaimsForMunicipalAgent(where);
+
+        const myTakenClaims = await sequelize.query( queryTakenClaims, {
+            replacements,
+            type: QueryTypes.SELECT
+        });
+
+        if ( myTakenClaims.length === 0 ) {
+            throw ApiError.notFound(`You did not take any claim`);
+        };
+
+        return res.status(200).json(myTakenClaims);
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 // Devuelve un reclamo en específico por id
@@ -895,6 +930,7 @@ const deleteImage = async (path) => {
 module.exports = {
     getFavoriteClaims,
     getPendingClaims,
+    getTakenClaims,
     getClaimById,
     createClaim,
     editClaim,
