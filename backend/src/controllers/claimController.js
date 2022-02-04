@@ -504,9 +504,17 @@ const editClaim = async (req, res, next) => {
                 throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
             };
 
-            // Valida que el estado del reclamo sea 'Pendiente'
-            if ( claimToUpdate[0].statusId !== 1 ) {
-                throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
+            // Si el usuario envía una calificación
+            if ( req.body.resolutionRating ) {
+                // Se valida que el estado sea 'Terminado'. Si no tiene ese estado, entonces no se puede actualizar.
+                if ( claimToUpdate[0].statusId !== 5 ) {
+                    throw ApiError.badRequest(`Cannot update the claim resolution rating because the status is other than 'Terminado'`);
+                };
+            } else { // El usuario no envía una calificación
+                // Valida que el estado sea 'Pendiente'. Si no tiene ese estado, entonces no se puede actualizar
+                if ( claimToUpdate[0].statusId !== 1 ) {
+                    throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
+                };
             };
         };
 
@@ -632,7 +640,7 @@ const changeClaimStatus = async (req, res, next) => {
         await models.StatusClaim.create(req.body, { transaction });
 
         await transaction.commit();
-        
+
         return res.status(200).json({
             message: 'Claim status updated successfully'
         });
