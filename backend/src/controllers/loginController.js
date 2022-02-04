@@ -1,5 +1,6 @@
 const models = require('../models');
 const ApiError = require('../utils/apiError');
+const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
@@ -11,8 +12,9 @@ const MUNICIPAL_AGENT = 'municipalAgent';
 
 
 const login = async (req, res, next) => {
-    try {        
-        if ( !req.body.email || !req.body.password ) {
+    try {
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'password']);
+        if ( missingAttributes.length > 0 ) {
             throw ApiError.badRequest('Email and password are required');
         };
 
@@ -60,7 +62,7 @@ const signup = async (req, res, next) => {
     try {
         // Valida que los campos obligatorios estén completos
         if ( !requiredFieldsAreCompleted(req.body) ) {
-            throw ApiError.badRequest('Missing data. Please, fill all the fields');
+            throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
         
         // Verifica que los términos y condiciones estén aceptados
@@ -189,34 +191,14 @@ const confirmEmail = async (req, res, next) => {
 */
 const requiredFieldsAreCompleted = (body) => {
     if ( body.role === NEIGHBOR ) {
-        if ( body.dni && 
-             body.tramiteNumberDNI && 
-             body.firstName && 
-             body.lastName && 
-             body.street && 
-             body.streetNumber && 
-             body.city && 
-             body.province && 
-             body.email && 
-             body.password ) {
-            return true;
-        } else {
-            return false;
-        };
+        const missingAttributes = checkMissingRequiredAttributes(body, ['dni', 'tramiteNumberDNI', 'firstName', 'lastName', 'street', 'streetNumber', 'city', 'province', 'email', 'password']);
+        return (missingAttributes.length > 0) ? false : true;
     };
 
     if ( body.role === MUNICIPAL_AGENT ) {
-        if ( body.registrationNumber &&
-             body.firstName &&
-             body.lastName &&
-             body.email &&
-             body.password ) {
-            return true;
-        } else {
-            return false;
-        };
+        const missingAttributes = checkMissingRequiredAttributes(body, ['registrationNumber', 'firstName', 'lastName', 'email', 'password']);
+        return (missingAttributes.length > 0) ? false : true;
     };
-
 };
 
 

@@ -6,6 +6,7 @@ const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 const fs = require('fs/promises');
+const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 
 
 
@@ -362,7 +363,8 @@ const createClaim = async (req, res, next) => {
         };
 
         // Valida que los datos obligatorios son proporcionados
-        if ( !req.body.dateTimeObservation || !req.body.street || !req.body.streetNumber || !dataFromToken.neighborId ) {
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['dateTimeObservation', 'street', 'streetNumber']);
+        if ( missingAttributes.length > 0 ) {
             throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
@@ -468,7 +470,8 @@ const editClaim = async (req, res, next) => {
         };
 
         // Valida que los datos obligatorios son proporcionados
-        if ( !req.body.dateTimeObservation || !req.body.street || !req.body.streetNumber || !dataFromToken.neighborId ) {
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['dateTimeObservation', 'street', 'streetNumber']);
+        if ( missingAttributes.length > 0 ) {
             throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
@@ -593,6 +596,11 @@ const changeClaimStatus = async (req, res, next) => {
 
         if ( !dataFromToken.municipalAgentId ) {
             throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['statusId']);
+        if ( missingAttributes.length > 0 ) {
+            throw ApiError.badRequest('Missing required data. Please, fill all fields');
         };
 
         // Busca el reclamo para luego verificar si ya tiene un agente asignado o no

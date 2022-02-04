@@ -2,6 +2,7 @@ const models = require('../models');
 const sequelize = require('../database/db-connection');
 const getDataFromToken = require('../utils/getDataFromToken');
 const ApiError = require('../utils/apiError');
+const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 
 /**
  * Define la cantidad máxima de contactos que puede tener un vecino
@@ -18,8 +19,9 @@ const newContact = async (req, res, next) => {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
-        if ( !req.body.name || !req.body.phoneNumber || !dataFromToken.neighborId ) {
-            throw ApiError.badRequest(`Missing required fields. Please, fill all fields`);
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['name', 'phoneNumber']);
+        if ( missingAttributes.length > 0 ) {
+            throw ApiError.badRequest(`Missing required data. Please, fill all fields`);
         };
 
         const neighborContacts = await models.Contact.findAll({
