@@ -8,19 +8,7 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class ClaimsPage extends BasePage {
 
-  addresses = [];
-  claims = [
-    {
-      date: '12/12/12',
-      address: 'santa fe 1000',
-      status: 'pendiente'
-    },
-    {
-      date: '14/02/22',
-      address: 'italia 1000',
-      status: 'resuelto'
-    }
-  ];
+  menu: string = 'claim';
 
   goToClaim() {
     this.pageService.navigateRoute('claim');

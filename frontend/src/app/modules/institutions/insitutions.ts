@@ -8,16 +8,7 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class InstitutionsPage extends BasePage {
   
-  institutions = [
-    {
-      name: 'comisaría 1',
-      address: 'italia 1000'
-    },
-    {
-      name: 'comisaría 2',
-      address: 'españa 200'
-    }
-  ]
+  institutions = [1,2];
 
   goToInstitution() {
     this.pageService.navigateRoute('institution');

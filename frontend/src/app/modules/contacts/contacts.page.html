@@ -11,35 +11,35 @@
 <ion-content>
   <ion-grid>
 
-    <ion-row class="header">
-      <ion-col size="5">
-        Nombre
-      </ion-col>
-      <ion-col size="5">
-        Número
-      </ion-col>
-      <ion-col size="2">
-        <!-- Esta columna va vacía, es para poner los íconos de edición y borrado -->
-      </ion-col>
-    </ion-row>
+    <ion-row>
 
-    <ion-row *ngFor="let contact of contacts; index as i" [ngClass]="(i%2) ? 'even' : 'odd'">
-      <ion-col size="5">
-        {{contact.name}}
+      <ion-col size="9">
+          <div>
+            <ion-item lines="none">
+              <ion-icon color="primary" name="person-outline" slot="start" class="ion-margin-end"></ion-icon>
+              <ion-text color="medium">Jorge Perez</ion-text>
+            </ion-item>
+          </div>
+          <div>
+            <ion-item lines="none">
+              <ion-icon color="primary" name="call-outline" slot="start" class="ion-margin-end"></ion-icon>
+              <ion-text color="medium"> 15151515 </ion-text>
+            </ion-item>
+          </div>
       </ion-col>
-      <ion-col size="5">
-        {{contact.number}}
+
+      <ion-col size="3">
+        <ion-button color="primary">
+          <ion-icon name="call-outline"></ion-icon>
+        </ion-button>
       </ion-col>
-      <ion-col size="2">
-        <ion-icon name="pencil-outline"></ion-icon>
-        <ion-icon name="trash-outline"></ion-icon>
-      </ion-col>
+    
     </ion-row>
 
   </ion-grid>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="goToContact()"><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
+    <ion-fab-button><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
     <ion-fab-button (click)="refreshContacts()" color="light"><ion-icon name="refresh-outline"></ion-icon></ion-fab-button>
   </ion-fab>
 </ion-content>

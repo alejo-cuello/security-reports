@@ -1,6 +1,7 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
+
       <ion-content>
         <ion-list id="inbox-list">
           <ng-container *ngFor="let page of appPages">
@@ -12,7 +13,11 @@
             </ion-menu-toggle>
           </ng-container>
         </ion-list>
+        <ion-button color="danger">
+          <ion-icon name="warning-outline"></ion-icon>
+        </ion-button>
       </ion-content>
+
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>

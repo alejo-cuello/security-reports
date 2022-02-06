@@ -8,6 +8,11 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class ClaimPage extends BasePage {
 
+  statuses: any = [
+    'suspendido',
+    'creado'
+  ]
+
   goToMap() {
     this.pageService.navigateRoute('/map');
   }

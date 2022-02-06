@@ -1,20 +1,14 @@
-ion-grid {
+ion-card {
+    background-color: var(--ion-color-primary);
+}
 
-    .filters {
-        p {
-            font-size: 15px;
+.custom-segment {
+    ion-segment-button {
+        ion-icon {
+            font-size: 1.7rem;
         }
-    }
-
-    .header {
-        background: var(--ion-color-primary-tint);
-    }
-
-    .even {
-        background: var(--ion-color-medium);
-    }
-
-    .odd {
-        background: white;
+        ion-label {
+            font-size: 0.9em;
+        }
     }
 }

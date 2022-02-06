@@ -9,6 +9,10 @@
   
   <ion-content>
     <form>
+      <ion-item class="image-profile">
+        <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
+      </ion-item>
+
       <ion-item>
         <ion-label position="floating">Categoría</ion-label>
         <ion-select></ion-select>
@@ -37,12 +41,33 @@
         <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
       </ion-item>
 
+      <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
+
+      <ion-item>
+        <ion-label position="floating">Fecha de creación</ion-label>
+        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Estado</ion-label>
+        <ion-select>
+          <ion-select-option *ngFor="let status of statuses">{{status}}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Asignar</ion-label>
+        <ion-select>
+          <ion-select-option>Jorge Perez</ion-select-option>
+        </ion-select>
+      </ion-item>
+
       <div>
-            <ion-button expand="block" color="primary" (click)="goToHome()">
-              <ion-text color="light">
-                Crear
-              </ion-text>
-            </ion-button>
+        <ion-button expand="block" color="primary" (click)="goToHome()">
+          <ion-text color="light">
+            Crear
+          </ion-text>
+        </ion-button>
       </div>
     </form>
   </ion-content>

@@ -22,10 +22,6 @@ export class ContactsPage extends BasePage {
   refreshContacts() {
     this.pageService.showSuccess('¡Contactos actualizados exitosamente!');
   }
-  
-  goToContact() {
-    this.pageService.navigateRoute('contact');
-  }
 
 }
 

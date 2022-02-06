@@ -16,28 +16,29 @@
       </ion-col>
     </ion-row>
 
-    <ion-row class="header">
-      <ion-col size="5">
-        Nombre
-      </ion-col>
-      <ion-col size="5">
-        Dirección
-      </ion-col>
-      <ion-col size="2">
-        <!-- Esta columna va vacía, es para poner los íconos de edición y borrado -->
-      </ion-col>
-    </ion-row>
+    <ion-row *ngFor="let i of institutions">
 
-    <ion-row *ngFor="let institution of institutions; index as i" [ngClass]="(i%2) ? 'even' : 'odd'">
-      <ion-col size="5" (click)="goToInstitution()">
-        {{institution.name}}
+      <ion-col size="9">
+          <div>
+            <ion-item lines="none">
+              <ion-icon color="primary" name="calendar" slot="start" class="ion-margin-end"></ion-icon>
+              <ion-text color="medium">Comisaría</ion-text>
+            </ion-item>
+          </div>
+          <div>
+            <ion-item lines="none">
+              <ion-icon color="primary" name="location" slot="start" class="ion-margin-end"></ion-icon>
+              <ion-text color="medium"> España 2000 </ion-text>
+            </ion-item>
+          </div>
       </ion-col>
-      <ion-col size="5">
-        {{institution.address}}
+
+      <ion-col size="3">
+        <ion-button color="primary">
+          <ion-icon name="call-outline"></ion-icon>
+        </ion-button>
       </ion-col>
-      <ion-col size="2">
-        <ion-icon name="call-outline"></ion-icon>
-      </ion-col>
+    
     </ion-row>
 
   </ion-grid>

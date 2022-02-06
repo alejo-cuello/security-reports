@@ -19,20 +19,12 @@ const routes: Routes = [
     loadChildren: () => import('./modules/claims/claims.module').then(m => m.ClaimsPageModule)
   },
   {
-    path: 'contact',
-    loadChildren: () => import('./modules/contact/contact.module').then(m => m.ContactPageModule)
-  },
-  {
     path: 'contacts',
     loadChildren: () => import('./modules/contacts/contacts.module').then(m => m.ContactsPageModule)
   },
   {
     path: 'home',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
-  },
-  {
-    path: 'institution',
-    loadChildren: () => import('./modules/institution/institution.module').then(m => m.InstitutionPageModule)
   },
   {
     path: 'institutions',
