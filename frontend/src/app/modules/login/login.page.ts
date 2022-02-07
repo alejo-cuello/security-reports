@@ -63,7 +63,9 @@ export class LoginPage extends FormPage  {
   }
 
   goToClaims() {
-    this.pageService.navigateRoute('tabs/claims');
+    if ( this.loginForm.valid ) {
+      this.pageService.navigateRoute('tabs/claims');
+    };
   }
 
 }
