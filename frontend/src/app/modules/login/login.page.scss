@@ -28,5 +28,9 @@ ion-footer {
     ion-button {
         width: 100%;
         --border-radius: 15px;
+
+        .text-bold {
+            font-weight: 600;
+        }
     }
 }

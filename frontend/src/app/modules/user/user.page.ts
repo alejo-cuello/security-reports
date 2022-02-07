@@ -22,14 +22,19 @@ export class UserPage extends ItemPage {
 
   getFormNew() {
     return this.formBuilder.group({
-      id: [null],
-      fullName: [null, Validators.required],
-      phoneNumber: [null, Validators.required],
-      emailAddress: [null, Validators.compose([Validators.required])],
-      businessName: [null],
-      contactType: [null, Validators.required],
+      firstName: [null, Validators.required],
+      lastName: [null, Validators.required],
+      dni: [null, Validators.required],
+      tramiteNumberDNI: [null, Validators.required],
+      street: [null, Validators.required],
+      streetNumber: [null, Validators.required],
+      city: [null, Validators.required],
+      province: [null, Validators.required],
+      phoneNumber: [null],
+      email: [null, [Validators.required, Validators.email]],
       password: [null,Validators.compose([Validators.required, Validators.minLength(4)])],
-      passwordVerify: [null, Validators.compose([Validators.required, Validators.minLength(4)])]
+      confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
+      termsAndConditionsAccepted: [null, Validators.required],
     });
   }
 
@@ -86,7 +91,12 @@ export class UserPage extends ItemPage {
   }
 
   goToClaims() {
-    this.pageService.navigateRoute('/tabs/claims');
+    if ( this.form.valid ) {
+      console.log(this.form.value);
+      this.pageService.navigateRoute('/tabs/claims');
+    } else {
+      console.log('asd');
+    };
   }
 
   goToMap() {
