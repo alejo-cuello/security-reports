@@ -23,9 +23,9 @@ export class LoginPage extends FormPage  {
 
   getFormNew() {
     return this.formBuilder.group({
-      username: [null, Validators.required],
+      email: [null, [Validators.required, Validators.email]],
       password: [null, Validators.required],
-      role: [this.settings.roles.user, Validators.required],
+      role: [null, Validators.required]
     });
   }
 

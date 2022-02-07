@@ -1,46 +1,60 @@
 <ion-content>
-
   <ion-grid class="class-grid">
+
     <ion-row class="ion-justify-content-center ion-margin-top">
       <ion-col size="10" class="ion-text-center">
-        <img src="assets/imgs/no-image.jpg" class="image-login">
+        <img src="assets/imgs/userLogin.png" class="image-login">
       </ion-col>
     </ion-row>
-
 
     <form class="inverse ion-margin-top" #loginForm="ngForm" [formGroup]="form">
       <ion-item>
         <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
         <ion-label position="floating">
           Email</ion-label>
-        <ion-input type="email" formControlName='username'></ion-input>
+        <ion-input type="email" formControlName="email"></ion-input>
       </ion-item>
 
       <ion-item class="ion-margin-top">
         <ion-icon name="key" slot="start" color="primary"></ion-icon>
         <ion-label position="floating">Contraseña</ion-label>
-        <ion-input type="password" formControlName='password'></ion-input>
+        <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
 
+      <ion-radio-group formControlName="role">
+        <ion-row class="ion-margin-top">
+          <ion-col class="ion-no-padding ion-margin-end">
+               <ion-item>
+                  <ion-label>Vecino</ion-label>
+                  <ion-radio item-left value="neighbor"></ion-radio>
+             </ion-item>
+           </ion-col>
+      
+          <ion-col class="ion-no-padding">
+              <ion-item>
+                  <ion-label>Agente Municipal</ion-label>
+                  <ion-radio item-left value="municipalAgent"></ion-radio>
+             </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-radio-group>
     </form>
-  </ion-grid>
 
+  </ion-grid>
 </ion-content>
 
 <ion-footer>
-
-  <div class="btn-container">
-    <ion-button expand="block" type="button" (click)="goToClaims()">
+  <ion-grid>
+    <ion-button class="ion-justify-content-center" expand="block" shape="round" type="button" (click)="goToClaims()">
       <ion-text color="light">
-        Ingresar
+        <strong>Ingresar</strong>
       </ion-text>
     </ion-button>
-  </div>
 
-  <div class="register">
-    <ion-text color="primary" (click)="goToRegister()">
-      <p>¿No tenés cuenta? Registrate</p>
-    </ion-text>
-  </div>
-  
+    <div class="register">
+      <ion-text color="primary" (click)="goToRegister()">
+        <p>¿No tenés cuenta? Registrate</p>
+      </ion-text>
+    </div>
+  </ion-grid>
 </ion-footer>
