@@ -3,13 +3,11 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController, ActionSheetController, LoadingController, AlertController, PopoverController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
-// import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-// import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Camera, CameraOptions } from '@awesome-cordova-plugins/camera/ngx';
+import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { HttpService } from './http.service';
 import { GlobalService } from './global.service';
 import { PickerController } from '@ionic/angular';
-// import { ToastButton } from '@ionic/core';
-// import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +22,8 @@ export class PageService {
   constructor(
     public activatedRoute: ActivatedRoute,
     public modalCtrl: ModalController,
-    // public geolocation: Geolocation,
-    // public camera: Camera,
+    public geolocation: Geolocation,
+    public camera: Camera,
     public loadingController: LoadingController,
     public actionSheetController: ActionSheetController,
     public platform: Platform,
@@ -37,9 +35,7 @@ export class PageService {
     public alertCtrl: AlertController,
     public popoverController: PopoverController,
     public zone: NgZone,
-    public pickerCtrl: PickerController,
-    // public push: Push,
-    // public iab: InAppBrowser
+    public pickerCtrl: PickerController
   ) {
   }
 
