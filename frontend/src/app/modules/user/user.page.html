@@ -12,82 +12,20 @@
 <ion-content>
   <ion-grid>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <ion-item>
-        <ion-label position="floating">Nombre*</ion-label>
-        <ion-input type="text" formControlName="firstName"></ion-input>
-      </ion-item>
-      
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Apellido*</ion-label>
-        <ion-input type="text" formControlName="lastName"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">DNI*</ion-label>
-        <ion-input type="number" formControlName="dni"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Número de Trámite del DNI*</ion-label>
-        <ion-input type="number" formControlName="tramiteNumberDNI"></ion-input>
-      </ion-item>
-      
-      <!-- * Esto no lo pondría así se agiliza el registro  -->
-      <!-- <ion-item lines="none" class="class-input">
-        <ion-label>Dirección</ion-label>
-        <ion-input type="text" readonly=true></ion-input>
-        <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
-          Localizar
-        </ion-button>
-      </ion-item> -->
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Calle*</ion-label>
-        <ion-input type="text" formControlName="street"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Número de calle*</ion-label>
-        <ion-input type="text" formControlName="streetNumber"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Ciudad*</ion-label>
-        <ion-input type="text" formControlName="city"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Provincia*</ion-label>
-        <ion-input type="text" formControlName="province"></ion-input>
-      </ion-item>
-      
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Teléfono</ion-label>
-        <ion-input type="number" formControlName="phoneNumber"></ion-input>
-      </ion-item>
-  
-      <ion-item class="ion-margin-top">
-        <ion-label position="floating">Email*</ion-label>
-        <ion-input type="text" formControlName="email"></ion-input>
-      </ion-item>
-  
-      <ion-item *ngIf="creating" class="ion-margin-top">
-        <ion-label position="floating">Contraseña*</ion-label>
-        <ion-input type="password" formControlName="password"></ion-input>
-      </ion-item>
-      
-      <ion-item *ngIf="creating" class="ion-margin-top">
-        <ion-label position="floating">Confirmar Contraseña*</ion-label>
-        <ion-input type="password" formControlName="confirmPassword"></ion-input>
-      </ion-item>
+    <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Vecino -->
+    <app-neighbor-form [queryParam]="queryParam"
+                       [creating]="creating" 
+                       [form]="form"
+                       *ngIf="queryParam === 'neighbor'">
+    </app-neighbor-form>
 
-      <ion-item *ngIf="creating" class="ion-margin-top">
-        <p>Para crear tu cuenta tenés que aceptar los <a href="">Términos y Condiciones</a></p>
-        <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
-        </ion-checkbox>
-      </ion-item>
-    </form>
+
+    <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Agente Municipal -->
+    <app-municipal-agent-form [queryParam]="queryParam"
+                              [creating]="creating" 
+                              [form]="form"
+                              *ngIf="queryParam === 'municipalAgent'">
+    </app-municipal-agent-form>
       
     <div class="ion-margin-top">
       <ion-button expand="block" color="medium" *ngIf="!creating" (click)="goToChangePassword()">
@@ -96,7 +34,7 @@
         </ion-text>
       </ion-button>
     
-      <ion-button class="ion-margin-top" expand="block" color="primary" (click)="goToClaims()">
+      <ion-button class="ion-margin-top" expand="block" color="primary" (click)="goToLogin()" [disabled]="!this.form.valid">
         <ion-text color="light" class="text-bold">
           {{ creating ? 'Registrarse' : 'Guardar' }}
         </ion-text>

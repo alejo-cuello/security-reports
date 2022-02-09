@@ -21,21 +21,39 @@ export class UserPage extends ItemPage {
   }
 
   getFormNew() {
-    return this.formBuilder.group({
+    let form = this.formBuilder.group({
+      role: [this.queryParam, Validators.required],
       firstName: [null, Validators.required],
       lastName: [null, Validators.required],
       dni: [null, Validators.required],
       tramiteNumberDNI: [null, Validators.required],
       street: [null, Validators.required],
       streetNumber: [null, Validators.required],
+      apartment: [null],
+      floor: [null],
       city: [null, Validators.required],
       province: [null, Validators.required],
       phoneNumber: [null],
       email: [null, [Validators.required, Validators.email]],
-      password: [null,Validators.compose([Validators.required, Validators.minLength(4)])],
-      confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
-      termsAndConditionsAccepted: [null, Validators.required],
+      password: [null, Validators.required],
+      confirmPassword: [null, Validators.required],
+      termsAndConditionsAccepted: [null, Validators.required]
     });
+
+    if ( this.queryParam === 'municipalAgent' ) {
+      form = this.formBuilder.group({
+        role: [this.queryParam, Validators.required],
+        firstName: [null, Validators.required],
+        lastName: [null, Validators.required],
+        registrationNumber: [null, Validators.required],
+        email: [null, [Validators.required, Validators.email]],
+        password: [null, Validators.required],
+        confirmPassword: [null, Validators.required],
+        termsAndConditionsAccepted: [null, Validators.required]
+      });
+    };
+
+    return form;
   }
 
   getFormEdit(item) {
@@ -90,12 +108,9 @@ export class UserPage extends ItemPage {
     this.pageService.navigateRoute('change-password');
   }
 
-  goToClaims() {
+  goToLogin() {
     if ( this.form.valid ) {
-      console.log(this.form.value);
-      this.pageService.navigateRoute('/tabs/claims');
-    } else {
-      console.log('asd');
+      this.pageService.navigateRoute('/login');
     };
   }
 

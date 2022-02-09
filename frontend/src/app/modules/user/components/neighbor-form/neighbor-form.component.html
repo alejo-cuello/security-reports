@@ -1,0 +1,117 @@
+<form [formGroup]="form">
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>
+        Datos personales
+      </ion-label>
+    </ion-item-divider>
+
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Nombre*</ion-label>
+      <ion-input type="text" formControlName="firstName"></ion-input>
+    </ion-item>
+
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Apellido*</ion-label>
+      <ion-input type="text" formControlName="lastName"></ion-input>
+    </ion-item>
+    
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">DNI*</ion-label>
+      <ion-input type="number" formControlName="dni"></ion-input>
+    </ion-item>
+
+    <ion-item class="ion-margin-top" expand="block">
+      <ion-label position="floating">Número de Trámite del DNI*</ion-label>
+      <ion-input type="number" formControlName="tramiteNumberDNI"></ion-input>
+    </ion-item>
+
+    <ion-item-divider>
+      <ion-label>
+        Dirección
+      </ion-label>
+    </ion-item-divider>
+
+    <ion-row class="ion-margin-top">
+      <ion-col class="ion-no-padding ion-margin-end">
+        <ion-item>
+          <ion-label position="floating">Calle*</ion-label>
+          <ion-input type="text" formControlName="street"></ion-input>
+        </ion-item>
+      </ion-col>
+
+      <ion-col class="ion-no-padding">
+        <ion-item>
+          <ion-label position="floating">Número de calle*</ion-label>
+          <ion-input type="text" formControlName="streetNumber"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-margin-top">
+      <ion-col class="ion-no-padding ion-margin-end">
+        <ion-item>
+          <ion-label position="floating">Depto.</ion-label>
+          <ion-input type="text" formControlName="apartment"></ion-input>
+        </ion-item>
+      </ion-col>
+
+      <ion-col class="ion-no-padding">
+        <ion-item>
+          <ion-label position="floating">Piso</ion-label>
+          <ion-input type="text" formControlName="floor"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Ciudad*</ion-label>
+      <ion-input type="text" formControlName="city"></ion-input>
+    </ion-item>
+
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Provincia*</ion-label>
+      <ion-input type="text" formControlName="province"></ion-input>
+    </ion-item>
+  
+    <ion-item-divider>
+      <ion-label>
+        Datos de contacto
+      </ion-label>
+    </ion-item-divider>
+
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Teléfono</ion-label>
+        <ion-input type="number" formControlName="phoneNumber"></ion-input>
+      </ion-item>
+  
+    <ion-item-divider>
+      <ion-label>
+        Datos de la cuenta
+      </ion-label>
+    </ion-item-divider>
+    
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Email*</ion-label>
+      <ion-input type="text" formControlName="email"></ion-input>
+    </ion-item>
+
+    <ion-item *ngIf="creating" class="ion-margin-top">
+      <ion-label position="floating">Contraseña*</ion-label>
+      <ion-input type="password" formControlName="password"></ion-input>
+    </ion-item>
+    
+    <ion-item *ngIf="creating" class="ion-margin-top">
+      <ion-label position="floating">Confirmar Contraseña*</ion-label>
+      <ion-input type="password" formControlName="confirmPassword"></ion-input>
+    </ion-item>
+
+    <ion-item-divider></ion-item-divider>
+  </ion-item-group>
+
+  <ion-item *ngIf="creating" class="ion-margin-top">
+    <p>Para crear tu cuenta tenés que aceptar los <a href="#">Términos y Condiciones</a></p>
+    <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
+    </ion-checkbox>
+  </ion-item>
+</form>

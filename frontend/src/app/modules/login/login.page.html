@@ -45,14 +45,14 @@
 
 <ion-footer>
   <ion-grid>
-    <ion-button class="ion-justify-content-center" expand="block" shape="round" type="button" (click)="goToClaims()">
+    <ion-button class="ion-justify-content-center" expand="block" shape="round" type="button" (click)="goToClaims()" [disabled]="!this.loginForm.valid">
       <ion-text color="light" class="text-bold">
         Ingresar
       </ion-text>
     </ion-button>
 
     <div class="register">
-      <ion-text color="primary" (click)="goToRegister()">
+      <ion-text color="primary" (click)="goToPreRegister()">
         <p>¿No tenés cuenta? Registrate</p>
       </ion-text>
     </div>

@@ -49,7 +49,11 @@ const routes: Routes = [
   {
     path: 'user',
     loadChildren: () => import('./modules/user/user.module').then(m => m.UserPageModule)
+  },  {
+    path: 'pre-register',
+    loadChildren: () => import('./modules/pre-register/pre-register.module').then( m => m.PreRegisterPageModule)
   }
+
 ];
 @NgModule({
   imports: [

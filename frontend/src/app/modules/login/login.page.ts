@@ -54,8 +54,8 @@ export class LoginPage extends FormPage  {
     this.form.patchValue({role: this.settings.roles.user});
   }
 
-  goToRegister() {
-    this.pageService.navigateRoute('register');
+  goToPreRegister() {
+    this.pageService.navigateRoute('pre-register');
   }
 
   goToRecoverPassword() {
