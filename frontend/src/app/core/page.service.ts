@@ -68,8 +68,8 @@ export class PageService {
     return this.httpService.getAll(endPoint, ids)
   }
 
-  httpUpdate( endPoint, item, id  ) {
-    if(id) endPoint += '/' + id;
+  httpUpdate( endPoint, item  ) {
+    if(item.id) endPoint += '/' + item.id;
     return this.httpService.update( endPoint, item );
   }
 

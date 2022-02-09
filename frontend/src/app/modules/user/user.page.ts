@@ -73,7 +73,7 @@ export class UserPage extends ItemPage {
     const user = res.data;
     this.global.saveUser(user);
     if (this.creating) {
-      this.pageService.navigateToHome();
+      this.pageService.navigateRoute('home');
     }
   }
 
