@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { MapPage } from './map';
+import { MapPage } from './map.page';
 import { MapPageRoutingModule } from './map-routing.module';
 
 

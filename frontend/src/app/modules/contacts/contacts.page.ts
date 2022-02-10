@@ -4,7 +4,7 @@ import { BasePage } from 'src/app/core/base.page';
 @Component({
   selector: 'app-contacts',
   templateUrl: './contacts.page.html',
-  styleUrls: ['./contacts.scss'],
+  styleUrls: ['./contacts.page.scss'],
 })
 export class ContactsPage extends BasePage {
 

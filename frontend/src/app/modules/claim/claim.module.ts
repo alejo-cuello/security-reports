@@ -6,7 +6,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ClaimPageRoutingModule } from './claim-routing.module';
 
-import { ClaimPage } from './claim';
+import { ClaimPage } from './claim.page';
 
 @NgModule({
   imports: [

@@ -4,7 +4,7 @@ import { BasePage } from 'src/app/core/base.page';
 @Component({
   selector: 'app-institutions',
   templateUrl: './institutions.page.html',
-  styleUrls: ['./institutions.scss'],
+  styleUrls: ['./institutions.page.scss'],
 })
 export class InstitutionsPage extends BasePage {
   

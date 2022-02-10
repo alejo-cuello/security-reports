@@ -4,7 +4,7 @@ import { BasePage } from 'src/app/core/base.page';
 @Component({
   selector: 'app-claim',
   templateUrl: './claim.page.html',
-  styleUrls: ['./claim.scss'],
+  styleUrls: ['./claim.page.scss'],
 })
 export class ClaimPage extends BasePage {
 

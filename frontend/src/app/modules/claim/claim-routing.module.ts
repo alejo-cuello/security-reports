@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ClaimPage } from './claim';
+import { ClaimPage } from './claim.page';
 
 const routes: Routes = [
   {
