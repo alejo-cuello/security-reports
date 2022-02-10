@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Nuevo contacto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form>
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Nombre*</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+    <ion-item class="ion-margin-top">
+      <ion-label position="floating">Teléfono*</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+  </form>
+</ion-content>
+
+<ion-footer>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" color="danger" (click)="cancel()">Cancelar</ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" color="success" (click)="addContact()">Aceptar</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>
