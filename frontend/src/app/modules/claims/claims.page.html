@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Mis reclamos favoritos</ion-title>
   </ion-toolbar>
@@ -23,17 +23,20 @@
     </ion-segment>
   </ion-toolbar>
 
+
   <!-- Muestra mensaje de que no hay reclamos para mostrar -->
   <ion-item *ngIf="menu === 'claim' && claims.length === 0" class="ion-margin-top">
     <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
     <p>No hay reclamos para mostrar</p>
   </ion-item>
 
+
   <!-- Muestra mensaje de que no hay hechos de inseguridad para mostrar -->
   <ion-item *ngIf="menu === 'insecurityFact' && insecurityFacts.length === 0" class="ion-margin-top">
     <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
     <p>No hay hechos de inseguridad para mostrar</p>
   </ion-item>
+
 
   <!-- Select para filtrar los reclamos por tipo de reclamo -->
     <!-- TODO: Agregar al ngIf de abajo esta condición -> && claims.length !== 0 -->
@@ -52,6 +55,7 @@
     </ion-list>
     <ion-item-divider></ion-item-divider>
   </div>
+
 
   <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
     <!-- TODO: Agregar al ngIf de abajo esta condición -> && insecurityFacts.length !== 0 -->
@@ -101,6 +105,7 @@
     </ion-card>
   </ng-container>
 
+
   <!-- Esta card es de ejemplo para un hecho de inseguridad -->
   <ng-container *ngFor="let insecurityFact of [1,2,3,4,5]">
 
@@ -125,8 +130,11 @@
     </ion-card>
   </ng-container>
 
+
   <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button><ion-icon name="add" color="white"></ion-icon></ion-fab-button>
+    <ion-fab-button>
+      <ion-icon name="add" color="white"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
   
 </ion-content>

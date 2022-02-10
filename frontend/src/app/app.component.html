@@ -2,21 +2,44 @@
   <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay">
 
+      <ion-header class="ion-no-border">
+        <ion-grid>
+          <ion-text>
+            <ion-row>
+              <h5>Nombre y apellido del usuario</h5>
+              <p>Email del usuario</p>
+              <p>Rol (Vecino o Agente Municipal)</p>
+            </ion-row>
+          </ion-text>
+        </ion-grid>
+      </ion-header>
+
       <ion-content>
+        <ion-item-divider class="ion-no-margin"></ion-item-divider>
+        
         <ion-list id="inbox-list">
           <ng-container *ngFor="let page of appPages">
             <ion-menu-toggle auto-hide="false">
-              <ion-item  routerDirection="root" [routerLink]="[page.url]" lines="none"
-                detail="false">
+              <ion-item routerDirection="root" [routerLink]="[page.url]" lines="none" detail="false">
+                <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
                 <ion-label>{{ page.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ng-container>
         </ion-list>
-        <ion-button color="danger">
-          <ion-icon name="warning-outline"></ion-icon>
-        </ion-button>
+
       </ion-content>
+
+      <ion-footer>
+        <ion-grid>
+          <ion-row class="ion-justify-content-center">
+            <ion-button color="danger">
+              <ion-icon name="warning-outline" slot="start"></ion-icon>
+              <ion-label>Mensaje de emergencia</ion-label>
+            </ion-button>
+          </ion-row>
+        </ion-grid>
+      </ion-footer>
 
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>

@@ -9,24 +9,24 @@ export class AppComponent {
 
   public appPages = [
     {
-      title: 'Mis reclamos',
+      title: 'Mis reclamos favoritos',
       url: '/tabs/claims',
+      icon: 'list-outline'
     },
     {
       title: 'Instituciones',
       url: '/institutions',
+      icon: 'business-outline'
     },
     {
       title: 'Mis contactos',
       url: '/contacts',
+      icon: 'call-outline'
     },
     {
-      title: 'Mi perfil',
-      url: '/user'
-    },
-    {
-      title: 'Cerrar Sesión',
-      url: '/login'
+      title: 'Cerrar sesión',
+      url: '/login',
+      icon: 'log-out-outline'
     }
   ];
 

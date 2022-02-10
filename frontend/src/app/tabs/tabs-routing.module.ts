@@ -4,16 +4,16 @@ import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
-    path: 'tabs',
+    path: '',
     component: TabsPage,
     children: [
       {
-        path: 'claims',
-        loadChildren: () => import('../modules/claims/claims.module').then(m => m.ClaimsPageModule)
+        path: 'user',
+        loadChildren: () => import('../modules/user/user.module').then(m => m.UserPageModule)
       },
       {
-        path: 'claim',
-        loadChildren: () => import('../modules/claim/claim.module').then(m => m.ClaimPageModule)
+        path: 'claims',
+        loadChildren: () => import('../modules/claims/claims.module').then(m => m.ClaimsPageModule)
       },
       {
         path: 'map',

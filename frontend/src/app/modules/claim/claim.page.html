@@ -3,71 +3,71 @@
       <ion-buttons slot="start">
         <ion-back-button></ion-back-button>
       </ion-buttons>
-      <ion-title>Reclamo</ion-title>
+      <ion-title>Nuevo reclamo</ion-title>
     </ion-toolbar>
-  </ion-header>
+</ion-header>
   
-  <ion-content>
-    <form>
-      <ion-item class="image-profile">
-        <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
-      </ion-item>
+<ion-content>
+  <form>
+    <ion-item class="image-profile">
+      <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Categoría</ion-label>
-        <ion-select></ion-select>
-      </ion-item>
+    <ion-item>
+      <ion-label position="floating">Categoría</ion-label>
+      <ion-select></ion-select>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="floating">Subcategoría</ion-label>
+      <ion-select></ion-select>
+    </ion-item>
       
-      <ion-item>
-        <ion-label position="floating">Subcategoría</ion-label>
-        <ion-select></ion-select>
-      </ion-item>
-       
-      <ion-item class="class-input">
-        <ion-label>Dirección</ion-label>
-        <ion-input type="text" readonly=true></ion-input>
-        <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
-          Localizar
-        </ion-button>
-      </ion-item>
-  
-      <ion-item>
-        <ion-label position="floating">Comentario</ion-label>
-        <ion-input type="text"></ion-input>
-      </ion-item>
-      
-      <ion-item>
-        <ion-label position="floating">Fecha de ocurrencia</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
-      </ion-item>
+    <ion-item class="class-input">
+      <ion-label>Dirección</ion-label>
+      <ion-input type="text" readonly=true></ion-input>
+      <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
+        Localizar
+      </ion-button>
+    </ion-item>
 
-      <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
+    <ion-item>
+      <ion-label position="floating">Comentario</ion-label>
+      <ion-input type="text"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="floating">Fecha de ocurrencia</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Fecha de creación</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
-      </ion-item>
+    <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
 
-      <ion-item>
-        <ion-label position="floating">Estado</ion-label>
-        <ion-select>
-          <ion-select-option *ngFor="let status of statuses">{{status}}</ion-select-option>
-        </ion-select>
-      </ion-item>
+    <ion-item>
+      <ion-label position="floating">Fecha de creación</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+    </ion-item>
 
-      <ion-item>
-        <ion-label position="floating">Asignar</ion-label>
-        <ion-select>
-          <ion-select-option>Jorge Perez</ion-select-option>
-        </ion-select>
-      </ion-item>
+    <ion-item>
+      <ion-label position="floating">Estado</ion-label>
+      <ion-select>
+        <ion-select-option *ngFor="let status of statuses">{{status}}</ion-select-option>
+      </ion-select>
+    </ion-item>
 
-      <div>
-        <ion-button expand="block" color="primary" (click)="goToHome()">
-          <ion-text color="light">
-            Crear
-          </ion-text>
-        </ion-button>
-      </div>
-    </form>
-  </ion-content>
+    <ion-item>
+      <ion-label position="floating">Asignar</ion-label>
+      <ion-select>
+        <ion-select-option>Jorge Perez</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <div>
+      <ion-button expand="block" color="primary" (click)="goToHome()">
+        <ion-text color="light">
+          Crear
+        </ion-text>
+      </ion-button>
+    </div>
+  </form>
+</ion-content>
