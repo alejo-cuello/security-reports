@@ -22,3 +22,10 @@ ion-card {
 .badge-border {
     border-radius: 10px;
 }
+
+ion-list {
+    ion-item {
+        border-radius: 5px;
+        --ion-color-light: rgb(18, 18, 18);
+    }
+}

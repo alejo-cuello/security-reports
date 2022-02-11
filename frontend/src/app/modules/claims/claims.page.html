@@ -21,6 +21,37 @@
         <ion-label>Hechos de inseguridad</ion-label>
       </ion-segment-button>
     </ion-segment>
+
+    <!-- Select para filtrar los reclamos por tipo de reclamo -->
+    <div *ngIf="menu === 'claim'" class="ion-margin">
+      <ion-list>
+        <ion-item color="light">
+          <ion-label>Tipo reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
+            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
+            <ion-select-option value="claimTypeId">Alumbrado Público</ion-select-option>
+            <ion-select-option value="claimTypeId">Calles y Veredas</ion-select-option>
+            <ion-select-option value="claimTypeId">Cables Caídos</ion-select-option>
+            <ion-select-option value="claimTypeId">Desagües y Cloacas</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </div>
+  
+    <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
+    <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
+      <ion-list>
+        <ion-item color="light">
+          <ion-label>Tipo hecho de inseguridad</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
+            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
+            <ion-select-option value="insecurityFactTypeId">Robo</ion-select-option>
+            <ion-select-option value="insecurityFactTypeId">Violencia en la calle</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </div>
+    
   </ion-toolbar>
 
   <ion-grid>
@@ -39,38 +70,7 @@
     </ion-item>
   
   
-    <!-- Select para filtrar los reclamos por tipo de reclamo -->
-    <div *ngIf="menu === 'claim' && claims.length !== 0" class="ion-margin">
-      <ion-list>
-        <ion-item>
-          <ion-label>Tipo reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-            <ion-select-option value="claimTypeId">Alumbrado Público</ion-select-option>
-            <ion-select-option value="claimTypeId">Calles y Veredas</ion-select-option>
-            <ion-select-option value="claimTypeId">Cables Caídos</ion-select-option>
-            <ion-select-option value="claimTypeId">Desagües y Cloacas</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
-      <ion-item-divider></ion-item-divider>
-    </div>
-  
-  
-    <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
-    <div *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0" class="ion-margin">
-      <ion-list>
-        <ion-item>
-          <ion-label>Tipo hecho de inseguridad</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-            <ion-select-option value="insecurityFactTypeId">Robo</ion-select-option>
-            <ion-select-option value="insecurityFactTypeId">Violencia en la calle</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
-      <ion-item-divider></ion-item-divider>
-    </div>
+    
   
   
     <!-- Esta card es de ejemplo para un reclamo -->
