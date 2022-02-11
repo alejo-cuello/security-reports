@@ -9,8 +9,8 @@ import { BasePage } from 'src/app/core/base.page';
 export class ClaimsPage extends BasePage {
 
   menu: string = 'claim';
-  claims: any[] = [];
-  insecurityFacts: any[] = [];
+  claims: any[] = [1,2,3,4,5];
+  insecurityFacts: any[] = [1,2,3,4,5];
 
   goToClaim() {
     this.pageService.navigateRoute('claim');

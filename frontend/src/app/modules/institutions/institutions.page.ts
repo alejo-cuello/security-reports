@@ -8,9 +8,8 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class InstitutionsPage extends BasePage {
   
-  institutions = [1,2];
+  securityInstitutions = [1,2,3,4,5];
+  healthInstitutions = [];
+  menu: string = 'security';
 
-  goToInstitution() {
-    this.pageService.navigateRoute('institution');
-  }
 }

@@ -8,38 +8,82 @@
 </ion-header>
 
 <ion-content>
+  <ion-toolbar class="custom-toolbar">
+    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu">
+      <ion-segment-button value="security">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <ion-label>Seguridad</ion-label>
+      </ion-segment-button>
+  
+      <ion-segment-button value="health">
+        <ion-icon name="medkit-outline"></ion-icon>
+        <ion-label>Salud</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-searchbar placeholder="Nombre de la institución"></ion-searchbar>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-toolbar>
+
   <ion-grid>
 
-    <ion-row>
-      <ion-col>
-        <ion-searchbar placeholder="Nombre de la institución"></ion-searchbar>
-      </ion-col>
-    </ion-row>
+    <!-- Muestra mensaje de que no hay instituciones de seguridad para mostrar -->
+    <ion-item *ngIf="menu === 'security' && securityInstitutions.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay instituciones de seguridad para mostrar</p>
+    </ion-item>
+  
+  
+    <!-- Muestra mensaje de que no hay instituciones de salud para mostrar -->
+    <ion-item *ngIf="menu === 'health' && healthInstitutions.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay instituciones de salud para mostrar</p>
+    </ion-item>
 
-    <ion-row *ngFor="let i of institutions">
 
-      <ion-col size="9">
-          <div>
-            <ion-item lines="none">
-              <ion-icon color="primary" name="calendar" slot="start" class="ion-margin-end"></ion-icon>
-              <ion-text color="medium">Comisaría</ion-text>
-            </ion-item>
-          </div>
-          <div>
-            <ion-item lines="none">
-              <ion-icon color="primary" name="location" slot="start" class="ion-margin-end"></ion-icon>
-              <ion-text color="medium"> España 2000 </ion-text>
-            </ion-item>
-          </div>
-      </ion-col>
+    <ng-container *ngIf="menu === 'security' && securityInstitutions.length !== 0">
+      <ion-card *ngFor="let securityInstitution of securityInstitutions" class="ion-margin">
+        <ion-item>
+          <ion-icon color="primary" name="business-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Nombre institución seguridad</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección</ion-text>
+        </ion-item>
 
-      <ion-col size="3">
-        <ion-button color="primary">
-          <ion-icon name="call-outline"></ion-icon>
-        </ion-button>
-      </ion-col>
-    
-    </ion-row>
+        <ion-item>
+          <ion-icon color="primary" name="call-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Teléfono</ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
+
+
+    <ng-container *ngIf="menu === 'health' && healthInstitutions.length !== 0">
+      <ion-card *ngFor="let healthInstitution of healthInstitutions" class="ion-margin">
+        <ion-item>
+          <ion-icon color="primary" name="business-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Nombre institución salud</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección</ion-text>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon color="primary" name="call-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Teléfono</ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
 
   </ion-grid>
 </ion-content>

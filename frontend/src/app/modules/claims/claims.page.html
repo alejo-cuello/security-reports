@@ -23,112 +23,109 @@
     </ion-segment>
   </ion-toolbar>
 
+  <ion-grid>
 
-  <!-- Muestra mensaje de que no hay reclamos para mostrar -->
-  <ion-item *ngIf="menu === 'claim' && claims.length === 0" class="ion-margin-top">
-    <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
-    <p>No hay reclamos para mostrar</p>
-  </ion-item>
+    <!-- Muestra mensaje de que no hay reclamos para mostrar -->
+    <ion-item *ngIf="menu === 'claim' && claims.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay reclamos para mostrar</p>
+    </ion-item>
+  
+  
+    <!-- Muestra mensaje de que no hay hechos de inseguridad para mostrar -->
+    <ion-item *ngIf="menu === 'insecurityFact' && insecurityFacts.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay hechos de inseguridad para mostrar</p>
+    </ion-item>
+  
+  
+    <!-- Select para filtrar los reclamos por tipo de reclamo -->
+    <div *ngIf="menu === 'claim' && claims.length !== 0" class="ion-margin">
+      <ion-list>
+        <ion-item>
+          <ion-label>Tipo reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
+            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
+            <ion-select-option value="claimTypeId">Alumbrado Público</ion-select-option>
+            <ion-select-option value="claimTypeId">Calles y Veredas</ion-select-option>
+            <ion-select-option value="claimTypeId">Cables Caídos</ion-select-option>
+            <ion-select-option value="claimTypeId">Desagües y Cloacas</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+      <ion-item-divider></ion-item-divider>
+    </div>
+  
+  
+    <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
+    <div *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0" class="ion-margin">
+      <ion-list>
+        <ion-item>
+          <ion-label>Tipo hecho de inseguridad</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
+            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
+            <ion-select-option value="insecurityFactTypeId">Robo</ion-select-option>
+            <ion-select-option value="insecurityFactTypeId">Violencia en la calle</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+      <ion-item-divider></ion-item-divider>
+    </div>
+  
+  
+    <!-- Esta card es de ejemplo para un reclamo -->
+    <ng-container *ngIf="menu === 'claim' && claims.length !== 0">
+      <ion-card *ngFor="let claim of claims" class="ion-margin">
+        <ion-item>
+          <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora creación</ion-text>
+          <!-- Podemos hacer que según el estado cambie de color -->
+          <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora de observación</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">
+            Categoría: alumbrado público - rotura de lámpara
+          </ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
+  
+  
+    <!-- Esta card es de ejemplo para un hecho de inseguridad -->
+    <ng-container *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0">
+      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin">
+        <ion-item>
+          <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora creación</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección</ion-text>
+        </ion-item>
+        
+        <ion-item>
+          <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">
+            Categoría: violencia en la calle
+          </ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
 
-
-  <!-- Muestra mensaje de que no hay hechos de inseguridad para mostrar -->
-  <ion-item *ngIf="menu === 'insecurityFact' && insecurityFacts.length === 0" class="ion-margin-top">
-    <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
-    <p>No hay hechos de inseguridad para mostrar</p>
-  </ion-item>
-
-
-  <!-- Select para filtrar los reclamos por tipo de reclamo -->
-    <!-- TODO: Agregar al ngIf de abajo esta condición -> && claims.length !== 0 -->
-  <div *ngIf="menu === 'claim'" class="ion-margin">
-    <ion-list>
-      <ion-item>
-        <ion-label>Tipo reclamo</ion-label>
-        <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-          <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-          <ion-select-option value="claimTypeId">Alumbrado Público</ion-select-option>
-          <ion-select-option value="claimTypeId">Calles y Veredas</ion-select-option>
-          <ion-select-option value="claimTypeId">Cables Caídos</ion-select-option>
-          <ion-select-option value="claimTypeId">Desagües y Cloacas</ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-list>
-    <ion-item-divider></ion-item-divider>
-  </div>
-
-
-  <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
-    <!-- TODO: Agregar al ngIf de abajo esta condición -> && insecurityFacts.length !== 0 -->
-  <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
-    <ion-list>
-      <ion-item>
-        <ion-label>Tipo hecho de inseguridad</ion-label>
-        <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-          <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-          <ion-select-option value="insecurityFactTypeId">Robo</ion-select-option>
-          <ion-select-option value="insecurityFactTypeId">Violencia en la calle</ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-list>
-    <ion-item-divider></ion-item-divider>
-  </div>
-
-
-  <!-- Esta card es de ejemplo para un reclamo -->
-  <ng-container *ngFor="let claim of [1,2,3,4,5]">
-
-    <!-- TODO: Agregar al ngIf de abajo esta condición -> && claims.length !== 0 -->
-    <ion-card *ngIf="menu === 'claim'" class="ion-margin">
-      <ion-item>
-        <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">Fecha y hora creación</ion-text>
-        <!-- Podemos hacer que según el estado cambie de color -->
-        <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
-      </ion-item>
-
-      <ion-item>
-        <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">Fecha y hora de observación</ion-text>
-      </ion-item>
-
-      <ion-item>
-        <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">Dirección</ion-text>
-      </ion-item>
-
-      <ion-item>
-        <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">
-          Categoría: alumbrado público - rotura de lámpara
-        </ion-text>
-      </ion-item>
-    </ion-card>
-  </ng-container>
-
-
-  <!-- Esta card es de ejemplo para un hecho de inseguridad -->
-  <ng-container *ngFor="let insecurityFact of [1,2,3,4,5]">
-
-    <!-- TODO: Agregar al ngIf de abajo esta condición -> && insecurityFacts.length !== 0 -->
-    <ion-card *ngIf="menu === 'insecurityFact'" class="ion-margin">
-      <ion-item lines="full">
-        <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">Fecha y hora creación</ion-text>
-      </ion-item>
-
-      <ion-item lines="full">
-        <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">Dirección</ion-text>
-      </ion-item>
-      
-      <ion-item lines="full">
-        <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
-        <ion-text color="medium">
-          Categoría: violencia en la calle
-        </ion-text>
-      </ion-item>
-    </ion-card>
-  </ng-container>
+  </ion-grid>
 
 
   <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end">
