@@ -7,9 +7,13 @@ export class Settings {
   // (+) EndPoints
 
   public static endPoints = {
+    map: 'map'
   };
 
   public static endPointsMethods = {
+    map: {
+      getAddress: '/getAddress'
+    }
   };
 
   // (-) EndPoints
@@ -35,5 +39,9 @@ export class Settings {
   public static roles = {
     user: 'user'
   };
+
+  public static coordinates = {
+    rosario: [-32.94728264360368, -60.64127184874043]
+  }
 
 }
