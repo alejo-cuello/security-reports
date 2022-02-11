@@ -9,6 +9,33 @@ const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAtt
 */
 const maxQuantityOfContacts = 1;
 
+const getContacts = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
+        const myContacts = await models.Contact.findAll({
+            where: {
+                neighborId: dataFromToken.neighborId
+            },
+            order: [['name', 'ASC']]
+        });
+
+        if ( myContacts.length === 0 ) {
+            throw ApiError.notFound(`You have no contacts added yet`);
+        };
+
+        return res.status(200).json(myContacts);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 const newContact = async (req, res, next) => {
     const transaction = await sequelize.transaction(); 
     try {
@@ -92,5 +119,6 @@ const deleteContact = async (req, res, next) => {
 
 module.exports = {
     newContact,
-    deleteContact
+    deleteContact,
+    getContacts
 }
