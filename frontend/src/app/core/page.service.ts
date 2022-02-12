@@ -7,6 +7,9 @@ import { Camera, CameraOptions } from '@awesome-cordova-plugins/camera/ngx';
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { HttpService } from './http.service';
 import { GlobalService } from './global.service';
+import { SMS } from '@awesome-cordova-plugins/sms/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +36,8 @@ export class PageService {
     public alertCtrl: AlertController,
     public popoverController: PopoverController,
     public zone: NgZone,
+    public sms: SMS,
+    public iab: InAppBrowser
   ) {
   }
 

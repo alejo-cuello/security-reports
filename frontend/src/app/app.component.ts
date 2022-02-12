@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PageService } from './core/page.service';
 
 @Component({
   selector: 'app-root',
@@ -6,6 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
+
+  constructor(
+    public pageService: PageService
+  ){
+  }
 
   public appPages = [
     {
@@ -30,5 +36,10 @@ export class AppComponent {
     }
   ];
 
-  constructor() {}
+  sendMessage() {
+    let message = 'Hola, necesito ayuda!';
+    message = message.replace(' ','%20');
+    this.pageService.iab.create('https://wa.me/5493462603682?text=' + message, "_system");
+  }
+
 }

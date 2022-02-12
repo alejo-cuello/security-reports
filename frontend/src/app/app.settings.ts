@@ -33,6 +33,8 @@ export class Settings {
     addressLongitude: 'securityReports.addressLongitude',
     addressLatitude: 'securityReports.addressLatitude',
     saveAddress: 'securityReports.saveAddress',
+    street: 'securityReports.street',
+    streetNumber: 'securityReports.streetNumber',
     user: 'securityReports.user',
   };
 

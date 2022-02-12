@@ -4,6 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { Camera } from '@awesome-cordova-plugins/camera/ngx';
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
+import { SMS } from '@awesome-cordova-plugins/sms/ngx';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
@@ -23,7 +25,9 @@ import { AppComponent } from './app.component';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     HttpClient,
     Geolocation,
-    Camera
+    Camera,
+    SMS,
+    InAppBrowser
   ],
   bootstrap: [AppComponent],
 })

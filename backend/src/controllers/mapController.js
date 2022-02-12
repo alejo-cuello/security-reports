@@ -16,9 +16,8 @@ const getAddress = async (req, res, next) => {
             + '&lon=' + lng
             + '&format=' +  'json';
 
-        console.log(lat, lng)
         const response = await axios.get(endPoint);
-        console.log('RES PA?', response.data)
+
         const data = {
             street: response.data.address.road,
             streetNumber: response.data.address.house_number
