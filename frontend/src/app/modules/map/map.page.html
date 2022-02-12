@@ -13,9 +13,14 @@
 
   <ion-item>
     <ion-input [(ngModel)]="street"></ion-input>
-  </ion-item>
-  <ion-item>
     <ion-input [(ngModel)]="streetNumber"></ion-input>
   </ion-item>
-
+  
+  <div class="btn-container">
+    <ion-button expand="block" type="button" (click)="goToClaims()">
+      <ion-text color="light">
+        Ingresar
+      </ion-text>
+    </ion-button>
+  </div>
 </ion-content>

@@ -10,6 +10,7 @@ import * as L from 'leaflet';
 
 export class MapPage extends BasePage {  
 
+  marker: any;
   street: string;
   streetNumber: string;
 
@@ -25,12 +26,14 @@ export class MapPage extends BasePage {
     ).addTo(map);
 
     map.on("click", (data: any) => {
-      new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(map);
+      if(this.marker) this.marker.removeFrom(map);
+      this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(map);
 
       const endPoint = this.settings.endPoints.map
         + this.settings.endPointsMethods.map.getAddress
         + '/' + data.latlng.lat
         + '&' + data.latlng.lng;
+
       this.pageService.httpGet(endPoint, coordinates)
         .then( (response) => {
           this.street = response.street;
@@ -40,9 +43,16 @@ export class MapPage extends BasePage {
           console.log(error);
         })
     })
-}
+  }
 
-  putMarket( data: any ){
-    console.log(data);
+  goToClaims() {
+    if(this.street && this.streetNumber) {
+      this.global.save(this.settings.storage.street, this.street);
+      this.global.save(this.settings.storage.streetNumber, this.streetNumber);
+      this.pageService.navigateBack();
+    }
+    else {
+      this.pageService.showError('Por favor complete los campos Dirección y Número')
+    }
   }
 }
