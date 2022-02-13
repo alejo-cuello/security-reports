@@ -11,6 +11,10 @@ class ApiError {
     static notFound(message) {
         return new ApiError(404, message);
     }
+    
+    static unauthorized(message) {
+        return new ApiError(401, message);
+    }
 
     static forbidden(message) {
         return new ApiError(403, message);

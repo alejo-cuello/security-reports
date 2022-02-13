@@ -30,10 +30,12 @@ const Claim = sequelize.define('reclamo', {
         },
         street: {
             type: DataTypes.STRING(45),
+            allowNull: false,
             field: 'calle'
         },
         streetNumber: {
             type: DataTypes.STRING(45),
+            allowNull: false,
             field: 'numeroCalle'
         },
         latitude: {
@@ -52,12 +54,12 @@ const Claim = sequelize.define('reclamo', {
             type: DataTypes.STRING(500),
             field: 'comentario'
         },
-        resolutionQualification: {
+        resolutionRating: {
             type: DataTypes.INTEGER,
             field: 'calificacionResolucion'
         },
         photo: {
-            type: DataTypes.BLOB,
+            type: DataTypes.TEXT,
             field: 'foto'
         },
         municipalAgentId: {
