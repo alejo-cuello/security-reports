@@ -29,7 +29,7 @@ export class PreRegisterPage extends FormPage {
 
   goToRegister() {
     if ( this.form.valid ) {
-      this.pageService.navigateRoute('/register', {queryParams: { role: this.form.value.role }});
+      this.pageService.navigateRoute( '/register', { queryParams: { role: this.form.value.role } } );
     };
   }
 

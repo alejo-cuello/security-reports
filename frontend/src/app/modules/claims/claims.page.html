@@ -69,13 +69,11 @@
       <p>No hay hechos de inseguridad para mostrar</p>
     </ion-item>
   
-  
-    
-  
-  
+ 
+
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu === 'claim' && claims.length !== 0">
-      <ion-card *ngFor="let claim of claims" class="ion-margin">
+      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions('')">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">Fecha y hora creación</ion-text>

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BasePage } from 'src/app/core/base.page';
+import { PageService } from 'src/app/core/page.service';
 
 @Component({
   selector: 'app-claim',
@@ -8,10 +10,21 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class ClaimPage extends BasePage {
 
+  action: string;
   statuses: any = [
     'suspendido',
     'creado'
   ]
+
+  constructor(
+    public pageService: PageService,
+    public activatedRoute: ActivatedRoute
+  ) {
+    super(pageService);
+    this.activatedRoute.queryParams.subscribe( (params) => {
+      this.action = params.action;
+    });
+  }
 
   goToMap() {
     this.pageService.navigateRoute('/map');
