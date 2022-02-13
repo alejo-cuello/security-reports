@@ -13,27 +13,21 @@
   <ion-grid>
 
     <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Vecino -->
-    <app-neighbor-form [queryParam]="queryParam"
+    <app-neighbor-form [queryParam]="role"
                        [creating]="creating" 
                        [form]="form"
-                       *ngIf="queryParam === 'neighbor'">
+                       *ngIf="role === 'neighbor'">
     </app-neighbor-form>
 
 
     <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Agente Municipal -->
-    <app-municipal-agent-form [queryParam]="queryParam"
+    <app-municipal-agent-form [queryParam]="role"
                               [creating]="creating" 
                               [form]="form"
-                              *ngIf="queryParam === 'municipalAgent'">
+                              *ngIf="role === 'municipalAgent'">
     </app-municipal-agent-form>
       
     <div class="ion-margin-top">
-      <ion-button expand="block" color="medium" *ngIf="!creating" (click)="goToChangePassword()">
-        <ion-text color="light" class="text-bold">
-          Cambiar contraseña
-        </ion-text>
-      </ion-button>
-    
       <ion-button class="ion-margin-top" expand="block" color="primary" (click)="goToLogin()" [disabled]="!this.form.valid">
         <ion-text color="light" class="text-bold">
           {{ creating ? 'Registrarse' : 'Guardar' }}

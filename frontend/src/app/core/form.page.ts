@@ -14,7 +14,6 @@ export abstract class FormPage extends BasePage {
     public pageService: PageService
   ) {
     super(pageService);
-    this.form = this.getFormNew();
   }
 
   getFormNew() {

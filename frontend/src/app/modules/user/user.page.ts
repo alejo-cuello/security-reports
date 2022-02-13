@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { ItemPage } from 'src/app/core/item.page';
-import { Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { FormPage } from 'src/app/core/form.page';
+import { PageService } from 'src/app/core/page.service';
 
 @Component({
   selector: 'app-user',
@@ -8,12 +10,25 @@ import { Validators } from '@angular/forms';
   styleUrls: ['./user.page.scss'],
 })
 
-export class UserPage extends ItemPage {
+export class UserPage extends FormPage {
 
-  getParamId() {
-    const user = this.global.getUser();
-    if (user) return user.id;
-    return 'new';
+  creating: boolean = true;
+  role: string;
+
+  constructor(
+    public pageService: PageService,
+    public formBuilder: FormBuilder,
+    public activatedRoute: ActivatedRoute
+  ){
+    super(formBuilder, pageService);
+    this.activatedRoute.queryParams.subscribe( (params) => {
+      this.role = params.role;
+      if(!this.role) {
+        this.creating = false;
+        // this.role = this.user.role;
+      }
+      this.form = this.getFormNew();
+    });
   }
 
   getEndPoint() {
@@ -21,28 +36,30 @@ export class UserPage extends ItemPage {
   }
 
   getFormNew() {
-    let form = this.formBuilder.group({
-      role: [this.queryParam, Validators.required],
-      firstName: [null, Validators.required],
-      lastName: [null, Validators.required],
-      dni: [null, Validators.required],
-      tramiteNumberDNI: [null, Validators.required],
-      street: [null, Validators.required],
-      streetNumber: [null, Validators.required],
-      apartment: [null],
-      floor: [null],
-      city: [null, Validators.required],
-      province: [null, Validators.required],
-      phoneNumber: [null],
-      email: [null, [Validators.required, Validators.email]],
-      password: [null, Validators.required],
-      confirmPassword: [null, Validators.required],
-      termsAndConditionsAccepted: [null, Validators.required]
-    });
+    if ( this.role === 'neighbor' ) {
+      return this.formBuilder.group({
+        role: [this.role, Validators.required],
+        firstName: [null, Validators.required],
+        lastName: [null, Validators.required],
+        dni: [null, Validators.required],
+        tramiteNumberDNI: [null, Validators.required],
+        street: [null, Validators.required],
+        streetNumber: [null, Validators.required],
+        apartment: [null],
+        floor: [null],
+        city: [null, Validators.required],
+        province: [null, Validators.required],
+        phoneNumber: [null],
+        email: [null, [Validators.required, Validators.email]],
+        password: [null, Validators.required],
+        confirmPassword: [null, Validators.required],
+        termsAndConditionsAccepted: [null, Validators.required]
+      });
+    }
 
-    if ( this.queryParam === 'municipalAgent' ) {
-      form = this.formBuilder.group({
-        role: [this.queryParam, Validators.required],
+    else {
+      return this.formBuilder.group({
+        role: [this.role, Validators.required],
         firstName: [null, Validators.required],
         lastName: [null, Validators.required],
         registrationNumber: [null, Validators.required],
@@ -52,21 +69,10 @@ export class UserPage extends ItemPage {
         termsAndConditionsAccepted: [null, Validators.required]
       });
     };
-
-    return form;
   }
 
-  getFormEdit(item) {
-    return this.formBuilder.group({
-      id: [item.id],
-      fullName: [item.fullName, Validators.required],
-      phoneNumber: [item.phoneNumber, Validators.required],
-      emailAddress: [item.emailAddress, Validators.compose([Validators.required])],
-      businessName: [item.businessName],
-      contactType: [item.contactType, Validators.required],
-      password: [null, null],
-      passwordVerify: [null, null],
-    })
+  onSubmitPerform(item: any) {
+
   }
 
   createdItemMessage() {
