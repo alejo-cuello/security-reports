@@ -8,19 +8,32 @@
 </ion-header>
 
 <ion-content>
+  <div id="map" class="map-complete" #map></div>
+</ion-content>
 
-  <div id="map" class="map-inputs" #map></div>
-
-  <ion-item>
-    <ion-input [(ngModel)]="street"></ion-input>
-    <ion-input [(ngModel)]="streetNumber"></ion-input>
-  </ion-item>
+<ion-footer>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Calle</ion-label>
+            <ion-input [(ngModel)]="street"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item>
+            <ion-label position="floating">Número</ion-label>
+            <ion-input [(ngModel)]="streetNumber"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   
   <div class="btn-container">
     <ion-button expand="block" type="button" (click)="goToClaims()">
       <ion-text color="light">
-        Ingresar
+        Continuar
       </ion-text>
     </ion-button>
   </div>
-</ion-content>
+</ion-footer>

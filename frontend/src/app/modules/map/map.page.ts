@@ -10,15 +10,17 @@ import * as L from 'leaflet';
 
 export class MapPage extends BasePage {  
 
+  coordinates: any;
   marker: any;
   street: string;
   streetNumber: string;
 
   ionViewWillEnter() {
 
-    let coordinates = this.settings.coordinates.rosario;
-    
-    let map = L.map('map').setView(coordinates,17);
+    console.log('willenter')
+    this.coordinates = this.settings.coordinates.rosario;
+      
+    let map = L.map('map').setView(this.coordinates,17);
 
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -34,7 +36,7 @@ export class MapPage extends BasePage {
         + '/' + data.latlng.lat
         + '&' + data.latlng.lng;
 
-      this.pageService.httpGet(endPoint, coordinates)
+      this.pageService.httpGet(endPoint, this.coordinates)
         .then( (response) => {
           this.street = response.street;
           this.streetNumber = response.streetNumber;
@@ -52,7 +54,7 @@ export class MapPage extends BasePage {
       this.pageService.navigateBack();
     }
     else {
-      this.pageService.showError('Por favor complete los campos Dirección y Número')
+      this.pageService.showError('Por favor marque la posición en el mapa y complete los campos');
     }
   }
 }
