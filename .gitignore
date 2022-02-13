@@ -13,3 +13,4 @@ package-lock.json
 .sourcemaps
 app/www
 www/
+android

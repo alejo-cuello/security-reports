@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   filesUrl: '',
-  serverUrl: ''
+  serverUrl: 'http://localhost:3000/'
 };
 
 /*

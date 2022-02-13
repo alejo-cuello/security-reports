@@ -7,6 +7,7 @@ const claimTypeRouter = require('./claimTypeRouter');
 const insecurityFactTypeRouter = require('./insecurityFactTypeRouter');
 const institutionRouter = require('./institutionRouter');
 const contactRouter = require('./contactRouter');
+const mapRouter = require('./mapRouter');
 
 router.use('/user', loginRouter);
 
@@ -21,5 +22,6 @@ router.use('/insecurityFactTypes', insecurityFactTypeRouter);
 router.use('/institutions', institutionRouter);
 
 router.use('/contacts', contactRouter);
+router.use('/map', mapRouter);
 
 module.exports = router;
