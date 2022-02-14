@@ -9,7 +9,7 @@ import { PageService } from 'src/app/core/page.service';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage extends FormPage  {
+export class LoginPage extends FormPage {
 
   @ViewChild('loginForm') loginForm: NgForm;
   
@@ -64,6 +64,7 @@ export class LoginPage extends FormPage  {
 
   goToClaims() {
     if ( this.loginForm.valid ) {
+      this.global.save('role', this.form.value.role ); // Guarda el rol del usuario en el localStorage
       this.pageService.navigateRoute('tabs/claims');
     };
   }

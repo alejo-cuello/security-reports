@@ -8,7 +8,7 @@ import { FormGroup } from '@angular/forms';
 })
 export class NeighborFormComponent implements OnInit {
 
-  @Input() queryParam: string;
+  // @Input() queryParam: string;
   @Input() creating: boolean;
   @Input() form: FormGroup;
 

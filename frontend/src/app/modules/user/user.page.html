@@ -13,16 +13,14 @@
   <ion-grid>
 
     <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Vecino -->
-    <app-neighbor-form [queryParam]="role"
-                       [creating]="creating" 
+    <app-neighbor-form [creating]="creating" 
                        [form]="form"
                        *ngIf="role === 'neighbor'">
     </app-neighbor-form>
 
 
     <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Agente Municipal -->
-    <app-municipal-agent-form [queryParam]="role"
-                              [creating]="creating" 
+    <app-municipal-agent-form [creating]="creating" 
                               [form]="form"
                               *ngIf="role === 'municipalAgent'">
     </app-municipal-agent-form>

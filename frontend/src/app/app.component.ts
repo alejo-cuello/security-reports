@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { GlobalService } from './core/global.service';
 import { PageService } from './core/page.service';
 
 @Component({
@@ -9,7 +10,8 @@ import { PageService } from './core/page.service';
 export class AppComponent {
 
   constructor(
-    public pageService: PageService
+    public pageService: PageService,
+    public global: GlobalService,
   ){
   }
 
@@ -35,6 +37,13 @@ export class AppComponent {
       icon: 'log-out-outline'
     }
   ];
+
+  navigateTo( url: string ) {
+    if ( url === '/login' ) {
+      this.global.remove('role'); // Elimina el rol del usuario del localStorage
+    }
+    this.pageService.navigateRoute( url );
+  }
 
   sendMessage() {
     let message = 'Hola, necesito ayuda!';

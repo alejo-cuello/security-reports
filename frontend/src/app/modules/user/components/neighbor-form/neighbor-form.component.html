@@ -85,28 +85,31 @@
         <ion-input type="number" formControlName="phoneNumber"></ion-input>
       </ion-item>
   
-    <ion-item-divider>
-      <ion-label>
-        Datos de la cuenta
-      </ion-label>
-    </ion-item-divider>
-    
-    <ion-item class="ion-margin-top">
-      <ion-label position="floating">Email*</ion-label>
-      <ion-input type="text" formControlName="email"></ion-input>
-    </ion-item>
+    <ion-item-group *ngIf="creating">
+      <ion-item-divider>
+        <ion-label>
+          Datos de la cuenta
+        </ion-label>
+      </ion-item-divider>
+      
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Email*</ion-label>
+        <ion-input type="text" formControlName="email"></ion-input>
+      </ion-item>
+  
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Contraseña*</ion-label>
+        <ion-input type="password" formControlName="password"></ion-input>
+      </ion-item>
+      
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Confirmar Contraseña*</ion-label>
+        <ion-input type="password" formControlName="confirmPassword"></ion-input>
+      </ion-item>
+      
+      <ion-item-divider></ion-item-divider>
+    </ion-item-group>
 
-    <ion-item *ngIf="creating" class="ion-margin-top">
-      <ion-label position="floating">Contraseña*</ion-label>
-      <ion-input type="password" formControlName="password"></ion-input>
-    </ion-item>
-    
-    <ion-item *ngIf="creating" class="ion-margin-top">
-      <ion-label position="floating">Confirmar Contraseña*</ion-label>
-      <ion-input type="password" formControlName="confirmPassword"></ion-input>
-    </ion-item>
-
-    <ion-item-divider></ion-item-divider>
   </ion-item-group>
 
   <ion-item *ngIf="creating" class="ion-margin-top">

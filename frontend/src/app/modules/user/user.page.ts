@@ -25,6 +25,7 @@ export class UserPage extends FormPage {
       this.role = params.role;
       if(!this.role) {
         this.creating = false;
+        this.role = this.global.get('role'); // Obtiene el rol del usuario actual
         // this.role = this.user.role;
       }
       this.form = this.getFormNew();

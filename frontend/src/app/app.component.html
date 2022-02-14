@@ -20,7 +20,7 @@
         <ion-list id="inbox-list">
           <ng-container *ngFor="let page of appPages">
             <ion-menu-toggle auto-hide="false">
-              <ion-item routerDirection="root" [routerLink]="[page.url]" lines="none" detail="false">
+              <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
                 <ion-label>{{ page.title }}</ion-label>
               </ion-item>
