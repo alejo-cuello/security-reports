@@ -14,7 +14,14 @@ ion-content {
 }
 
 ion-footer {
-    padding: 0 10px;
+    // padding: 0 16px;
+
+    ion-grid {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
 
     .register {
         justify-content: center;

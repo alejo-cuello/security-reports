@@ -112,22 +112,22 @@ export class PageService {
   // (+) Show messages
 
   showSuccess(message) {
-    this.showMessage(message,"toast-success");
+    this.showMessage(message, "success");
   }
 
   showError(message) {
-    this.showMessage(message,"toast-error");
+    this.showMessage(message, "danger");
   }
 
   showWarning(message) {
-    this.showMessage(message,"toast-warning");
+    this.showMessage(message, "warning");
   }
 
-  showMessage(message, cssClass){
+  showMessage(message, color: string) {
     let msg = message.message || message;
     let toast = this.toastCtrl.create({
       message: msg,
-      cssClass:cssClass,
+      color: color,
       duration: 2000,
       position: 'top'
     }).then((toastData)=>{

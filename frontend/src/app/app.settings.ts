@@ -7,12 +7,16 @@ export class Settings {
   // (+) EndPoints
 
   public static endPoints = {
-    map: 'map'
+    map: 'map',
+    user: 'user'
   };
 
   public static endPointsMethods = {
     map: {
       getAddress: '/getAddress'
+    },
+    user: {
+      login: '/login'
     }
   };
 

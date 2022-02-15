@@ -7,7 +7,7 @@
       </ion-col>
     </ion-row>
 
-    <form class="inverse ion-margin-top" #loginForm="ngForm" [formGroup]="form">
+    <form class="inverse ion-margin-top" #loginForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
       <ion-item>
         <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
         <ion-label position="floating">
@@ -38,23 +38,27 @@
           </ion-col>
         </ion-row>
       </ion-radio-group>
+
+
+      <ion-footer>
+        <ion-grid class="ion-padding-horizontal">
+            <ion-button class="ion-justify-content-center" expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
+              <ion-text class="text-bold">
+                Ingresar
+              </ion-text>
+            </ion-button>
+        
+            <div class="register">
+              <ion-text color="primary" (click)="goToPreRegister()">
+                <p>¿No tenés cuenta? Registrate</p>
+              </ion-text>
+            </div>
+        </ion-grid>
+      </ion-footer>
     </form>
 
   </ion-grid>
+
+  
 </ion-content>
 
-<ion-footer>
-  <ion-grid>
-    <ion-button class="ion-justify-content-center" expand="block" shape="round" type="button" (click)="goToClaims()" [disabled]="!this.loginForm.valid">
-      <ion-text color="light" class="text-bold">
-        Ingresar
-      </ion-text>
-    </ion-button>
-
-    <div class="register">
-      <ion-text color="primary" (click)="goToPreRegister()">
-        <p>¿No tenés cuenta? Registrate</p>
-      </ion-text>
-    </div>
-  </ion-grid>
-</ion-footer>

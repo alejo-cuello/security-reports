@@ -46,8 +46,11 @@ const login = async (req, res, next) => {
         // Genera y devuelve el token
         const token = await generateAndGetToken(req.body);
 
+        const responseUser = userWithoutPassword(user);
+
         return res.status(200).json({
-            token
+            token,
+            user: responseUser
         });
     } catch (error) {
         next(error);
@@ -217,6 +220,39 @@ const requiredFieldsAreCompleted = (body) => {
         };
     };
 
+};
+
+/**
+ * Devuelve los datos del usuario sin la password 
+ * @param {object} user - Datos del usuario
+ * @returns {object} Datos del usuario sin la password
+*/
+const userWithoutPassword = (user) => {
+    const newUser = {};
+
+    if ( user.neighborId ) {
+        newUser.neighborId = user.neighborId;
+        newUser.dni = user.dni;
+        newUser.tramiteNumberDNI = user.tramiteNumberDNI;
+        newUser.street = user.street;
+        newUser.streetNumber = user.streetNumber;
+        newUser.floor = user.floor;
+        newUser.apartment = user.apartment;
+        newUser.city = user.city;
+        newUser.province = user.province;
+        newUser.phoneNumber = user.phoneNumber;
+    };
+
+    if ( user.municipalAgentId ) {
+        newUser.municipalAgentId = user.municipalAgentId;
+        newUser.registrationNumber = user.registrationNumber;
+    };
+
+    newUser.firstName = user.firstName;
+    newUser.lastName = user.lastName;
+    newUser.email = user.email;
+
+    return newUser;
 };
 
 

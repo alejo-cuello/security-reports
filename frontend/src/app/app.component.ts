@@ -40,7 +40,9 @@ export class AppComponent {
 
   navigateTo( url: string ) {
     if ( url === '/login' ) {
+      this.global.removeUser(); // Elimina el usuario del localStorage
       this.global.remove('role'); // Elimina el rol del usuario del localStorage
+      this.global.remove('token'); // Elimina el token del localStorage
     }
     this.pageService.navigateRoute( url );
   }
