@@ -4,12 +4,12 @@ const ApiError = require('../utils/apiError');
 const getAddress = async (req, res, next) => {
     try {
 
-        const lat = req.params.lat;
-        const lng = req.params.lng;
-
         if ( !req.params.lat || !req.params.lng ) {
             throw ApiError.badRequest('Missing parameters');
         };
+        
+        const lat = req.params.lat;
+        const lng = req.params.lng;
 
         let endPoint = 'https://nominatim.openstreetmap.org/reverse?'
             + 'lat=' + lat
@@ -17,6 +17,10 @@ const getAddress = async (req, res, next) => {
             + '&format=' +  'json';
 
         const response = await axios.get(endPoint);
+
+        if ( !response ) {
+            throw ApiError.badRequest('Get address failed');
+        };
 
         const data = {
             street: response.data.address.road,
