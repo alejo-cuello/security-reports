@@ -67,7 +67,7 @@ export abstract class FormPage extends BasePage {
           message = 'Requerido';
         else if(error.minlength)
           message = 'Debe tener al menos ' + error.minlength.requiredLength + ' caracteres';
-        else if (error.mailFormat)
+        else if (error.email)
           message = 'Email inválido';
         else if (error.min)
           message = 'El valor no puede ser menor a ' + error.min.min;

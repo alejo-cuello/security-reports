@@ -26,16 +26,8 @@ export abstract class ItemPage extends FormPage {
 
   ngOnInit() {
     this.initialize();
-    this.getUserRoleFromQueryParam();
     this.form = this.getFormNew();
   }
-
-  getUserRoleFromQueryParam() {
-    this.activatedRoute.queryParams.subscribe( (queryParam) => {
-      this.queryParam = queryParam.role;
-    });
-  }
-
 
   getFormEdit( item ) {
     return this.formBuilder.group( {} );

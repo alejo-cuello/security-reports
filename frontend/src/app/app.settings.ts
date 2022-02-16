@@ -16,7 +16,8 @@ export class Settings {
       getAddress: '/getAddress'
     },
     user: {
-      login: '/login'
+      login: '/login',
+      signup: '/signup'
     }
   };
 

@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { FormPage } from 'src/app/core/form.page';
-import { PageService } from 'src/app/core/page.service';
+import { Validators } from '@angular/forms';
+import { ItemPage } from 'src/app/core/item.page';
 
 @Component({
   selector: 'app-user',
@@ -10,36 +8,36 @@ import { PageService } from 'src/app/core/page.service';
   styleUrls: ['./user.page.scss'],
 })
 
-export class UserPage extends FormPage {
+export class UserPage extends ItemPage {
 
   creating: boolean = true;
   role: string;
 
-  constructor(
-    public pageService: PageService,
-    public formBuilder: FormBuilder,
-    public activatedRoute: ActivatedRoute
-  ){
-    super(formBuilder, pageService);
+  ngOnInit() {
     this.activatedRoute.queryParams.subscribe( (params) => {
       this.role = params.role;
-      if(!this.role) {
-        this.creating = false;
-        this.role = this.global.get('role'); // Obtiene el rol del usuario actual
-        // this.role = this.user.role;
-      }
       this.form = this.getFormNew();
+      this.initialize();
     });
   }
 
+  //Esta función se mantendrá así hasta que permitamos la edición de los usuarios
+  getParamId() {
+    return 'new';
+  }
+
   getEndPoint() {
-    return this.settings.endPoints.users;
+    return this.settings.endPoints.user;
+  }
+
+  getEndPointCreate() {
+    return this.settings.endPoints.user + this.settings.endPointsMethods.user.signup;
   }
 
   getFormNew() {
+
     if ( this.role === 'neighbor' ) {
       return this.formBuilder.group({
-        role: [this.role, Validators.required],
         firstName: [null, Validators.required],
         lastName: [null, Validators.required],
         dni: [null, Validators.required],
@@ -54,26 +52,21 @@ export class UserPage extends FormPage {
         email: [null, [Validators.required, Validators.email]],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.required]
+        termsAndConditionsAccepted: [null, Validators.requiredTrue]
       });
     }
 
     else {
       return this.formBuilder.group({
-        role: [this.role, Validators.required],
         firstName: [null, Validators.required],
         lastName: [null, Validators.required],
         registrationNumber: [null, Validators.required],
         email: [null, [Validators.required, Validators.email]],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.required]
+        termsAndConditionsAccepted: [null, Validators.requiredTrue]
       });
     };
-  }
-
-  onSubmitPerform(item: any) {
-
   }
 
   createdItemMessage() {
@@ -81,9 +74,8 @@ export class UserPage extends FormPage {
   }
 
   savePreCheck(item) {
-
-    if (item.password != item.passwordVerify) {
-      this.pageService.showError('Las contraseñas deben ser las mismas');
+    if (item.password != item.confirmPassword) {
+      this.pageService.showError('Las contraseñas deben coincidir');
       return false;
     }
 
@@ -91,38 +83,18 @@ export class UserPage extends FormPage {
   }
 
   savePre(item) {
-    item.username = item.emailAddress;
-  }
-
-  savePostPre() {
-    this.pageService.showLoading();
+    delete item.passwordVerify;
+    item.role = this.role;
   }
 
   savePost(res) {
-    this.pageService.hideLoading();
-    const user = res.data;
-    this.global.saveUser(user);
+    this.global.saveUser(res.data);
     if (this.creating) {
       this.pageService.navigateRoute('home');
     }
   }
 
-  savePostError() {
-    this.pageService.hideLoading();
-  }
-
   goToChangePassword() {
     this.pageService.navigateRoute('change-password');
   }
-
-  goToLogin() {
-    if ( this.form.valid ) {
-      this.pageService.navigateRoute('/login');
-    };
-  }
-
-  goToMap() {
-    this.pageService.navigateRoute('/map');
-  }
-
 }
