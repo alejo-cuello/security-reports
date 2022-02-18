@@ -25,7 +25,7 @@
                               *ngIf="role === 'municipalAgent'">
     </app-municipal-agent-form>
       
-    <div class="ion-margin-top">
+    <div class="ion-margin-top" *ngIf="creating">
       <ion-button class="ion-margin-top" expand="block" color="primary" (click)="onSubmit()">
         <ion-text color="light" class="text-bold">
           {{ creating ? 'Registrarse' : 'Guardar' }}

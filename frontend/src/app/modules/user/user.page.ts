@@ -21,9 +21,16 @@ export class UserPage extends ItemPage {
     });
   }
 
-  //Esta función se mantendrá así hasta que permitamos la edición de los usuarios
   getParamId() {
-    return 'new';
+    if(this.user) return this.user.id
+    else return 'new';
+  }
+
+  loadItem() {
+    this.form = this.getFormEdit(this.user);
+    this.item = this.user;
+    this.creating = false;
+    this.processing = false;
   }
 
   getEndPoint() {
@@ -69,6 +76,41 @@ export class UserPage extends ItemPage {
     };
   }
 
+  getFormEdit( user: any ) {
+
+    if ( this.role === 'neighbor' ) {
+      return this.formBuilder.group({
+        firstName: [user.firstName, Validators.required],
+        lastName: [user.lastName, Validators.required],
+        dni: [user.dni, Validators.required],
+        tramiteNumberDNI: [user.tramiteNumberDNI, Validators.required],
+        street: [user.street, Validators.required],
+        streetNumber: [user.streetNumber, Validators.required],
+        apartment: [user.apartment],
+        floor: [user.floor],
+        city: [user.city, Validators.required],
+        province: [user.province, Validators.required],
+        phoneNumber: [user.phoneNumber],
+        email: [user.email, Validators.compose([Validators.required, Validators.email])],
+        password: [null, Validators.required],
+        confirmPassword: [null, Validators.required],
+        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+      });
+    }
+
+    else {
+      return this.formBuilder.group({
+        firstName: [user.firstName, Validators.required],
+        lastName: [user.lastName, Validators.required],
+        registrationNumber: [user.registrationNumber, Validators.required],
+        email: [user.email, Validators.compose([Validators.required, Validators.email])],
+        password: [null, Validators.required],
+        confirmPassword: [null, Validators.required],
+        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+      });
+    };
+  }
+
   createdItemMessage() {
     this.pageService.showSuccess('Bienvenido!');
   }
@@ -96,7 +138,13 @@ export class UserPage extends ItemPage {
 
   savePost(res) {
     if (this.creating) {
-      this.pageService.showSuccess('¡Registro exitoso! Confirme su email para poder ingresar');
+      let message = '¡Registro exitoso! ';
+
+      message += ( this.role === 'neighbor' ) ?
+        'Confirme su email para poder ingresar'
+        : 'Espere la confirmación del municipio';
+
+      this.pageService.showSuccess(message);
       this.pageService.navigateRoute('login');
     }
   }

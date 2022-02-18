@@ -8,7 +8,7 @@
     
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Nombre*</ion-label>
-        <ion-input type="text" formControlName="firstName"></ion-input>
+        <ion-input type="text" formControlName="firstName" [readonly]="!creating"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('firstName')" class="invalid-input-message">
         {{getFieldError('firstName')}}
@@ -17,7 +17,7 @@
       
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Apellido*</ion-label>
-        <ion-input type="text" formControlName="lastName"></ion-input>
+        <ion-input type="text" formControlName="lastName" [readonly]="!creating"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('lastName')" class="invalid-input-message">
         {{getFieldError('lastName')}}
@@ -25,7 +25,7 @@
   
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Legajo*</ion-label>
-        <ion-input type="text" formControlName="registrationNumber"></ion-input>
+        <ion-input type="text" formControlName="registrationNumber" [readonly]="!creating"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('registrationNumber')" class="invalid-input-message">
         {{getFieldError('registrationNumber')}}
@@ -40,7 +40,7 @@
         
         <ion-item class="ion-margin-top">
           <ion-label position="floating">Email*</ion-label>
-          <ion-input type="text" formControlName="email"></ion-input>
+          <ion-input type="text" formControlName="email" [readonly]="!creating"></ion-input>
         </ion-item>
         <!-- Estos div sirven para mostrar el error específico del campo -->
         <div *ngIf="!isFieldValid('email')" class="invalid-input-message">
@@ -49,7 +49,7 @@
     
         <ion-item class="ion-margin-top">
           <ion-label position="floating">Contraseña*</ion-label>
-          <ion-input type="password" formControlName="password"></ion-input>
+          <ion-input type="password" formControlName="password" [readonly]="!creating"></ion-input>
         </ion-item>
         <div *ngIf="!isFieldValid('password')" class="invalid-input-message">
           {{getFieldError('password')}}
@@ -57,7 +57,7 @@
         
         <ion-item class="ion-margin-top">
           <ion-label position="floating">Confirmar Contraseña*</ion-label>
-          <ion-input type="password" formControlName="confirmPassword"></ion-input>
+          <ion-input type="password" formControlName="confirmPassword" [readonly]="!creating"></ion-input>
         </ion-item>
         <div *ngIf="!isFieldValid('confirmPassword')" class="invalid-input-message">
           {{getFieldError('confirmPassword')}}

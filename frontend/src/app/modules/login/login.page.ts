@@ -32,18 +32,15 @@ export class LoginPage extends FormPage {
   onSubmitPerform(item) {
     const endPoint = this.settings.endPoints.user + this.settings.endPointsMethods.user.login;
     
-    this.pageService.showLoading();
     this.pageService.httpPost(endPoint, item).then( (res) => {
-      this.pageService.hideLoading();
       this.global.saveUser(res.user); // Guarda el usuario en el localStorage
-      this.global.save('role', this.form.value.role ); // Guarda el rol del usuario en el localStorage
-      this.global.save('token', res.token ); // Guarda el token del usuario en el localStorage
+      this.global.save(this.settings.storage.role, this.form.value.role ); // Guarda el rol del usuario en el localStorage
+      this.global.save(this.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
       this.pageService.showSuccess('Bienvenido!');
       this.pageService.navigateRoute('tabs/claims');
       this.initializeForm();
     })
     .catch( (reason) => {
-      this.pageService.hideLoading();
       this.pageService.showError(reason.message);
     });
   }

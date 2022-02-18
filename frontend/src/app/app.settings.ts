@@ -32,12 +32,8 @@ export class Settings {
   // (-) Keys
 
   public static storage = {
-    addressId: 'securityReports.addressId',
     address: 'securityReports.address',
-    addressGoogle: 'securityReports.addressGoogle',
-    addressLongitude: 'securityReports.addressLongitude',
-    addressLatitude: 'securityReports.addressLatitude',
-    saveAddress: 'securityReports.saveAddress',
+    role: 'securityReports.role',
     street: 'securityReports.street',
     streetNumber: 'securityReports.streetNumber',
     user: 'securityReports.user',
