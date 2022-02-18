@@ -49,7 +49,7 @@ export class UserPage extends ItemPage {
         city: [null, Validators.required],
         province: [null, Validators.required],
         phoneNumber: [null],
-        email: [null, [Validators.required, Validators.email]],
+        email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
         termsAndConditionsAccepted: [null, Validators.requiredTrue]
@@ -61,7 +61,7 @@ export class UserPage extends ItemPage {
         firstName: [null, Validators.required],
         lastName: [null, Validators.required],
         registrationNumber: [null, Validators.required],
-        email: [null, [Validators.required, Validators.email]],
+        email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
         termsAndConditionsAccepted: [null, Validators.requiredTrue]
@@ -85,12 +85,19 @@ export class UserPage extends ItemPage {
   savePre(item) {
     delete item.passwordVerify;
     item.role = this.role;
+
+    if ( this.role === 'neighbor' ) {
+      item.dni = item.dni.toString();
+      item.tramiteNumberDNI = item.tramiteNumberDNI.toString();
+      item.phoneNumber = item.phoneNumber.toString();
+      item.phoneNumber = item.phoneNumber.toString();
+    }
   }
 
   savePost(res) {
-    this.global.saveUser(res.data);
     if (this.creating) {
-      this.pageService.navigateRoute('home');
+      this.pageService.showSuccess('¡Registro exitoso! Confirme su email para poder ingresar');
+      this.pageService.navigateRoute('login');
     }
   }
 

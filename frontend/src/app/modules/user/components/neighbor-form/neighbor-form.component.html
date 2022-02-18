@@ -10,21 +10,33 @@
       <ion-label position="floating">Nombre*</ion-label>
       <ion-input type="text" formControlName="firstName"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('firstName')" class="invalid-input-message">
+      {{getFieldError('firstName')}}
+    </div>
 
     <ion-item class="ion-margin-top">
       <ion-label position="floating">Apellido*</ion-label>
       <ion-input type="text" formControlName="lastName"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('lastName')" class="invalid-input-message">
+      {{getFieldError('lastName')}}
+    </div>
     
     <ion-item class="ion-margin-top">
       <ion-label position="floating">DNI*</ion-label>
       <ion-input type="number" formControlName="dni"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('dni')" class="invalid-input-message">
+      {{getFieldError('dni')}}
+    </div>
 
     <ion-item class="ion-margin-top" expand="block">
       <ion-label position="floating">Número de Trámite del DNI*</ion-label>
       <ion-input type="number" formControlName="tramiteNumberDNI"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('tramiteNumberDNI')" class="invalid-input-message">
+      {{getFieldError('tramiteNumberDNI')}}
+    </div>
 
     <ion-item-divider>
       <ion-label>
@@ -38,6 +50,9 @@
           <ion-label position="floating">Calle*</ion-label>
           <ion-input type="text" formControlName="street"></ion-input>
         </ion-item>
+        <div *ngIf="!isFieldValid('street')" class="invalid-input-message">
+          {{getFieldError('street')}}
+        </div>
       </ion-col>
 
       <ion-col class="ion-no-padding">
@@ -45,6 +60,9 @@
           <ion-label position="floating">Número de calle*</ion-label>
           <ion-input type="text" formControlName="streetNumber"></ion-input>
         </ion-item>
+        <div *ngIf="!isFieldValid('streetNumber')" class="invalid-input-message">
+          {{getFieldError('streetNumber')}}
+        </div>
       </ion-col>
     </ion-row>
 
@@ -54,6 +72,9 @@
           <ion-label position="floating">Depto.</ion-label>
           <ion-input type="text" formControlName="apartment"></ion-input>
         </ion-item>
+        <div *ngIf="!isFieldValid('apartment')" class="invalid-input-message">
+          {{getFieldError('apartment')}}
+        </div>
       </ion-col>
 
       <ion-col class="ion-no-padding">
@@ -61,6 +82,9 @@
           <ion-label position="floating">Piso</ion-label>
           <ion-input type="text" formControlName="floor"></ion-input>
         </ion-item>
+        <div *ngIf="!isFieldValid('floor')" class="invalid-input-message">
+          {{getFieldError('floor')}}
+        </div>
       </ion-col>
     </ion-row>
 
@@ -68,11 +92,17 @@
       <ion-label position="floating">Ciudad*</ion-label>
       <ion-input type="text" formControlName="city"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('city')" class="invalid-input-message">
+      {{getFieldError('city')}}
+    </div>
 
     <ion-item class="ion-margin-top">
       <ion-label position="floating">Provincia*</ion-label>
       <ion-input type="text" formControlName="province"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('province')" class="invalid-input-message">
+      {{getFieldError('province')}}
+    </div>
   
     <ion-item-divider>
       <ion-label>
@@ -84,6 +114,9 @@
         <ion-label position="floating">Teléfono</ion-label>
         <ion-input type="number" formControlName="phoneNumber"></ion-input>
       </ion-item>
+      <div *ngIf="!isFieldValid('phoneNumber')" class="invalid-input-message">
+        {{getFieldError('phoneNumber')}}
+      </div>
   
     <ion-item-group *ngIf="creating">
       <ion-item-divider>
@@ -96,16 +129,25 @@
         <ion-label position="floating">Email*</ion-label>
         <ion-input type="text" formControlName="email"></ion-input>
       </ion-item>
+      <div *ngIf="!isFieldValid('email')" class="invalid-input-message">
+        {{getFieldError('email')}}
+      </div>
   
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Contraseña*</ion-label>
         <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
+      <div *ngIf="!isFieldValid('password')" class="invalid-input-message">
+        {{getFieldError('password')}}
+      </div>
       
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Confirmar Contraseña*</ion-label>
         <ion-input type="password" formControlName="confirmPassword"></ion-input>
       </ion-item>
+      <div *ngIf="!isFieldValid('confirmPassword')" class="invalid-input-message">
+        {{getFieldError('confirmPassword')}}
+      </div>
       
       <ion-item-divider></ion-item-divider>
     </ion-item-group>
@@ -117,4 +159,7 @@
     <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
     </ion-checkbox>
   </ion-item>
+  <div *ngIf="!isFieldValid('termsAndConditionsAccepted')" class="invalid-input-message">
+    {{getFieldError('termsAndConditionsAccepted')}}
+  </div>
 </form>
