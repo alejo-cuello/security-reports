@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { HttpGuard } from 'src/app/core/http.guard';
 
 import { UserPage } from './user.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: UserPage
+    component: UserPage,
+    canActivate: [HttpGuard]
   }
 ];
 

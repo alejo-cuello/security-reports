@@ -37,6 +37,7 @@ export class Settings {
     street: 'securityReports.street',
     streetNumber: 'securityReports.streetNumber',
     user: 'securityReports.user',
+    token: 'securityReports.token'
   };
 
   public static roles = {
