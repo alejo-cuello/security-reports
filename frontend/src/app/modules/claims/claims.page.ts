@@ -70,8 +70,9 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  goToClaim( action: string ) {
-    this.pageService.navigateRoute( 'claim', { queryParams: { action } } );
+  goToClaim( action?: string, id?: string) {
+    const role = this.global.load(this.settings.storage.role);
+    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.menu } } );
   }
 
   async openOptions( id: string ) {
@@ -104,7 +105,7 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
-            this.goToClaim(action);
+            this.goToClaim(action, id);
           }
         }
       ]

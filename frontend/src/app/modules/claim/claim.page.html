@@ -8,20 +8,42 @@
 </ion-header>
   
 <ion-content>
-  <form>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <ion-item class="image-profile">
       <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
     </ion-item>
 
-    <ion-item>
-      <ion-label position="floating">Categoría</ion-label>
-      <ion-select></ion-select>
+    <!-- Selects para reclamos -->
+    <ion-item *ngIf="type === 'claim'">
+      <ion-label position="floating">Tipo</ion-label>
+      <ion-select formControlName="selectedClaimType">
+        <ion-select-option *ngFor="let category of categories" [value]="category">
+          {{category?.CTdescription}}
+        </ion-select-option>
+      </ion-select>
     </ion-item>
-    
-    <ion-item>
+
+    <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Subcategoría</ion-label>
-      <ion-select></ion-select>
+      <ion-select [disabled]="!form.value.selectedClaimType" formControlName="category">
+        <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory" [value]="subcategory?.claimSubcategoryId">
+          {{subcategory?.CSCdescription}}
+        </ion-select-option>
+      </ion-select>
     </ion-item>
+
+    <!-- Select para hechos de inseguridad -->
+    <ion-item *ngIf="type === 'insecurityFact'">
+      <ion-label position="floating">Tipo</ion-label>
+      <ion-select formControlName="category">
+        <ion-select-option *ngFor="let category of categories" [value]="insecurityFactTypeId?.algo">
+          {{category?.IFTdescription}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <div *ngIf="!isFieldValid('category')" class="invalid-input-message">
+      {{getFieldError('category')}}
+    </div>
       
     <ion-item class="class-input">
       <ion-label>Dirección</ion-label>
@@ -30,40 +52,49 @@
         Localizar
       </ion-button>
     </ion-item>
+    <div *ngIf="!isFieldValid('streetNumber')" class="invalid-input-message">
+      {{getFieldError('streetNumber')}}
+    </div>
 
     <ion-item>
       <ion-label position="floating">Comentario</ion-label>
-      <ion-input type="text"></ion-input>
+      <ion-input type="text" formControlName="comment"></ion-input>
     </ion-item>
+    <div *ngIf="!isFieldValid('comment')" class="invalid-input-message">
+      {{getFieldError('comment')}}
+    </div>
     
     <ion-item>
       <ion-label position="floating">Fecha de ocurrencia</ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeObservation"></ion-datetime>
     </ion-item>
+    <div *ngIf="!isFieldValid('dateTimeObservation')" class="invalid-input-message">
+      {{getFieldError('dateTimeObservation')}}
+    </div>
 
     <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
 
-    <ion-item>
+    <ion-item *ngIf="!creating">
       <ion-label position="floating">Fecha de creación</ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"></ion-datetime>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation"></ion-datetime>
     </ion-item>
-
-    <ion-item>
+    
+    <ion-item *ngIf="!creating">
       <ion-label position="floating">Estado</ion-label>
       <ion-select>
-        <ion-select-option *ngFor="let status of statuses">{{status}}</ion-select-option>
+        <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
       </ion-select>
     </ion-item>
 
-    <ion-item>
+    <ion-item *ngIf="!creating">
       <ion-label position="floating">Asignar</ion-label>
-      <ion-select>
+      <ion-select formControlName="municipalAgentId">
         <ion-select-option>Jorge Perez</ion-select-option>
       </ion-select>
     </ion-item>
 
     <div>
-      <ion-button expand="block" color="primary" (click)="goToHome()">
+      <ion-button expand="block" color="primary" type="submit">
         <ion-text color="light">
           Crear
         </ion-text>
