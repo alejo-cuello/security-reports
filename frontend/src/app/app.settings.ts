@@ -34,7 +34,7 @@ export class Settings {
   // (-) EndPoints
 
   public static storage = {
-    address: 'securityReports.address',
+    coordinates: 'securityReports.coordinates',
     role: 'securityReports.role',
     street: 'securityReports.street',
     streetNumber: 'securityReports.streetNumber',

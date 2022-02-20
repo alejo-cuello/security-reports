@@ -54,12 +54,12 @@ export abstract class ItemPage extends FormPage {
     this.savePre( item );
 
     if( !this.savePreCheck( item )) return;
-
+    console.log('item en perform', item)
     this.savePostPre();
     if ( !item.id ) {
 
       delete ( item.id );
-      this.pageService.httpCreate( this.getEndPointCreate(), item )
+      this.pageService.httpCreate( this.getEndPointCreate(), item, item.bodyType || 'json' )
         .then( (response) => {
           this.createdItemMessage();
           this.savePost( response );

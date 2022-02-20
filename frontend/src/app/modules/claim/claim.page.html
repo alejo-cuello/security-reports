@@ -9,7 +9,7 @@
   
 <ion-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <ion-item class="image-profile">
+    <ion-item class="image" (click)="changePicture()">
       <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
     </ion-item>
 
@@ -47,7 +47,7 @@
       
     <ion-item class="class-input">
       <ion-label>Dirección</ion-label>
-      <ion-input type="text" readonly=true></ion-input>
+      <ion-input type="text" readonly=true>  {{ (form.value.street || '') + ' ' + (form.value.streetNumber || '') }}</ion-input>
       <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
         Localizar
       </ion-button>

@@ -22,6 +22,22 @@ export class ClaimPage extends ItemPage {
     'creado'
   ];
 
+  ionViewWillEnter() {
+    let coordinates = this.global.pop(this.settings.storage.coordinates);
+    let street = this.global.pop(this.settings.storage.street);
+    let streetNumber = this.global.pop(this.settings.storage.streetNumber);
+
+    if(coordinates && street && streetNumber) {
+      this.form.patchValue({
+        latitude: coordinates[0],
+        longitude: coordinates[1],
+        street,
+        streetNumber
+      });
+    }
+    console.log('el formmmm', this.form);
+  }
+
   getEndPoint() {
     return (this.type === 'claim') ?
       this.settings.endPoints.claim
@@ -42,7 +58,6 @@ export class ClaimPage extends ItemPage {
       this.type = params.type;
       if(params.role) this.role = params.role;
       if(params.id) this.id = params.id;
-      console.log('params?', params)
     });
     this.getCategories();
   }
@@ -81,7 +96,6 @@ export class ClaimPage extends ItemPage {
   }
 
   savePre( item: any ) {
-
     if(this.creating) {
       //Acá se llena el campo correspondiente según el tipo
       if(this.type == 'claim')  item.claimSubcategoryId = item.category;
@@ -90,8 +104,21 @@ export class ClaimPage extends ItemPage {
       delete item.category;
       if(item.selectedClaimType) delete item.selectedClaimType;
 
-      item.dateTimeCreation = Date.now();
+      item.dateTimeCreation = new Date().toISOString();
+
+      item.bodyType = 'form-data';
     }
+  }
+
+  changePicture() {
+    this.pageService.showImageUpload()
+      .then( (response) => {
+        this.form.patchValue( { photo: response } );
+      })
+      .catch( (error) => {
+        console.log(error);
+        this.pageService.showError(error);
+      })
   }
 
   goToMap() {

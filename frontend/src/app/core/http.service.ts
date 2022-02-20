@@ -53,9 +53,23 @@ export class HttpService {
       .catch(this.handleError.bind(this));
   }
 
-  post( endPoint, value, showLoading = true ) {
+  post( endPoint, value, bodyType ) {
+
+    let body: any;
+    let enctype = 'json';
+
+    if(bodyType == 'form-data') {
+      delete value.bodyPart;
+      enctype = 'multipart/form-data';
+      body = new FormData();
+      for(let field in value)
+        body.append(field, value[field]);
+    } else {
+      body = value;
+    }
+
     const url = environment.serverUrl + endPoint;
-    return this.http.post(url, value, this.getHeaders())
+    return this.http.post(url, body, this.getHeaders(enctype))
       .toPromise()
       .then( (response:any) =>
         response
@@ -105,11 +119,12 @@ export class HttpService {
   //   });
   // }
 
-  getHeaders() {
+  getHeaders( enctype = 'json' ) {
     if( this.global.getUser() && this.global.load(this.global.settings.storage.token) ) {
       return {
         headers: new HttpHeaders({
-          'authorization': 'Bearer ' + this.global.load(this.global.settings.storage.token)
+          'authorization': 'Bearer ' + this.global.load(this.global.settings.storage.token),
+          'enctype': enctype
         })
       };
     } else {
