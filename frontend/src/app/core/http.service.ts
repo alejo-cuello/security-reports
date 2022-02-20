@@ -17,7 +17,7 @@ export class HttpService {
 
   // (+) Items
 
-  getAll( endPoint, ids ) {
+  getAll( endPoint ) {
     return this.get(endPoint);
   }
 
@@ -106,10 +106,10 @@ export class HttpService {
   // }
 
   getHeaders() {
-    if(this.global.getUser() && this.global.getUser().token) {
+    if( this.global.getUser() && this.global.load(this.global.settings.storage.token) ) {
       return {
         headers: new HttpHeaders({
-          'Authorization':  this.global.getUser().token
+          'authorization': 'Bearer ' + this.global.load(this.global.settings.storage.token)
         })
       };
     } else {

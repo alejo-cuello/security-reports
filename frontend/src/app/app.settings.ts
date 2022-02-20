@@ -7,11 +7,21 @@ export class Settings {
   // (+) EndPoints
 
   public static endPoints = {
+    claim: 'claim',
+    claimTypes: 'claimTypes',
+    insecurityFact: 'insecurityFact',
+    insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
     user: 'user'
   };
 
   public static endPointsMethods = {
+    claim: {
+      favorites: '/favorites'
+    },
+    insecurityFact: {
+      favorites: '/favorites',
+    },
     map: {
       getAddress: '/getAddress'
     },
@@ -23,21 +33,13 @@ export class Settings {
 
   // (-) EndPoints
 
-  // (+) Keys
-
-  public static keys = {
-    googleMaps: ''
-  }
-
-  // (-) Keys
-
   public static storage = {
     address: 'securityReports.address',
     role: 'securityReports.role',
     street: 'securityReports.street',
     streetNumber: 'securityReports.streetNumber',
-    user: 'securityReports.user',
-    token: 'securityReports.token'
+    token: 'securityReports.token',
+    user: 'securityReports.user'
   };
 
   public static roles = {

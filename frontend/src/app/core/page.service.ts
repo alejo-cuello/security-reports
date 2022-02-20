@@ -69,8 +69,8 @@ export class PageService {
     return '/' + this.getModuleName();
   }
 
-  httpGetAll( endPoint, ids ) {
-    return this.httpService.getAll(endPoint, ids)
+  httpGetAll( endPoint ) {
+    return this.httpService.getAll(endPoint);
   }
 
   httpUpdate( endPoint, item  ) {
@@ -139,25 +139,6 @@ export class PageService {
   // (-) Show messages
 
   // (+) Map
-
-  loadGoogleMapsLibrary(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (window['google']) {
-        return resolve(window['google']);
-      }
-      let element = document.createElement('script');
-      element.id = 'google-maps-api-script';
-      element.src = 'https://maps.googleapis.com/maps/api/js?key=' + this.global.settings.keys.googleMaps + '&libraries=places';
-      element.type = 'text/javascript';
-      element.onload = () => {
-        resolve(window['google']);
-      };
-      element.onerror = (error) => {
-        reject();
-      }
-      document.body.appendChild(element);
-    });
-  }
 
   getCurrentLocation() {
     return new Promise( (resolve, reject) => {
