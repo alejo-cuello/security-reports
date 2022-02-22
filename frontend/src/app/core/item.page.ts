@@ -73,7 +73,7 @@ export abstract class ItemPage extends FormPage {
           this.savePostError( reason );
         });
     } else {
-      this.pageService.httpUpdate( this.getEndPointUpdate(), item )
+      this.pageService.httpUpdate( this.getEndPointUpdate(), item, item[this.getFieldId()] )
         .then((response) =>{
           this.updatedItemMessage();
           this.savePost( response );

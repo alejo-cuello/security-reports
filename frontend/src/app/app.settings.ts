@@ -12,12 +12,14 @@ export class Settings {
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
+    status: 'status',
     user: 'user'
   };
 
   public static endPointsMethods = {
     claim: {
-      favorites: '/favorites'
+      favorites: '/favorites',
+      updateStatus: '/updateStatus'
     },
     insecurityFact: {
       favorites: '/favorites',

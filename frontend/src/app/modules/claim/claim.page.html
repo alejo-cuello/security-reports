@@ -91,14 +91,14 @@
     
     <ion-item *ngIf="!creating && role==='municipalAgent'">
       <ion-label position="floating">Estado</ion-label>
-      <ion-select>
+      <ion-select (ionChange)="changeStatus(status)">
         <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
       </ion-select>
     </ion-item>
 
-    <ion-item *ngIf="!creating && role==='municipalAgent'">
+    <ion-item *ngIf="action === 'watch'">
       <ion-label position="floating">Asignar</ion-label>
-      <ion-select formControlName="municipalAgentId">
+      <ion-select formControlName="municipalAgentId" [disabled]="role !== 'municipalAgent'">
         <ion-select-option>Jorge Perez</ion-select-option>
       </ion-select>
     </ion-item>

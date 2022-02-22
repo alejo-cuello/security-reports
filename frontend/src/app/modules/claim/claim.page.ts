@@ -16,11 +16,8 @@ export class ClaimPage extends ItemPage {
 
   categories: any[];
   selectedClaimType: any;
-
-  statuses: any = [
-    'suspendido',
-    'creado'
-  ];
+  selectedStatus: any;
+  statuses: any[];
 
   ionViewWillEnter() {
     let coordinates = this.global.pop(this.settings.storage.coordinates);
@@ -35,7 +32,14 @@ export class ClaimPage extends ItemPage {
         streetNumber
       });
     }
-    console.log('el formmmm', this.form);
+  }
+
+  changeStatus(status) {
+    this.selectedStatus = status;
+  }
+
+  loadItemPost() {
+    this.getStatus();
   }
 
   getParamId() {
@@ -57,7 +61,9 @@ export class ClaimPage extends ItemPage {
   }
 
   getEndPointUpdate() {
-    return this.settings.endPoints.claim;
+    let endPoint = this.settings.endPoints.claim;
+    if(this.role === 'municipalAgent') endPoint += this.settings.endPointsMethods.claim.updateStatus;
+    return endPoint;
   }
 
   initializePre() {
@@ -68,6 +74,19 @@ export class ClaimPage extends ItemPage {
       if(params.id) this.id = params.id;
     });
     this.getCategories();
+  }
+
+  getStatus() {
+    const endPoint = this.settings.endPoints.status;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (res) => {
+        this.statuses = res;
+      })
+      .catch( (err) => {
+        console.log(err);
+        this.pageService.showError(err);
+      })
   }
 
   getCategories() {
@@ -106,6 +125,7 @@ export class ClaimPage extends ItemPage {
   getFormEdit( item ) {
     console.log(item)
     return this.formBuilder.group({
+      claimId: [item.claimId],
       dateTimeCreation: [item.dateTimeCreation],
       dateTimeObservation: [item.dateTimeObservation, Validators.required],
       street: [item.street, Validators.required],
@@ -120,20 +140,27 @@ export class ClaimPage extends ItemPage {
       category: [null, Validators.required],
       selectedClaimType: [null]
     });
-}
+  }
 
   savePre( item: any ) {
-    if(this.creating) {
-      //Acá se llena el campo correspondiente según el tipo
-      if(this.type == 'claim')  item.claimSubcategoryId = item.category;
-      else  item.insecurityFactTypeId = item.category;
-      
-      delete item.category;
-      if(item.selectedClaimType) delete item.selectedClaimType;
+    
+    item.bodyType = 'form-data';
+    
+    //Acá se llena el campo correspondiente según el tipo
+    if(this.type == 'claim')  item.claimSubcategoryId = item.category;
+    else  item.insecurityFactTypeId = item.category;
+    
+    delete item.category;
+    if(item.selectedClaimType) delete item.selectedClaimType;
 
+    if(this.creating) { 
       item.dateTimeCreation = new Date().toLocaleTimeString();
+    }
 
-      item.bodyType = 'form-data';
+    if(this.role === 'municipalAgent') {
+      item = {
+        statusId: this.selectedStatus
+      };
     }
   }
 
