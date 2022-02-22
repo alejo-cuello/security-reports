@@ -77,7 +77,7 @@
 
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu === 'claim' && claims.length !== 0">
-      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions('')">
+      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
@@ -92,7 +92,7 @@
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección: {{ claim?.steet + ' ' + claim?.streetNumber }}</ion-text>
+          <ion-text color="medium">Dirección: {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
         </ion-item>
   
         <ion-item>

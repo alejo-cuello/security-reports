@@ -83,7 +83,7 @@ export class PageService {
   }
 
   httpGetById( endPoint, id ) {
-    endPoint += id;
+    endPoint += ('/' + id);
     return this.httpService.getById( endPoint );
   }
 

@@ -38,6 +38,14 @@ export class ClaimPage extends ItemPage {
     console.log('el formmmm', this.form);
   }
 
+  getParamId() {
+    return this.id ? this.id : 'new';
+  }
+
+  getFieldId() {
+    return 'claimId';
+  }
+
   getEndPoint() {
     return (this.type === 'claim') ?
       this.settings.endPoints.claim
@@ -95,6 +103,25 @@ export class ClaimPage extends ItemPage {
       });
   }
 
+  getFormEdit( item ) {
+    console.log(item)
+    return this.formBuilder.group({
+      dateTimeCreation: [item.dateTimeCreation],
+      dateTimeObservation: [item.dateTimeObservation, Validators.required],
+      street: [item.street, Validators.required],
+      streetNumber: [item.streetNumber, Validators.required],
+      latitude: [item.latitude, Validators.required],
+      longitude: [item.longitude, Validators.required],
+      mapAddress: [item.mapAddress],
+      comment: [item.comment],
+      photo: [item.photo],
+      neighborId: [this.user.neighborId, Validators.required],
+      //El campo category contendrá el tipo o subcategoría, según corresponda
+      category: [null, Validators.required],
+      selectedClaimType: [null]
+    });
+}
+
   savePre( item: any ) {
     if(this.creating) {
       //Acá se llena el campo correspondiente según el tipo
@@ -104,7 +131,7 @@ export class ClaimPage extends ItemPage {
       delete item.category;
       if(item.selectedClaimType) delete item.selectedClaimType;
 
-      item.dateTimeCreation = new Date().toISOString();
+      item.dateTimeCreation = new Date().toLocaleTimeString();
 
       item.bodyType = 'form-data';
     }

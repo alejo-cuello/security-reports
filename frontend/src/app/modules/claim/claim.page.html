@@ -17,7 +17,7 @@
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Tipo</ion-label>
       <ion-select formControlName="selectedClaimType">
-        <ion-select-option *ngFor="let category of categories" [value]="category">
+        <ion-select-option *ngFor="let category of categories" [value]="category" [disabled]="action === watch">
           {{category?.CTdescription}}
         </ion-select-option>
       </ion-select>
@@ -26,7 +26,8 @@
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Subcategoría</ion-label>
       <ion-select [disabled]="!form.value.selectedClaimType" formControlName="category">
-        <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory" [value]="subcategory?.claimSubcategoryId">
+        <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory"
+          [value]="subcategory?.claimSubcategoryId" [disabled]="action === watch">
           {{subcategory?.CSCdescription}}
         </ion-select-option>
       </ion-select>
@@ -36,7 +37,8 @@
     <ion-item *ngIf="type === 'insecurityFact'">
       <ion-label position="floating">Tipo</ion-label>
       <ion-select formControlName="category">
-        <ion-select-option *ngFor="let category of categories" [value]="insecurityFactTypeId?.algo">
+        <ion-select-option *ngFor="let category of categories" [value]="insecurityFactTypeId?.insecurityFactTypeId"
+          [disabled]="action === watch">
           {{category?.IFTdescription}}
         </ion-select-option>
       </ion-select>
@@ -46,11 +48,18 @@
     </div>
       
     <ion-item class="class-input">
-      <ion-label>Dirección</ion-label>
-      <ion-input type="text" readonly=true>  {{ (form.value.street || '') + ' ' + (form.value.streetNumber || '') }}</ion-input>
-      <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
-        Localizar
-      </ion-button>
+      <ion-label position="floating">Dirección</ion-label>
+      <ion-row>
+        <ion-col>
+          <ion-input type="text" readonly=true formControlName="street" [disabled]="action === 'watch'"> </ion-input>
+        </ion-col>
+        <ion-col>
+          <ion-input type="text" readonly=true formControlName="streetNumber" [disabled]="action === 'watch'"> </ion-input>
+        </ion-col>
+        <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
+          Localizar
+        </ion-button>
+      </ion-row>
     </ion-item>
     <div *ngIf="!isFieldValid('streetNumber')" class="invalid-input-message">
       {{getFieldError('streetNumber')}}
@@ -58,7 +67,7 @@
 
     <ion-item>
       <ion-label position="floating">Comentario</ion-label>
-      <ion-input type="text" formControlName="comment"></ion-input>
+      <ion-input type="text" formControlName="comment" [disabled]="action === 'watch'"></ion-input>
     </ion-item>
     <div *ngIf="!isFieldValid('comment')" class="invalid-input-message">
       {{getFieldError('comment')}}
@@ -66,7 +75,8 @@
     
     <ion-item>
       <ion-label position="floating">Fecha de ocurrencia</ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeObservation"></ion-datetime>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
+        formControlName="dateTimeObservation" [disabled]="action === 'watch'"></ion-datetime>
     </ion-item>
     <div *ngIf="!isFieldValid('dateTimeObservation')" class="invalid-input-message">
       {{getFieldError('dateTimeObservation')}}
@@ -75,18 +85,18 @@
     <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
 
     <ion-item *ngIf="!creating">
-      <ion-label position="floating">Fecha de creación</ion-label>
+      <ion-label position="floating" disabled>Fecha de creación</ion-label>
       <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation"></ion-datetime>
     </ion-item>
     
-    <ion-item *ngIf="!creating">
+    <ion-item *ngIf="!creating && role==='municipalAgent'">
       <ion-label position="floating">Estado</ion-label>
       <ion-select>
         <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
       </ion-select>
     </ion-item>
 
-    <ion-item *ngIf="!creating">
+    <ion-item *ngIf="!creating && role==='municipalAgent'">
       <ion-label position="floating">Asignar</ion-label>
       <ion-select formControlName="municipalAgentId">
         <ion-select-option>Jorge Perez</ion-select-option>
@@ -96,7 +106,7 @@
     <div>
       <ion-button expand="block" color="primary" type="submit">
         <ion-text color="light">
-          Crear
+          {{ creating ? 'Crear' : 'Editar' }}
         </ion-text>
       </ion-button>
     </div>

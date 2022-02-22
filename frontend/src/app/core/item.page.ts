@@ -33,6 +33,10 @@ export abstract class ItemPage extends FormPage {
     return this.formBuilder.group( {} );
   }
 
+  getFieldId() {
+    return 'id';
+  }
+
   getEndPoint() {
     return '';
   }
@@ -54,11 +58,11 @@ export abstract class ItemPage extends FormPage {
     this.savePre( item );
 
     if( !this.savePreCheck( item )) return;
-    console.log('item en perform', item)
-    this.savePostPre();
-    if ( !item.id ) {
 
-      delete ( item.id );
+    this.savePostPre();
+    if ( !item[this.getFieldId()] ) {
+
+      delete ( item[this.getFieldId()] );
       this.pageService.httpCreate( this.getEndPointCreate(), item, item.bodyType || 'json' )
         .then( (response) => {
           this.createdItemMessage();
@@ -120,7 +124,7 @@ export abstract class ItemPage extends FormPage {
     this.processing = true;
     const paramId = this.getParamId();
     if(!paramId) {
-      this.activatedRoute.params.subscribe( (params: Params) => {
+      this.activatedRoute.queryParams.subscribe( (params: Params) => {
         if (params) {
           this.params = params;
           if (params.id !== 'new')
@@ -158,9 +162,9 @@ export abstract class ItemPage extends FormPage {
   loadItem(id: string) {
     this.loadItemPre();
     this.pageService.httpGetById( this.getEndPointLoad(), id )
-    .then( (item:any) => {
-      this.form = this.getFormEdit(item.data);
-      this.item = item.data;
+    .then( ( results: any ) => {
+      this.form = this.getFormEdit(results[0]);
+      this.item = results[0];
       this.creating = false;
       this.processing = false;
       this.loadItemPost();
