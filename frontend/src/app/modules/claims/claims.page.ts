@@ -66,7 +66,6 @@ export class ClaimsPage extends BasePage {
       })
       .catch( (error) => {
         console.log(error);
-        this.pageService.showError(error);
       })
   }
 

@@ -27,7 +27,7 @@
       <ion-list>
 
         <!-- Para seleccionar tipo -->
-        <ion-item color="light">
+        <ion-item>
           <ion-label>Tipo de reclamo</ion-label>
           <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
             <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType?.id">{{ claimType?.CTdescription }}</ion-select-option>
@@ -35,7 +35,7 @@
         </ion-item>
 
         <!-- Para seleccionar subcategoría -->
-        <ion-item color="light">
+        <ion-item>
           <ion-label>Subcategoría de reclamo</ion-label>
           <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories">
             <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.id">{{ claimSubcategory?.CSdescription }}</ion-select-option>
@@ -47,7 +47,7 @@
     <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
     <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
       <ion-list>
-        <ion-item color="light">
+        <ion-item>
           <ion-label>Tipo hecho de inseguridad</ion-label>
           <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
             <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.id">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
@@ -82,7 +82,7 @@
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
-          <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
+          <ion-badge class="badge-border" color="warning" slot="end">{{ claim?.STAdescription }}</ion-badge>
         </ion-item>
   
         <ion-item>
@@ -98,7 +98,7 @@
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría y subcategoría: (ver como traer xd)
+            Categoría: {{ claim?.CTdescription }} + {{ claim?.CSCdescription }}
           </ion-text>
         </ion-item>
       </ion-card>
