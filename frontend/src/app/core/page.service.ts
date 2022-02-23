@@ -77,17 +77,17 @@ export class PageService {
     return this.httpService.getAllWithFilters(endPoint, offset, query);
   }
 
-  httpUpdate( endPoint, item  ) {
-    if(item.id) endPoint += '/' + item.id;
+  httpUpdate( endPoint, item, id ) {
+    endPoint += ( '/' + id );
     return this.httpService.update( endPoint, item );
   }
 
-  httpCreate( endPoint, item ) {
-    return this.httpService.post( endPoint, item );
+  httpCreate( endPoint, item, bodyType = 'json' ) {
+    return this.httpService.post( endPoint, item, bodyType );
   }
 
   httpGetById( endPoint, id ) {
-    endPoint += id;
+    endPoint += ('/' + id);
     return this.httpService.getById( endPoint );
   }
 
@@ -95,8 +95,8 @@ export class PageService {
     return this.httpService.put( endPoint, values );
   }
 
-  httpPost( endPoint, values ) {
-    return this.httpService.post( endPoint, values );
+  httpPost( endPoint, values, bodyType = 'json' ) {
+    return this.httpService.post( endPoint, values, bodyType );
   }
 
   httpDelete( endPoint ) {
@@ -144,25 +144,6 @@ export class PageService {
 
   // (+) Map
 
-  loadGoogleMapsLibrary(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (window['google']) {
-        return resolve(window['google']);
-      }
-      let element = document.createElement('script');
-      element.id = 'google-maps-api-script';
-      element.src = 'https://maps.googleapis.com/maps/api/js?key=' + this.global.settings.keys.googleMaps + '&libraries=places';
-      element.type = 'text/javascript';
-      element.onload = () => {
-        resolve(window['google']);
-      };
-      element.onerror = (error) => {
-        reject();
-      }
-      document.body.appendChild(element);
-    });
-  }
-
   getCurrentLocation() {
     return new Promise( (resolve, reject) => {
       this.geolocation.getCurrentPosition().then((position) => { 
@@ -182,48 +163,58 @@ export class PageService {
 
   // (+) Image
 
-  // showImageUpload(params?: any): Promise<any> {
-  //   return new Promise(async (resolve, reject) => {
-  //     let actionSheet = await this.actionSheetController.create({
-  //       header: "¿Como desea cargar su imagen?'",
-  //       buttons: [{
-  //         text:   "Galería",
-  //         handler: () => {
-  //           this.showImageUploadTake('gallery', resolve, reject);
-  //         }
-  //       }, {
-  //         text: "Cámara",
-  //         handler: () => {
-  //           this.showImageUploadTake('camera', resolve, reject);
-  //         }
-  //       }, {
-  //         text: "Cancelar",
-  //         role: 'cancel',
-  //         handler: () => {
-  //           resolve(null);
-  //         }
-  //       }]
-  //     });
-  //     await actionSheet.present();
-  //   });
-  // }
+  showImageUpload(params?: any): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      let actionSheet = await this.actionSheetController.create({
+        header: "¿Como desea cargar su imagen?'",
+        buttons: [{
+          text:   "Galería",
+          handler: () => {
+            this.showImageUploadTake('gallery', resolve, reject);
+          }
+        }, {
+          text: "Cámara",
+          handler: () => {
+            this.showImageUploadTake('camera', resolve, reject);
+          }
+        }, {
+          text: "Cancelar",
+          role: 'cancel',
+          handler: () => {
+            resolve(null);
+          }
+        }]
+      });
+      await actionSheet.present();
+    });
+  }
 
-  // showImageUploadTake(source, resolve, reject) {
-  //   let cameraOptions: CameraOptions = {
-  //     quality: 85,
-  //     destinationType: this.camera.DestinationType.DATA_URL,
-  //     encodingType: this.camera.EncodingType.JPEG,
-  //     mediaType: this.camera.MediaType.PICTURE,
-  //     sourceType: source == 'gallery' ? this.camera.PictureSourceType.PHOTOLIBRARY : this.camera.PictureSourceType.CAMERA,
-  //     correctOrientation: true,
-  //     // allowEdit: true
-  //   };
-  //   this.camera.getPicture(cameraOptions).then((file) => {
-  //     this.httpPostFileBase64(file, resolve, reject);
-  //   }, (error) => {
-  //     reject(error);
-  //   });
-  // }
+  showImageUploadTake(source, resolve, reject) {
+    if (!this.platform.is('cordova')) {
+      let element = document.createElement('input');
+      element.type = 'file';
+      element.accept = 'image/*';
+      element.onchange = () => {
+        resolve(element.files[0]);
+      };
+      element.click();
+    } else {
+      let cameraOptions: CameraOptions = {
+        quality: 85,
+        destinationType: this.camera.DestinationType.DATA_URL,
+        encodingType: this.camera.EncodingType.JPEG,
+        mediaType: this.camera.MediaType.PICTURE,
+        sourceType: source == 'gallery' ? this.camera.PictureSourceType.PHOTOLIBRARY : this.camera.PictureSourceType.CAMERA,
+        correctOrientation: true,
+        // allowEdit: true
+      };
+      this.camera.getPicture(cameraOptions).then((file) => {
+        resolve(file);
+      }, (error) => {
+        reject(error);
+      });
+    }
+  }
 
   // (-) Image
 

@@ -9,7 +9,6 @@ import { BasePage } from '../core/base.page';
 export class TabsPage extends BasePage {
 
   goTo(route: string) {
-    console.log('goto??', route)
     let queryParams = {};
     if( route === 'user' ) {
       let role = this.global.load(this.settings.storage.role);

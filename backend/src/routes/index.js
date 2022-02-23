@@ -22,6 +22,7 @@ router.use('/insecurityFactTypes', insecurityFactTypeRouter);
 router.use('/institutions', institutionRouter);
 
 router.use('/contacts', contactRouter);
+
 router.use('/map', mapRouter);
 
 module.exports = router;

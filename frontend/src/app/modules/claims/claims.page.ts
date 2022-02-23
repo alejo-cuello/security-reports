@@ -9,11 +9,69 @@ import { BasePage } from 'src/app/core/base.page';
 export class ClaimsPage extends BasePage {
 
   menu: string = 'claim';
-  claims: any[] = [1,2,3,4,5];
-  insecurityFacts: any[] = [1,2,3,4,5];
+  claims: any[] = [];
+  claimTypes: any[] = [];
+  insecurityFacts: any[] = [];
+  insecurityFactTypes: any[] = [];
 
-  goToClaim( action: string ) {
-    this.pageService.navigateRoute( 'claim', { queryParams: { action } } );
+  selectedCategories: any[] = [];
+  selectedSubcategories: any[] = [];
+
+  ionViewWillEnter() {
+    this.getClaimTypes();
+    this.getInsecurityFactTypes();
+    this.getClaims();
+  }
+
+  changeSegment() {
+    this.selectedCategories = [];
+    this.selectedSubcategories = [];
+    this.getClaims();
+  }
+
+  getClaimTypes() {
+    const endPoint = this.settings.endPoints.claimTypes;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (response) => {
+        this.claimTypes = response;
+      })
+      .catch( (error) => {
+        console.log(error);
+        this.pageService.showError(error);
+      })
+  }
+
+  getInsecurityFactTypes() {
+    const endPoint = this.settings.endPoints.insecurityFactTypes;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (response) => {
+        this.insecurityFactTypes = response;
+      })
+      .catch( (error) => {
+        console.log(error);
+        this.pageService.showError(error);
+      })
+  }
+
+  getClaims( type?: string ) {
+    const endPoint = (this.menu === 'claim') ? 
+      this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
+      : this.settings.endPoints.insecurityFact;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (response) => {
+        this.claims = response;
+      })
+      .catch( (error) => {
+        console.log(error);
+      })
+  }
+
+  goToClaim( action?: string, id?: string) {
+    const role = this.global.load(this.settings.storage.role);
+    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.menu } } );
   }
 
   async openOptions( id: string ) {
@@ -46,7 +104,7 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
-            this.goToClaim(action);
+            this.goToClaim(action, id);
           }
         }
       ]

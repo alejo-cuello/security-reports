@@ -17,10 +17,7 @@ export class MapPage extends BasePage {
 
   ionViewWillEnter() {
 
-    console.log('willenter')
-    this.coordinates = this.settings.coordinates.rosario;
-      
-    let map = L.map('map').setView(this.coordinates,17);
+    let map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -31,12 +28,14 @@ export class MapPage extends BasePage {
       if(this.marker) this.marker.removeFrom(map);
       this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(map);
 
+      this.coordinates = [data.latlng.lat, data.latlng.lng];
+
       const endPoint = this.settings.endPoints.map
         + this.settings.endPointsMethods.map.getAddress
         + '/' + data.latlng.lat
         + '&' + data.latlng.lng;
 
-      this.pageService.httpGet(endPoint, this.coordinates)
+      this.pageService.httpGet(endPoint)
         .then( (response) => {
           this.street = response.street;
           this.streetNumber = response.streetNumber;
@@ -51,6 +50,7 @@ export class MapPage extends BasePage {
     if(this.street && this.streetNumber) {
       this.global.save(this.settings.storage.street, this.street);
       this.global.save(this.settings.storage.streetNumber, this.streetNumber);
+      this.global.save(this.settings.storage.coordinates, this.coordinates);
       this.pageService.navigateBack();
     }
     else {

@@ -57,9 +57,23 @@ export class HttpService {
       .catch(this.handleError.bind(this));
   }
 
-  post( endPoint, value, showLoading = true ) {
+  post( endPoint, value, bodyType ) {
+
+    let body: any;
+    let enctype = 'json';
+
+    if(bodyType == 'form-data') {
+      delete value.bodyPart;
+      enctype = 'multipart/form-data';
+      body = new FormData();
+      for(let field in value)
+        body.append(field, value[field]);
+    } else {
+      body = value;
+    }
+
     const url = environment.serverUrl + endPoint;
-    return this.http.post(url, value, this.getHeaders())
+    return this.http.post(url, body, this.getHeaders(enctype))
       .toPromise()
       .then( (response:any) =>
         response
@@ -123,7 +137,6 @@ export class HttpService {
   // }
 
 
-
   getOptions(offset, query) {
     return {...this.getHeaders(), ...this.getParams(offset, query)};
   }
@@ -138,11 +151,12 @@ export class HttpService {
   }
 
 
-  getHeaders() {
+  getHeaders( enctype = 'json' ) {
     if(this.global.getUser() && this.global.get('securityReports.token')) {
       return {
         headers: new HttpHeaders({
-          'Authorization': `Bearer ${this.global.get('securityReports.token')}`
+          'Authorization': `Bearer ${this.global.get('securityReports.token')}`,
+          'enctype': enctype
         })
       };
     } else {
@@ -150,6 +164,7 @@ export class HttpService {
     }
   }
 
+  
   handleError(error: any) {
 
     let message = 'Ha ocurrido un error';

@@ -10,7 +10,7 @@
 
 <ion-content>
   <ion-toolbar class="custom-toolbar">
-    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu">
+    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
       <ion-segment-button value="claim">
         <ion-icon name="create-outline"></ion-icon>
         <ion-label>Reclamos</ion-label>
@@ -25,14 +25,20 @@
     <!-- Select para filtrar los reclamos por tipo de reclamo -->
     <div *ngIf="menu === 'claim'" class="ion-margin">
       <ion-list>
-        <ion-item color="light">
-          <ion-label>Tipo reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-            <ion-select-option value="claimTypeId">Alumbrado Público</ion-select-option>
-            <ion-select-option value="claimTypeId">Calles y Veredas</ion-select-option>
-            <ion-select-option value="claimTypeId">Cables Caídos</ion-select-option>
-            <ion-select-option value="claimTypeId">Desagües y Cloacas</ion-select-option>
+
+        <!-- Para seleccionar tipo -->
+        <ion-item>
+          <ion-label>Tipo de reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
+            <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType?.id">{{ claimType?.CTdescription }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Para seleccionar subcategoría -->
+        <ion-item>
+          <ion-label>Subcategoría de reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories">
+            <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.id">{{ claimSubcategory?.CSdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-list>
@@ -41,12 +47,10 @@
     <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
     <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
       <ion-list>
-        <ion-item color="light">
+        <ion-item>
           <ion-label>Tipo hecho de inseguridad</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar">
-            <!-- Acá hay q traer los tipos desde la BD y hacer un *ngFor por cada tipo -->
-            <ion-select-option value="insecurityFactTypeId">Robo</ion-select-option>
-            <ion-select-option value="insecurityFactTypeId">Violencia en la calle</ion-select-option>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
+            <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.id">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-list>
@@ -73,28 +77,28 @@
 
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu === 'claim' && claims.length !== 0">
-      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions('')">
+      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora creación</ion-text>
+          <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
-          <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
+          <ion-badge class="badge-border" color="warning" slot="end">{{ claim?.STAdescription }}</ion-badge>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora de observación</ion-text>
+          <ion-text color="medium">Fecha y hora de observación: {{ claim?.dateTimeObservation | date: 'dd/MM/yy HH:mm' }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección</ion-text>
+          <ion-text color="medium">Dirección: {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría: alumbrado público - rotura de lámpara
+            Categoría: {{ claim?.CTdescription }} + {{ claim?.CSCdescription }}
           </ion-text>
         </ion-item>
       </ion-card>
@@ -106,18 +110,25 @@
       <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora creación</ion-text>
+          <ion-text color="medium">Fecha y hora creación: {{ insecurityFact?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <!-- Podemos hacer que según el estado cambie de color -->
+          <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora de observación: {{ insecurityFact?.dateTimeObservation | date: 'dd/MM/yy HH:mm' }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección</ion-text>
+          <ion-text color="medium">Dirección: {{ insecurityFact?.steet + ' ' + insecurityFact?.streetNumber }}</ion-text>
         </ion-item>
-        
+  
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría: violencia en la calle
+            Categoría: (ver como traer xd)
           </ion-text>
         </ion-item>
       </ion-card>
