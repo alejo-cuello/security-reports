@@ -9,7 +9,7 @@
 
 <ion-content>
   <ion-toolbar class="custom-toolbar">
-    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu">
+    <ion-segment class="ion-padding custom-segment" color="primary" (ionChange)="segmentChanged()" [(ngModel)]="menu">
       <ion-segment-button value="security">
         <ion-icon name="shield-checkmark-outline"></ion-icon>
         <ion-label>Seguridad</ion-label>
@@ -21,10 +21,13 @@
       </ion-segment-button>
     </ion-segment>
 
+    <!-- Searchbar -->
     <ion-grid>
       <ion-row>
         <ion-col>
-          <ion-searchbar placeholder="Nombre de la institución"></ion-searchbar>
+          <ion-searchbar inputmode="search" placeholder="Nombre de la institución" 
+                         (ionChange)="onSearchChange($event)">
+          </ion-searchbar>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -32,57 +35,84 @@
 
   <ion-grid>
 
+    <ng-container *ngIf="menu === 'security' && loadingSecurity" class="ion-margin-top">
+      <h2 class="ion-text-center">Cargando</h2>
+      <p class="ion-text-center">Por favor espere...</p>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ng-container>
+    
+    <ng-container *ngIf="menu === 'health' && loadingHealth" class="ion-margin-top">
+      <h2 class="ion-text-center">Cargando</h2>
+      <p class="ion-text-center">Por favor espere...</p>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ng-container>
+
+
     <!-- Muestra mensaje de que no hay instituciones de seguridad para mostrar -->
-    <ion-item *ngIf="menu === 'security' && securityInstitutions.length === 0" class="ion-margin-top">
+    <ion-item *ngIf="menu === 'security' && !loadingSecurity && securityInstitutions.length === 0" class="ion-margin-top">
       <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
       <p>No hay instituciones de seguridad para mostrar</p>
     </ion-item>
   
   
     <!-- Muestra mensaje de que no hay instituciones de salud para mostrar -->
-    <ion-item *ngIf="menu === 'health' && healthInstitutions.length === 0" class="ion-margin-top">
+    <ion-item *ngIf="menu === 'health' && !loadingHealth && healthInstitutions.length === 0" class="ion-margin-top">
       <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
       <p>No hay instituciones de salud para mostrar</p>
     </ion-item>
 
 
-    <ng-container *ngIf="menu === 'security' && securityInstitutions.length !== 0">
+    <ng-container *ngIf="menu === 'security' && !loadingSecurity && securityInstitutions.length !== 0">
       <ion-card *ngFor="let securityInstitution of securityInstitutions" class="ion-margin">
         <ion-item>
           <ion-icon color="primary" name="business-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Nombre institución seguridad</ion-text>
+          <ion-text color="medium">{{ securityInstitution.name }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección</ion-text>
+          <ion-text color="medium">{{ securityInstitution.direccion }}</ion-text>
         </ion-item>
 
         <ion-item>
           <ion-icon color="primary" name="call-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Teléfono</ion-text>
+          <ion-text color="medium">{{ securityInstitution.contactos }}</ion-text>
         </ion-item>
       </ion-card>
+
+      <ion-infinite-scroll threshold="150px" (ionInfinite)="loadMoreInstitutions(true, $event)">
+        <ion-infinite-scroll-content
+          loadingSpinner="crescent"
+          loadingText="Cargando más instituciones...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ng-container>
 
 
-    <ng-container *ngIf="menu === 'health' && healthInstitutions.length !== 0">
+    <ng-container *ngIf="menu === 'health' && !loadingHealth && healthInstitutions.length !== 0">
       <ion-card *ngFor="let healthInstitution of healthInstitutions" class="ion-margin">
         <ion-item>
           <ion-icon color="primary" name="business-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Nombre institución salud</ion-text>
+          <ion-text color="medium">{{ healthInstitution.name }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección</ion-text>
+          <ion-text color="medium">{{ healthInstitution.direccion }}</ion-text>
         </ion-item>
 
         <ion-item>
           <ion-icon color="primary" name="call-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Teléfono</ion-text>
+          <ion-text color="medium">{{ healthInstitution.contactos }}</ion-text>
         </ion-item>
       </ion-card>
+
+      <ion-infinite-scroll threshold="150px" (ionInfinite)="loadMoreInstitutions(true, $event)">
+        <ion-infinite-scroll-content
+          loadingSpinner="crescent"
+          loadingText="Cargando más instituciones...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ng-container>
 
   </ion-grid>

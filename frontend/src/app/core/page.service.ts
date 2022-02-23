@@ -69,8 +69,12 @@ export class PageService {
     return '/' + this.getModuleName();
   }
 
-  httpGetAll( endPoint, ids ) {
-    return this.httpService.getAll(endPoint, ids)
+  httpGetAll( endPoint ) {
+    return this.httpService.getAll( endPoint );
+  }
+
+  httpGetAllWithFilters( endPoint, offset, query) {
+    return this.httpService.getAllWithFilters(endPoint, offset, query);
   }
 
   httpUpdate( endPoint, item  ) {

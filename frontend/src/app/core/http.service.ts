@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { GlobalService } from './global.service';
 
@@ -17,8 +17,12 @@ export class HttpService {
 
   // (+) Items
 
-  getAll( endPoint, ids ) {
+  getAll( endPoint ) {
     return this.get(endPoint);
+  }
+
+  getAllWithFilters( endPoint, offset, query ) {
+    return this.getWithFilters(endPoint, offset, query);
   }
 
   getById( endPoint ) {
@@ -75,6 +79,19 @@ export class HttpService {
       });
   }
 
+
+  getWithFilters(endPoint, offset, query, showLoading = true) {
+    const url = environment.serverUrl + endPoint;
+    return this.http.get(url, this.getOptions(offset, query))
+      .toPromise()
+      .then( (response:any) => {
+        return response;
+      })
+      .catch( (error) => {
+        return this.handleError(error);
+      });
+  }
+
   // (-) Basic
 
   // postFileBase64(file, resolve, reject) {
@@ -105,11 +122,27 @@ export class HttpService {
   //   });
   // }
 
+
+
+  getOptions(offset, query) {
+    return {...this.getHeaders(), ...this.getParams(offset, query)};
+  }
+
+
+  getParams(offset, query) {
+    return {
+      params: new HttpParams({
+        fromString: `offset=${offset}&query=${query}`
+      })
+    }
+  }
+
+
   getHeaders() {
-    if(this.global.getUser() && this.global.getUser().token) {
+    if(this.global.getUser() && this.global.get('securityReports.token')) {
       return {
         headers: new HttpHeaders({
-          'Authorization':  this.global.getUser().token
+          'Authorization': `Bearer ${this.global.get('securityReports.token')}`
         })
       };
     } else {
