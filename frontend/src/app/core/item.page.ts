@@ -63,6 +63,7 @@ export abstract class ItemPage extends FormPage {
     if ( !item[this.getFieldId()] ) {
 
       delete ( item[this.getFieldId()] );
+      this.pageService.showMessage('Procesando...', 'medium');
       this.pageService.httpCreate( this.getEndPointCreate(), item, item.bodyType || 'json' )
         .then( (response) => {
           this.createdItemMessage();
