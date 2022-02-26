@@ -131,8 +131,7 @@ export class UserPage extends ItemPage {
     if ( this.role === 'neighbor' ) {
       item.dni = item.dni.toString();
       item.tramiteNumberDNI = item.tramiteNumberDNI.toString();
-      item.phoneNumber = item.phoneNumber.toString();
-      item.phoneNumber = item.phoneNumber.toString();
+      if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
     }
   }
 
