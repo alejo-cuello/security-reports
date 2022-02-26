@@ -16,8 +16,8 @@
     <!-- Selects para reclamos -->
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Tipo</ion-label>
-      <ion-select formControlName="selectedClaimType">
-        <ion-select-option *ngFor="let category of categories" [value]="category" [disabled]="action === watch">
+      <ion-select formControlName="selectedClaimType" (ionChange)="onChangeClaimType()">
+        <ion-select-option *ngFor="let category of categories" [value]="category" [disabled]="action === 'watch'">
           {{category?.CTdescription}}
         </ion-select-option>
       </ion-select>
@@ -27,7 +27,7 @@
       <ion-label position="floating">Subcategoría</ion-label>
       <ion-select [disabled]="!form.value.selectedClaimType" formControlName="category">
         <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory"
-          [value]="subcategory?.claimSubcategoryId" [disabled]="action === watch">
+          [value]="subcategory?.claimSubcategoryId" [disabled]="action === 'watch'">
           {{subcategory?.CSCdescription}}
         </ion-select-option>
       </ion-select>
@@ -37,8 +37,8 @@
     <ion-item *ngIf="type === 'insecurityFact'">
       <ion-label position="floating">Tipo</ion-label>
       <ion-select formControlName="category">
-        <ion-select-option *ngFor="let category of categories" [value]="insecurityFactTypeId?.insecurityFactTypeId"
-          [disabled]="action === watch">
+        <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId"
+          [disabled]="action === 'watch'">
           {{category?.IFTdescription}}
         </ion-select-option>
       </ion-select>
@@ -47,20 +47,24 @@
       {{getFieldError('category')}}
     </div>
       
-    <ion-item class="class-input">
-      <ion-label position="floating">Dirección</ion-label>
-      <ion-row>
-        <ion-col>
+    <ion-row>
+      <ion-col>
+        <ion-item class="class-input">
+          <ion-label position="floating">Calle</ion-label>
           <ion-input type="text" readonly=true formControlName="street" [disabled]="action === 'watch'"> </ion-input>
-        </ion-col>
-        <ion-col>
+        </ion-item>
+        <ion-item class="class-input">
+          <ion-label position="floating">Número</ion-label>
           <ion-input type="text" readonly=true formControlName="streetNumber" [disabled]="action === 'watch'"> </ion-input>
-        </ion-col>
+        </ion-item>
+      </ion-col>
+      <ion-col>
         <ion-button style="height: 30px;" type="button" color="tertiary" fill="outline" (click)="goToMap()" slot="end">
           Localizar
         </ion-button>
-      </ion-row>
-    </ion-item>
+      </ion-col>
+    </ion-row>
+
     <div *ngIf="!isFieldValid('streetNumber')" class="invalid-input-message">
       {{getFieldError('streetNumber')}}
     </div>

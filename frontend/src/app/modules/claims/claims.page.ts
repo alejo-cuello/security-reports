@@ -11,6 +11,8 @@ export class ClaimsPage extends BasePage {
   menu: string = 'claim';
   claims: any[] = [];
   claimTypes: any[] = [];
+  claimSubcategories: any[] = [];
+  idsTypes: any[] = [];
   insecurityFacts: any[] = [];
   insecurityFactTypes: any[] = [];
 
@@ -55,10 +57,13 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  getClaims( type?: string ) {
-    const endPoint = (this.menu === 'claim') ? 
+  getClaims( type?: string[], subcategory?: string[] ) {
+    let endPoint = (this.menu === 'claim') ? 
       this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
       : this.settings.endPoints.insecurityFact;
+
+    if(subcategory) endPoint += '?claimSubcategory=' + subcategory;
+    else if(type) endPoint += '?claimType=' + type;
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
@@ -72,6 +77,22 @@ export class ClaimsPage extends BasePage {
   goToClaim( action?: string, id?: string) {
     const role = this.global.load(this.settings.storage.role);
     this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.menu } } );
+  }
+
+  onSelectCategories(event) {
+    this.claimSubcategories = [];
+    this.idsTypes = [];
+    for( let type of this.selectedCategories ) {
+      for( let subcategory of type.claimSubcategory ) {
+        this.claimSubcategories.push(subcategory);
+      }
+      this.idsTypes.push(type.claimTypeId);
+    }
+    this.getClaims(this.idsTypes);
+  }
+
+  onSelectSubcategories(event) {
+    this.getClaims(this.selectedCategories, this.selectedSubcategories);
   }
 
   async openOptions( id: string ) {

@@ -29,16 +29,16 @@
         <!-- Para seleccionar tipo -->
         <ion-item>
           <ion-label>Tipo de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
-            <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType?.id">{{ claimType?.CTdescription }}</ion-select-option>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories($event)">
+            <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType">{{ claimType?.CTdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
 
         <!-- Para seleccionar subcategoría -->
         <ion-item>
           <ion-label>Subcategoría de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories">
-            <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.id">{{ claimSubcategory?.CSdescription }}</ion-select-option>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" (ionChange)="onSelectSubcategories($event)">
+            <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-list>
@@ -50,7 +50,7 @@
         <ion-item>
           <ion-label>Tipo hecho de inseguridad</ion-label>
           <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
-            <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.id">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
+            <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.insecurityFactTypeId">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-list>

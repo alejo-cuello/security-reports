@@ -186,6 +186,10 @@ const getQueryClaimTo = () => {
 const setFilter = (filter) => {
     let partialWhere = "";
     where = "";
+
+    //Agregué esta linea para que reconozca el filtro como un array
+    filter = filter.split(',');
+
     if ( Array.isArray(filter) ) { // Verifica si filter es un array
         partialWhere = ` AND tr.idTipoReclamo IN (?`;
         filter.forEach( (eachFilter) => {
@@ -198,6 +202,34 @@ const setFilter = (filter) => {
     } else { // Si el filter no es un array, solo se agrega el filtro
         replacements.push(filter); // Al array de reemplazos se le agrega el filtro
         where = ` AND tr.idTipoReclamo = ?`;
+    };
+};
+
+
+/**
+ * Setea el o los filtros para la query de obtener los reclamos por subtipos
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where para obtener los reclamos
+*/
+const setFilterSubcategory = (filter) => {
+    let partialWhere = "";
+    where = "";
+
+    //Agregué esta linea para que reconozca el filtro como un array
+    filter = filter.split(',');
+    console.log('filterrr', filter)
+
+    if ( Array.isArray(filter) ) { // Verifica si filter es un array
+        partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
+        filter.forEach( (eachFilter) => {
+            replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
+            where = where + partialWhere; // Se arma la cláusula where con los filtros
+            partialWhere = `,?`;
+        });
+        partialWhere = `)`;
+        where = where + partialWhere;
+    } else { // Si el filter no es un array, solo se agrega el filtro
+        replacements.push(filter); // Al array de reemplazos se le agrega el filtro
+        where = ` AND rec.idSubcategoriaReclamo = ?`;
     };
 };
 
@@ -219,12 +251,18 @@ const getFavoriteClaims = async (req, res, next) => {
         replacements = [];
         replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
 
-        if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
-            setFilter(req.query.claimType);
+        if ( req.query.claimSubcategory) {
+            setFilterSubcategory(req.query.claimSubcategory);
             queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
-        } else { // En caso de que no se aplique ningún filtro
-            queryMyFavoritesClaims = getQueryMyFavoritesClaims();
-        };
+        }
+        else {
+            if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
+                setFilter(req.query.claimType);
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
+            } else { // En caso de que no se aplique ningún filtro
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims();
+            };
+        }
 
         myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
             {

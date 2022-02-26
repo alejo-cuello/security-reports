@@ -18,6 +18,7 @@ export class ClaimPage extends ItemPage {
   selectedClaimType: any;
   selectedStatus: any;
   statuses: any[];
+  subcategories: any[];
 
   ionViewWillEnter() {
     let coordinates = this.global.pop(this.settings.storage.coordinates);
@@ -32,6 +33,12 @@ export class ClaimPage extends ItemPage {
         streetNumber
       });
     }
+  }
+
+  onChangeClaimType(){
+    this.form.patchValue({ category: null });
+    console.log(this.form);
+    // this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
   }
 
   changeStatus(status) {
