@@ -1,4 +1,5 @@
 const models = require('../models');
+const path = require('path');
 const ApiError = require('../utils/apiError');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -162,12 +163,12 @@ const confirmEmail = async (req, res, next) => {
 
         // Verifica que el usuario con el email a confirmar exista
         if ( !user ) {
-            throw ApiError.notFound('User with that email not found');
+            return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
         };
 
         // Verifica que el usuario no tenga ya una cuenta activa
         if ( user.emailIsVerified ) {
-            throw ApiError.badRequest('Email is already verified');
+            return res.sendFile(path.join(__dirname, '../../public/emailAlreadyVerified.html'));
         };
 
         // Actualiza el email como verificado
@@ -175,9 +176,7 @@ const confirmEmail = async (req, res, next) => {
 
         await transaction.commit();
 
-        return res.status(200).json({
-            message: 'Email confirmed successfully'
-        });
+        return res.sendFile(path.join(__dirname, '../../public/emailConfirmedSuccessfully.html'));
     } catch (error) {
         await transaction.rollback();
         next(error);
