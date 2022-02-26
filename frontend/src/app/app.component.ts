@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { GlobalService } from './core/global.service';
 import { PageService } from './core/page.service';
+import { MenuController } from '@ionic/angular';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -9,13 +11,19 @@ import { PageService } from './core/page.service';
 })
 export class AppComponent {
 
+  userFirstName: string = "";
+  userLastName: string = "";
+  userEmail: string = "";
+  role: string = "";
+
   constructor(
     public pageService: PageService,
     public global: GlobalService,
+    private menuController: MenuController
   ){
   }
 
-  public appPages = [
+  public appNeighborPages = [
     {
       title: 'Mis reclamos favoritos',
       url: '/tabs/claims',
@@ -38,8 +46,27 @@ export class AppComponent {
     }
   ];
 
+  public appMunicipalAgentPages = [
+    {
+      title: 'Mis reclamos tomados',
+      url: '/tabs/claims',
+      icon: 'list-outline'
+    },
+    {
+      title: 'Instituciones',
+      url: '/institutions',
+      icon: 'business-outline'
+    },
+    {
+      title: 'Cerrar sesión',
+      url: '/login',
+      icon: 'log-out-outline'
+    }
+  ];
+
   navigateTo( url: string ) {
     if ( url === '/login' ) {
+      this.menuController.enable(false);
       this.global.removeUser(); // Elimina el usuario del localStorage
       this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
       this.global.remove('securityReports.token'); // Elimina el token del localStorage
@@ -53,4 +80,27 @@ export class AppComponent {
     this.pageService.iab.create('https://wa.me/5493462603682?text=' + message, "_system");
   }
 
+  setUserData() {
+    const user = this.global.getUser();
+    if ( user ) {
+      this.userFirstName = user.firstName;
+      this.userLastName = user.lastName;
+      this.userEmail = user.email;
+    }
+    const role = this.global.get('securityReports.role');
+    this.translateAndSetRole(role);
+  }
+
+  translateAndSetRole(role) {
+    if ( role === 'neighbor' ) {
+      this.role = 'Vecino';
+    };
+    if ( role === 'municipalAgent' ) {
+      this.role = 'Agente Municipal';
+    };
+  }
+
+  loadMenuHeader() {
+    this.setUserData();
+  }
 }
