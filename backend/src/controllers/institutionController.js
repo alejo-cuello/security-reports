@@ -11,12 +11,16 @@ const getSecurityInstitutions = async (req, res, next) => {
         const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=2b62f9d3-2d77-4c0a-a030-c237a0ee8aee&limit=${ limit }&offset=${ offset }&query=${ query }`);
 
         const institutions = response.data.result.records;
+        const total = response.data.result.total;
 
         if ( institutions.length === 0 ) {
             throw ApiError.notFound('There are not institutions to show');
         };
         
-        return res.status(200).json(institutions);
+        return res.status(200).json({
+            institutions,
+            total
+        });
     } catch (error) {
         next(error);
     }
@@ -33,12 +37,16 @@ const getHealthInstitutions = async (req, res, next) => {
         const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=7e14955e-8ef4-4ce8-a7d1-3bb19793f53a&limit=${ limit }&offset=${ offset }&query=${ query }`);
 
         const institutions = response.data.result.records;
+        const total = response.data.result.total;
 
         if ( institutions.length === 0 ) {
             throw ApiError.notFound('There are not institutions to show');
         };
         
-        return res.status(200).json(institutions);
+        return res.status(200).json({
+            institutions,
+            total
+        });
     } catch (error) {
         next(error);
     }

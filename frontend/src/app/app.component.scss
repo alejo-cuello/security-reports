@@ -1,11 +1,11 @@
 .menu-header {
-    border-color: white;
-    
-    ion-avatar{
-      height: 60px; 
-      width: 60px;
-    }
+  border-color: white;
+  
+  ion-avatar{
+    height: 60px; 
+    width: 60px;
   }
+}
 
 .logo {
   margin-top: 8vh;
@@ -13,6 +13,10 @@
 
 .menu {
   margin-top: 5vh;
+}
+
+.text-bold {
+  font-weight: bold;
 }
 
 ion-menu ion-list-header,

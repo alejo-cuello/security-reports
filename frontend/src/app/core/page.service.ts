@@ -70,7 +70,11 @@ export class PageService {
   }
 
   httpGetAll( endPoint ) {
-    return this.httpService.getAll(endPoint);
+    return this.httpService.getAll( endPoint );
+  }
+
+  httpGetAllWithFilters( endPoint, offset, query) {
+    return this.httpService.getAllWithFilters(endPoint, offset, query);
   }
 
   httpUpdate( endPoint, item, id ) {

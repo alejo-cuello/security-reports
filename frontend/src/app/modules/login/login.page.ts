@@ -1,7 +1,8 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormBuilder, NgForm, Validators } from '@angular/forms';
 import { FormPage } from 'src/app/core/form.page';
 import { PageService } from 'src/app/core/page.service';
+import { MenuController } from '@ionic/angular';
 
 
 @Component({
@@ -16,9 +17,11 @@ export class LoginPage extends FormPage {
   constructor(
     public formBuilder: FormBuilder,
     public pageService: PageService,
+    private menuController: MenuController
   ) {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
+    this.menuController.enable(false);
   }
 
   getFormNew() {
@@ -37,6 +40,7 @@ export class LoginPage extends FormPage {
       this.global.save(this.settings.storage.role, this.form.value.role ); // Guarda el rol del usuario en el localStorage
       this.global.save(this.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
       this.pageService.showSuccess('Bienvenido!');
+      this.menuController.enable(true);
       this.pageService.navigateRoute('tabs/claims');
       this.initializeForm();
     })
@@ -51,7 +55,6 @@ export class LoginPage extends FormPage {
 
   initializeForm() {
     this.form.reset();
-    this.form.patchValue({role: this.settings.roles.user});
   }
 
   goToPreRegister() {
