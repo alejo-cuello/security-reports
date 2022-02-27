@@ -12,21 +12,23 @@ export class MapPage extends BasePage {
 
   coordinates: any;
   marker: any;
+  map: any;
   street: string;
   streetNumber: string;
 
   ionViewWillEnter() {
 
-    let map = L.map('map').setView(this.settings.coordinates.rosario, 17);
+    if(this.map) this.map.remove();
+    this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
-    ).addTo(map);
+    ).addTo(this.map);
 
-    map.on("click", (data: any) => {
-      if(this.marker) this.marker.removeFrom(map);
-      this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(map);
+    this.map.on("click", (data: any) => {
+      if(this.marker) this.marker.removeFrom(this.map);
+      this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(this.map);
 
       this.coordinates = [data.latlng.lat, data.latlng.lng];
 

@@ -216,7 +216,6 @@ const setFilterSubcategory = (filter) => {
 
     //Agregué esta linea para que reconozca el filtro como un array
     filter = filter.split(',');
-    console.log('filterrr', filter)
 
     if ( Array.isArray(filter) ) { // Verifica si filter es un array
         partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
@@ -274,10 +273,6 @@ const getFavoriteClaims = async (req, res, next) => {
             }
         );
 
-        if ( myFavoritesClaims.length === 0 ) {
-            throw ApiError.notFound('There are no claims to show');
-        };
-
         return res.status(200).json(myFavoritesClaims);
     } catch (error) {
         next(error);
@@ -303,10 +298,6 @@ const getPendingClaims = async (req, res, next) => {
         const pendingClaims = await sequelize.query( queryPendingClaims, {
             type: QueryTypes.SELECT
         });
-
-        if ( pendingClaims.length === 0 ) {
-            throw ApiError.notFound('There are no pending claims to show');
-        };
 
         return res.status(200).json(pendingClaims);
     } catch (error) {
@@ -782,10 +773,6 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
                 }
             ]
         });
-
-        if ( myFavoritesInsecurityFacts.length === 0 ) {
-            throw ApiError.notFound('There are not insecurity facts to show');
-        };
 
         return res.status(200).json(myFavoritesInsecurityFacts);
     } catch (error) {

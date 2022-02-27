@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ItemPage } from 'src/app/core/item.page';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-claim',
@@ -15,12 +16,16 @@ export class ClaimPage extends ItemPage {
   type: string;
 
   categories: any[];
+  picture: any;
   selectedClaimType: any;
   selectedStatus: any;
   statuses: any[];
   subcategories: any[];
+  today: any;
 
   ionViewWillEnter() {
+    this.today = moment().format('YYYY-MM-DD');
+
     let coordinates = this.global.pop(this.settings.storage.coordinates);
     let street = this.global.pop(this.settings.storage.street);
     let streetNumber = this.global.pop(this.settings.storage.streetNumber);
@@ -152,6 +157,7 @@ export class ClaimPage extends ItemPage {
   savePre( item: any ) {
     
     item.bodyType = 'form-data';
+    item.dateTimeObservation = moment(item.dateTimeObservation).format('YYYY-MM-DD HH:mm:ss')
     
     //Acá se llena el campo correspondiente según el tipo
     if(this.type == 'claim')  item.claimSubcategoryId = item.category;
@@ -161,7 +167,7 @@ export class ClaimPage extends ItemPage {
     if(item.selectedClaimType) delete item.selectedClaimType;
 
     if(this.creating) { 
-      item.dateTimeCreation = new Date().toLocaleTimeString();
+      item.dateTimeCreation = moment().toISOString();
     }
 
     if(this.role === 'municipalAgent') {
@@ -175,6 +181,7 @@ export class ClaimPage extends ItemPage {
     this.pageService.showImageUpload()
       .then( (response) => {
         this.form.patchValue( { photo: response } );
+        this.picture = this.pageService.trustResourceUrl(response)
       })
       .catch( (error) => {
         console.log(error);

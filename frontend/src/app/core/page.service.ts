@@ -9,7 +9,7 @@ import { HttpService } from './http.service';
 import { GlobalService } from './global.service';
 import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +37,8 @@ export class PageService {
     public popoverController: PopoverController,
     public zone: NgZone,
     public sms: SMS,
-    public iab: InAppBrowser
+    public iab: InAppBrowser,
+    public sanitizer: DomSanitizer,
   ) {
   }
 
@@ -214,6 +215,12 @@ export class PageService {
         reject(error);
       });
     }
+  }
+
+  trustResourceUrl(file){
+    return this.platform.is('cordova') ?
+      this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file)
+      : this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file));
   }
 
   // (-) Image
