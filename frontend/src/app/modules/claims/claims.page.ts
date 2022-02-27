@@ -80,6 +80,7 @@ export class ClaimsPage extends BasePage {
   }
 
   onSelectCategories(event) {
+    this.selectedSubcategories = [];
     this.claimSubcategories = [];
     this.idsTypes = [];
     for( let type of this.selectedCategories ) {
