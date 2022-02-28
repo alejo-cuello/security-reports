@@ -1,11 +1,12 @@
 const fs = require('fs')
 const path = './public/uploadedImages/';
+const ApiError = require('../utils/apiError');
 
 const getByFilename = async (req, res, next) => {
     try {
-        fs.readFile(path + req.params.fileName , (err, data) => {
-            if (err) {
-                throw ApiError.forbidden(`An error ocurred reading this file`);
+        fs.readFile(path + req.params.fileName , (error, data) => {
+            if (error) {
+                res.send(error)
             }
             res.send(data);
           })

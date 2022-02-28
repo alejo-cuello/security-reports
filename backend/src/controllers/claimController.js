@@ -576,14 +576,21 @@ const editClaim = async (req, res, next) => {
             };
         };
 
+        let fileUrl;
         if ( claimToUpdate.length !== 0 ) {
-            req.body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+            fileUrl = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
         } else {
-            req.body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+            fileUrl = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
         };
 
+        let body = {
+            ...req.body
+        }
+
+        if(fileUrl) body.photo = fileUrl;
+
         // Actualiza el reclamo
-        await models.Claim.update(req.body, { 
+        await models.Claim.update(body, { 
             where: {
                 claimId: req.params.claimId,
                 neighborId: dataFromToken.neighborId
@@ -890,17 +897,20 @@ const photoUpdateHandler = async (file, previousPhoto) => {
         if ( previousPhoto ) { // Si el reclamo ya tiene foto
             if ( file ) { // Si el usuario envía una foto
                 // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                newPhoto = file.path;
+                newPhoto = file.filename;
             } else { // Si el usuario no envía una foto
                 newPhoto = null;
             };
-            const path = previousPhoto;
+
+            // Lo dejo comentado de momento, revisar más adelante como borrar la foto anterior
+
+            // const filename = previousPhoto;
             // Borra la foto del servidor
-            await deleteImage(path);
+            // await deleteImage(filename);
         } else { // Si el reclamo no tiene foto
             if ( file ) { // Si el usuario envía una foto
                 // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                newPhoto = file.path;
+                newPhoto = file.filename;
             };
         };
         return newPhoto;
