@@ -29,7 +29,7 @@
         <!-- Para seleccionar tipo -->
         <ion-item>
           <ion-label>Tipo de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories($event)">
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
             <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType">{{ claimType?.CTdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
@@ -37,7 +37,7 @@
         <!-- Para seleccionar subcategoría -->
         <ion-item *ngIf="selectedCategories.length === 1">
           <ion-label>Subcategoría de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" (ionChange)="onSelectSubcategories($event)">
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" (ionChange)="onSelectSubcategories()">
             <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
           </ion-select>
         </ion-item>
@@ -49,7 +49,7 @@
       <ion-list>
         <ion-item>
           <ion-label>Tipo hecho de inseguridad</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories">
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectTypes()">
             <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.insecurityFactTypeId">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
           </ion-select>
         </ion-item>

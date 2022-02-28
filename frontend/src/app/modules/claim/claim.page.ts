@@ -42,8 +42,6 @@ export class ClaimPage extends ItemPage {
 
   onChangeClaimType(){
     this.form.patchValue({ category: null });
-    console.log(this.form);
-    // this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
   }
 
   changeStatus(status) {
@@ -51,6 +49,7 @@ export class ClaimPage extends ItemPage {
   }
 
   loadItemPost() {
+    this.picture = this.filesUrl + this.item.photo;
     this.getStatus();
   }
 
@@ -181,7 +180,7 @@ export class ClaimPage extends ItemPage {
     this.pageService.showImageUpload()
       .then( (response) => {
         this.form.patchValue( { photo: response } );
-        this.picture = this.pageService.trustResourceUrl(response)
+        this.picture = this.pageService.trustResourceUrl(response);
       })
       .catch( (error) => {
         console.log(error);

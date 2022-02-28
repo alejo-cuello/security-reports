@@ -11,17 +11,16 @@ ion-content {
         color: #636363;
     }
     
-    .containerimg {
+    .container-img {
         display: flex;
         justify-content: center;
+    }
 
-        img {
-            width: 120px;
-            object-fit: cover;
-            height: 120px;
-            border-radius: 50%;
-            align-self: center;
-        }
+    img {
+        width: 120px;
+        object-fit: cover;
+        height: 120px;
+        border-radius: 50%;
     }
 
     .centering{

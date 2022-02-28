@@ -9,9 +9,10 @@
   
 <ion-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <ion-item class="containerimg" (click)="changePicture()">
-      <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'">
-    </ion-item>
+
+    <div class="container-img">
+      <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'" (click)="changePicture()">
+    </div>
 
     <!-- Selects para reclamos -->
     <ion-item *ngIf="type === 'claim'">

@@ -44,7 +44,7 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  getInsecurityFactTypes() {
+  getInsecurityFactTypes( type?: string[] ) {
     const endPoint = this.settings.endPoints.insecurityFactTypes;
 
     this.pageService.httpGetAll(endPoint)
@@ -63,7 +63,10 @@ export class ClaimsPage extends BasePage {
       : this.settings.endPoints.insecurityFact;
 
     if(subcategory) endPoint += '?claimSubcategory=' + subcategory;
-    else if(type) endPoint += '?claimType=' + type;
+    else if(type) {
+      if( this.menu === 'claim' ) endPoint += '?claimType=' + type;
+      else endPoint += '?insecurityFactType=' + type;
+    }
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
@@ -79,10 +82,10 @@ export class ClaimsPage extends BasePage {
     this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.menu } } );
   }
 
-  onSelectCategories(event) {
+  onSelectCategories() {
     this.selectedSubcategories = [];
     this.claimSubcategories = [];
-    this.idsTypes = [];
+    this.idsTypes = null;
     for( let type of this.selectedCategories ) {
       for( let subcategory of type.claimSubcategory ) {
         this.claimSubcategories.push(subcategory);
@@ -92,8 +95,16 @@ export class ClaimsPage extends BasePage {
     this.getClaims(this.idsTypes);
   }
 
-  onSelectSubcategories(event) {
+  onSelectSubcategories() {
     this.getClaims(this.selectedCategories, this.selectedSubcategories);
+  }
+
+  onSelectTypes() {
+    this.idsTypes = null;
+    for( let type of this.selectedCategories ) {
+      this.idsTypes.push(type);
+    }
+    this.getClaims(this.idsTypes);
   }
 
   async openOptions( id: string ) {
