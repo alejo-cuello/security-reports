@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  filesUrl: '',
+  filesUrl: 'http://localhost:3000/files/',
   serverUrl: 'http://localhost:3000/'
 };
 

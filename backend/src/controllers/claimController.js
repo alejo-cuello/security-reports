@@ -421,13 +421,18 @@ const createClaim = async (req, res, next) => {
             };
         };
 
+        let fileUrl = null;
+
         if ( req.file ) {
             // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-            req.body.photo = req.file.path;
+            fileUrl = req.file.filename;
         };
 
+        let body = req.body;
+        body.photo = fileUrl;
+        
         // Crea el nuevo reclamo
-        const newClaim = await models.Claim.create(req.body, { transaction });
+        const newClaim = await models.Claim.create(body, { transaction });
 
         // Crea un nuevo registro en favoritos
         await models.Favorites.create({
