@@ -21,6 +21,8 @@ export class MapPage extends BasePage {
     if(this.map) this.map.remove();
     this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
+    this.setInitialValues();
+
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
@@ -46,6 +48,19 @@ export class MapPage extends BasePage {
           console.log(error);
         })
     })
+  }
+
+  setInitialValues() {
+    this.street = this.global.load(this.settings.storage.street);
+    this.streetNumber = this.global.load(this.settings.storage.streetNumber);
+    
+    let coordinates = this.global.load(this.settings.storage.coordinates);
+
+    if(this.marker) this.marker.removeFrom(this.map);
+    
+    if(coordinates) {
+      this.marker = new L.Marker(coordinates).addTo(this.map);
+    }
   }
 
   goToClaims() {

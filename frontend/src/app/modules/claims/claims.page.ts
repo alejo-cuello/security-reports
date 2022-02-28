@@ -31,6 +31,13 @@ export class ClaimsPage extends BasePage {
     this.getClaims();
   }
 
+  getColor( statusId: number ) {
+    if(statusId <= 2)  return 'tertiary';
+    else if(statusId <= 4)  return 'warning';
+    else if(statusId == 5)  return 'success';
+    else if(statusId <= 7)  return 'danger';
+  }
+
   getClaimTypes() {
     const endPoint = this.settings.endPoints.claimTypes;
 
@@ -70,7 +77,8 @@ export class ClaimsPage extends BasePage {
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
-        this.claims = response;
+        if(this.menu === 'claim') this.claims = response;
+        else  this.insecurityFacts = response;
       })
       .catch( (error) => {
         console.log(error);
@@ -85,13 +93,14 @@ export class ClaimsPage extends BasePage {
   onSelectCategories() {
     this.selectedSubcategories = [];
     this.claimSubcategories = [];
-    this.idsTypes = null;
+    this.idsTypes = [];
     for( let type of this.selectedCategories ) {
       for( let subcategory of type.claimSubcategory ) {
         this.claimSubcategories.push(subcategory);
       }
       this.idsTypes.push(type.claimTypeId);
     }
+    if(this.idsTypes.length === 0)  this.idsTypes = null;
     this.getClaims(this.idsTypes);
   }
 
@@ -100,10 +109,11 @@ export class ClaimsPage extends BasePage {
   }
 
   onSelectTypes() {
-    this.idsTypes = null;
+    this.idsTypes = [];
     for( let type of this.selectedCategories ) {
       this.idsTypes.push(type);
     }
+    if(this.idsTypes.length === 0)  this.idsTypes = null;
     this.getClaims(this.idsTypes);
   }
 

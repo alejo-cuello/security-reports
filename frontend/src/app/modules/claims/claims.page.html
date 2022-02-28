@@ -82,7 +82,7 @@
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
-          <ion-badge class="badge-border" color="warning" slot="end">{{ claim?.STAdescription }}</ion-badge>
+          <ion-badge class="badge-border" [color]="getColor(claim?.statusId)" slot="end">{{ claim?.STAdescription }}</ion-badge>
         </ion-item>
   
         <ion-item>
@@ -107,28 +107,27 @@
   
     <!-- Esta card es de ejemplo para un hecho de inseguridad -->
     <ng-container *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0">
-      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin">
+      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin" (click)="openOptions(insecurityFact?.claimId)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora creación: {{ insecurityFact?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
-          <!-- Podemos hacer que según el estado cambie de color -->
-          <ion-badge class="badge-border" color="warning" slot="end">Pendiente</ion-badge>
+          <ion-text color="medium">Fecha y hora creación: {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora de observación: {{ insecurityFact?.dateTimeObservation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <ion-text color="medium">Fecha y hora de observación: {{ insecurityFact?.claim?.dateTimeObservation | date: 'dd/MM/yy HH:mm' }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección: {{ insecurityFact?.steet + ' ' + insecurityFact?.streetNumber }}</ion-text>
+          <ion-text color="medium">Dirección: {{ insecurityFact?.claim?.street + ' ' + insecurityFact?.claim?.streetNumber }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría: (ver como traer xd)
+            Categoría: {{ insecurityFact?.claim?.insecurityFactType?.IFTdescription }}
           </ion-text>
         </ion-item>
       </ion-card>
