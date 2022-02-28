@@ -29,8 +29,8 @@ export class HttpService {
     return this.get(endPoint);
   }
   
-  update( endPoint, value) {
-    return this.put(endPoint, value);
+  update( endPoint, value, bodyType) {
+    return this.put(endPoint, value, bodyType);
   }
 
   // (-) Items
@@ -47,9 +47,23 @@ export class HttpService {
       .catch(this.handleError.bind(this));
   }
 
-  put( endPoint, value ) {
+  put( endPoint, value, bodyType ) {
+    let body: any;
+    let enctype = 'json';
+
+    if(bodyType == 'form-data') {
+      delete value.bodyType;
+      enctype = 'multipart/form-data';
+      body = new FormData();
+      for(let field in value) {
+        body.append(field, value[field]);
+      }
+    } else {
+      body = value;
+    }
+
     const url = environment.serverUrl + endPoint;
-    return this.http.put(url, value, this.getHeaders())
+    return this.http.put(url, body, this.getHeaders())
       .toPromise()
       .then( (response:any) =>
         response
@@ -63,11 +77,12 @@ export class HttpService {
     let enctype = 'json';
 
     if(bodyType == 'form-data') {
-      delete value.bodyPart;
+      delete value.bodyType;
       enctype = 'multipart/form-data';
       body = new FormData();
-      for(let field in value)
+      for(let field in value) {
         body.append(field, value[field]);
+      }
     } else {
       body = value;
     }

@@ -147,7 +147,20 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
-            this.goToClaim(action, id);
+            if(action === 'delete') {
+              const endPoint = this.settings.endPoints.claim + '/' + id;
+              this.pageService.httpDelete(endPoint)
+                .then( (response) => {
+                  this.pageService.showSuccess('Borrado exitosamente');
+                })
+                .catch( (error) => {
+                  console.log(error);
+                  this.pageService.showError(error);
+                })
+            }
+            else {
+              this.goToClaim(action, id);
+            }
           }
         }
       ]

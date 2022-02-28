@@ -40,7 +40,11 @@ export class ClaimPage extends ItemPage {
     }
   }
 
-  onChangeClaimType(){
+  showMapMessage() {
+    this.pageService.showWarning('Presione el botón localizar para establecer la ubicación en el mapa');
+  }
+
+  onChangeClaimType() {
     this.form.patchValue({ category: null });
   }
 
@@ -48,8 +52,28 @@ export class ClaimPage extends ItemPage {
     this.selectedStatus = status;
   }
 
+  setCategory() {
+    if(this.type === 'claim') {
+      let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
+      let subcategory = category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId);
+      console.log(category);
+      console.log(subcategory);
+      this.form.patchValue( {
+        selectedClaimType: category,
+      });
+      this.form.patchValue( {
+        category: subcategory.claimSubcategoryId
+      });
+      console.log('form??', this.form)
+    }
+    else {
+      this.form.patchValue( { category: this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId)} );
+    }
+  }
+
   loadItemPost() {
     this.picture = this.filesUrl + this.item.photo;
+    this.setCategory();
     this.getStatus();
   }
 
@@ -127,6 +151,7 @@ export class ClaimPage extends ItemPage {
         comment: [null],
         photo: [null],
         neighborId: [this.user.neighborId, Validators.required],
+        municipalAgentId: [null],
         //El campo category contendrá el tipo o subcategoría, según corresponda
         category: [null, Validators.required],
         selectedClaimType: [null]
@@ -134,7 +159,6 @@ export class ClaimPage extends ItemPage {
   }
 
   getFormEdit( item ) {
-    console.log(item)
     return this.formBuilder.group({
       claimId: [item.claimId],
       dateTimeCreation: [item.dateTimeCreation],
@@ -146,7 +170,8 @@ export class ClaimPage extends ItemPage {
       mapAddress: [item.mapAddress],
       comment: [item.comment],
       photo: [item.photo],
-      neighborId: [this.user.neighborId, Validators.required],
+      neighborId: [item.neighborId, Validators.required],
+      municipalAgentId: [item.municipalAgentId, Validators.required],
       //El campo category contendrá el tipo o subcategoría, según corresponda
       category: [null, Validators.required],
       selectedClaimType: [null]
@@ -156,7 +181,7 @@ export class ClaimPage extends ItemPage {
   savePre( item: any ) {
     
     item.bodyType = 'form-data';
-    item.dateTimeObservation = moment(item.dateTimeObservation).format('YYYY-MM-DD HH:mm:ss')
+    item.dateTimeObservation = moment(item.dateTimeObservation).format('YYYY-MM-DD HH:mm:ss');
     
     //Acá se llena el campo correspondiente según el tipo
     if(this.type == 'claim')  item.claimSubcategoryId = item.category;
@@ -179,8 +204,10 @@ export class ClaimPage extends ItemPage {
   changePicture() {
     this.pageService.showImageUpload()
       .then( (response) => {
-        this.form.patchValue( { photo: response } );
-        this.picture = this.pageService.trustResourceUrl(response);
+        if(response) {
+          this.form.patchValue( { photo: response } );
+          this.picture = this.pageService.trustResourceUrl(response);
+        }
       })
       .catch( (error) => {
         console.log(error);
@@ -189,6 +216,12 @@ export class ClaimPage extends ItemPage {
   }
 
   goToMap() {
+    if(this.form.value.latitude) {
+      let coordinates = [ this.form.value.latitude, this.form.value.longitude ];
+      this.global.save(this.settings.storage.coordinates, coordinates);
+      this.global.save(this.settings.storage.street, this.form.value.street);
+      this.global.save(this.settings.storage.streetNumber, this.form.value.streetNumber);
+    }
     this.pageService.navigateRoute('/map');
   }
 

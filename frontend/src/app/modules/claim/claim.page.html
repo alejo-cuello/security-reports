@@ -17,8 +17,8 @@
     <!-- Selects para reclamos -->
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Tipo</ion-label>
-      <ion-select formControlName="selectedClaimType" (ionChange)="onChangeClaimType()">
-        <ion-select-option *ngFor="let category of categories" [value]="category" [disabled]="action === 'watch'">
+      <ion-select formControlName="selectedClaimType" (ionChange)="onChangeClaimType()" [disabled]="action === 'watch'">
+        <ion-select-option *ngFor="let category of categories" [value]="category">
           {{category?.CTdescription}}
         </ion-select-option>
       </ion-select>
@@ -26,9 +26,9 @@
 
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Subcategoría</ion-label>
-      <ion-select [disabled]="!form.value.selectedClaimType" formControlName="category">
+      <ion-select [disabled]="!form.value.selectedClaimType || action === 'watch'" formControlName="category">
         <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory"
-          [value]="subcategory?.claimSubcategoryId" [disabled]="action === 'watch'">
+          [value]="subcategory?.claimSubcategoryId">
           {{subcategory?.CSCdescription}}
         </ion-select-option>
       </ion-select>
@@ -37,9 +37,8 @@
     <!-- Select para hechos de inseguridad -->
     <ion-item *ngIf="type === 'insecurityFact'">
       <ion-label position="floating">Tipo</ion-label>
-      <ion-select formControlName="category">
-        <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId"
-          [disabled]="action === 'watch'">
+      <ion-select formControlName="category" [disabled]="action === 'watch'">
+        <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId">
           {{category?.IFTdescription}}
         </ion-select-option>
       </ion-select>
@@ -49,7 +48,7 @@
     </div>
       
     <ion-row>
-      <ion-col>
+      <ion-col (click)="showMapMessage()">
         <ion-item class="class-input">
           <ion-label position="floating">Calle</ion-label>
           <ion-input type="text" readonly=true formControlName="street" [disabled]="action === 'watch'"> </ion-input>
@@ -90,8 +89,8 @@
     <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
 
     <ion-item *ngIf="!creating">
-      <ion-label position="floating" disabled>Fecha de creación</ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation"></ion-datetime>
+      <ion-label position="floating">Fecha de creación</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" disabled></ion-datetime>
     </ion-item>
     
     <ion-item *ngIf="!creating && role==='municipalAgent'">
@@ -102,13 +101,13 @@
     </ion-item>
 
     <ion-item *ngIf="action === 'watch'">
-      <ion-label position="floating">Asignar</ion-label>
+      <ion-label position="floating">{{ form.value.municipalAgentId ? 'Asignar' : 'Asignación pendiente' }}</ion-label>
       <ion-select formControlName="municipalAgentId" [disabled]="role !== 'municipalAgent'">
-        <ion-select-option>Jorge Perez</ion-select-option>
+        <ion-select-option [value]="null">Pendiente</ion-select-option>
       </ion-select>
     </ion-item>
 
-    <div>
+    <div *ngIf="action !== 'watch'">
       <ion-button expand="block" color="primary" type="submit">
         <ion-text color="light">
           {{ creating ? 'Crear' : 'Editar' }}

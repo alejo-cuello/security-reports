@@ -78,9 +78,9 @@ export class PageService {
     return this.httpService.getAllWithFilters(endPoint, offset, query);
   }
 
-  httpUpdate( endPoint, item, id ) {
+  httpUpdate( endPoint, item, id, bodyType = 'json' ) {
     endPoint += ( '/' + id );
-    return this.httpService.update( endPoint, item );
+    return this.httpService.update( endPoint, item, bodyType );
   }
 
   httpCreate( endPoint, item, bodyType = 'json' ) {
@@ -92,8 +92,8 @@ export class PageService {
     return this.httpService.getById( endPoint );
   }
 
-  httpPut( endPoint, values ) {
-    return this.httpService.put( endPoint, values );
+  httpPut( endPoint, values, bodyType = 'json' ) {
+    return this.httpService.put( endPoint, values, bodyType );
   }
 
   httpPost( endPoint, values, bodyType = 'json' ) {

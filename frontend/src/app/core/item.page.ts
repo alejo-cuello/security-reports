@@ -74,7 +74,7 @@ export abstract class ItemPage extends FormPage {
           this.savePostError( reason );
         });
     } else {
-      this.pageService.httpUpdate( this.getEndPointUpdate(), item, item[this.getFieldId()] )
+      this.pageService.httpUpdate( this.getEndPointUpdate(), item, item[this.getFieldId()], item.bodyType || 'json' )
         .then((response) =>{
           this.updatedItemMessage();
           this.savePost( response );
