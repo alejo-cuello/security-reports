@@ -164,8 +164,9 @@ export abstract class ItemPage extends FormPage {
     this.loadItemPre();
     this.pageService.httpGetById( this.getEndPointLoad(), id )
     .then( ( results: any ) => {
-      this.form = this.getFormEdit(results[0]);
-      this.item = results[0];
+      let item = Array.isArray(results) ? results[0] : results;
+      this.form = this.getFormEdit(item);
+      this.item = item;
       this.creating = false;
       this.processing = false;
       this.loadItemPost();

@@ -40,6 +40,10 @@ export class ClaimPage extends ItemPage {
     }
   }
 
+  savePost(item: any) {
+    this.pageService.navigateRoute('tabs/claims');
+  }
+
   showMapMessage() {
     this.pageService.showWarning('Presione el botón localizar para establecer la ubicación en el mapa');
   }
@@ -64,10 +68,10 @@ export class ClaimPage extends ItemPage {
       this.form.patchValue( {
         category: subcategory.claimSubcategoryId
       });
-      console.log('form??', this.form)
     }
     else {
-      this.form.patchValue( { category: this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId)} );
+      let category = this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId).insecurityFactTypeId;
+      this.form.patchValue( { category } );
     }
   }
 
@@ -171,7 +175,7 @@ export class ClaimPage extends ItemPage {
       comment: [item.comment],
       photo: [item.photo],
       neighborId: [item.neighborId, Validators.required],
-      municipalAgentId: [item.municipalAgentId, Validators.required],
+      municipalAgentId: [item.municipalAgentId],
       //El campo category contendrá el tipo o subcategoría, según corresponda
       category: [null, Validators.required],
       selectedClaimType: [null]
@@ -179,9 +183,10 @@ export class ClaimPage extends ItemPage {
   }
 
   savePre( item: any ) {
-    
+
     item.bodyType = 'form-data';
     item.dateTimeObservation = moment(item.dateTimeObservation).format('YYYY-MM-DD HH:mm:ss');
+    if(item.municipalAgentId === null)  delete item.municipalAgentId;
     
     //Acá se llena el campo correspondiente según el tipo
     if(this.type == 'claim')  item.claimSubcategoryId = item.category;
@@ -202,6 +207,7 @@ export class ClaimPage extends ItemPage {
   }
 
   changePicture() {
+    if(this.action === 'watch') return;
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {

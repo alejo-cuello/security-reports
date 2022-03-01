@@ -59,7 +59,7 @@
         </ion-item>
       </ion-col>
       <ion-col class="centering">
-        <ion-button type="button" color="secondary" (click)="goToMap()">
+        <ion-button type="button" color="secondary" [disabled]="action === 'watch'" (click)="goToMap()">
           Localizar
         </ion-button>
       </ion-col>
@@ -100,7 +100,7 @@
       </ion-select>
     </ion-item>
 
-    <ion-item *ngIf="action === 'watch'">
+    <ion-item *ngIf="action === 'watch' && type === 'claim'">
       <ion-label position="floating">{{ form.value.municipalAgentId ? 'Asignar' : 'Asignación pendiente' }}</ion-label>
       <ion-select formControlName="municipalAgentId" [disabled]="role !== 'municipalAgent'">
         <ion-select-option [value]="null">Pendiente</ion-select-option>

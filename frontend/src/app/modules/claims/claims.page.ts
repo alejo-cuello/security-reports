@@ -148,7 +148,8 @@ export class ClaimsPage extends BasePage {
           text: 'OK',
           handler: (action) => {
             if(action === 'delete') {
-              const endPoint = this.settings.endPoints.claim + '/' + id;
+              let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
+              endPoint += '/' + id;
               this.pageService.httpDelete(endPoint)
                 .then( (response) => {
                   this.pageService.showSuccess('Borrado exitosamente');

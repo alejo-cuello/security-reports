@@ -870,9 +870,9 @@ const deleteInsecurityFact = async (req, res, next) => {
             transaction
         });
 
-        if ( insecurityFactToDelete.photo ) {
-            await deleteImage(insecurityFactToDelete.photo);
-        };
+        // if ( insecurityFactToDelete.photo ) {
+        //     await deleteImage(insecurityFactToDelete.photo);
+        // };
 
         await transaction.commit();
 
