@@ -1,0 +1,159 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mis reclamos favoritos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <ion-toolbar class="custom-toolbar" *ngIf="role === 'neighbor'">
+    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
+      <ion-segment-button value="claim">
+        <ion-icon name="create-outline"></ion-icon>
+        <ion-label>Reclamos</ion-label>
+      </ion-segment-button>
+  
+      <ion-segment-button value="insecurityFact">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-label>Hechos de inseguridad</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Select para filtrar los reclamos por tipo de reclamo -->
+    <div *ngIf="menu === 'claim'" class="ion-margin">
+      <ion-list>
+
+        <!-- Para seleccionar tipo -->
+        <ion-item>
+          <ion-label>Tipo de reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
+            <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType">{{ claimType?.CTdescription }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Para seleccionar subcategoría -->
+        <ion-item *ngIf="selectedCategories.length === 1">
+          <ion-label>Subcategoría de reclamo</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" (ionChange)="onSelectSubcategories()">
+            <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </div>
+  
+    <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
+    <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
+      <ion-list>
+        <ion-item>
+          <ion-label>Tipo hecho de inseguridad</ion-label>
+          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectTypes()">
+            <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.insecurityFactTypeId">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-list>
+    </div>
+    
+  </ion-toolbar>
+
+  <ion-toolbar class="custom-toolbar" *ngIf="role === 'municipalAgent'">
+    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
+      <ion-segment-button value="pendingClaims">
+        <ion-icon name="create-outline"></ion-icon>
+        <ion-label>Pendientes</ion-label>
+      </ion-segment-button>
+  
+      <ion-segment-button value="takenClaims">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-label>Tomados</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
+  <ion-grid>
+
+    <!-- Muestra mensaje de que no hay reclamos para mostrar -->
+    <ion-item *ngIf="menu !== 'insecurityFact' && claims.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay reclamos para mostrar</p>
+    </ion-item>
+  
+  
+    <!-- Muestra mensaje de que no hay hechos de inseguridad para mostrar -->
+    <ion-item *ngIf="menu === 'insecurityFact' && insecurityFacts.length === 0" class="ion-margin-top">
+      <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
+      <p>No hay hechos de inseguridad para mostrar</p>
+    </ion-item>
+  
+ 
+
+    <!-- Esta card es de ejemplo para un reclamo -->
+    <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
+      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId)">
+        <ion-item>
+          <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <!-- Podemos hacer que según el estado cambie de color -->
+          <ion-badge class="badge-border" [color]="getColor(claim?.statusId)" slot="end">{{ claim?.STAdescription }}</ion-badge>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora de observación: {{ claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección: {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">
+            Categoría: {{ claim?.CTdescription }} + {{ claim?.CSCdescription }}
+          </ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
+  
+  
+    <!-- Esta card es de ejemplo para un hecho de inseguridad -->
+    <ng-container *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0">
+      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin" (click)="openOptions(insecurityFact?.claimId)">
+        <ion-item>
+          <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora creación: {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Fecha y hora de observación: {{ insecurityFact?.claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">Dirección: {{ insecurityFact?.claim?.street + ' ' + insecurityFact?.claim?.streetNumber }}</ion-text>
+        </ion-item>
+  
+        <ion-item>
+          <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
+          <ion-text color="medium">
+            Categoría: {{ insecurityFact?.claim?.insecurityFactType?.IFTdescription }}
+          </ion-text>
+        </ion-item>
+      </ion-card>
+    </ng-container>
+
+  </ion-grid>
+
+
+  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end" *ngIf="role === 'neighbor'">
+    <ion-fab-button>
+      <ion-icon name="add" color="white"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  
+</ion-content>

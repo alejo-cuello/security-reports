@@ -1,0 +1,15 @@
+ion-content {
+    ion-grid {
+        margin: 5px;
+    }
+}
+
+ion-footer {
+    ion-button {
+        --border-radius: 15px;
+
+        .text-bold {
+            font-weight: 600;
+        }
+    }
+}

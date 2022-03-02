@@ -1,0 +1,78 @@
+<form [formGroup]="form">
+  <ion-item-group>
+    <ion-item-divider>
+      <ion-label>
+        Datos personales
+      </ion-label>
+    </ion-item-divider>
+    
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Nombre*</ion-label>
+        <ion-input type="text" formControlName="firstName" [readonly]="!creating"></ion-input>
+      </ion-item>
+      <div *ngIf="!isFieldValid('firstName')" class="invalid-input-message">
+        {{getFieldError('firstName')}}
+      </div>
+
+      
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Apellido*</ion-label>
+        <ion-input type="text" formControlName="lastName" [readonly]="!creating"></ion-input>
+      </ion-item>
+      <div *ngIf="!isFieldValid('lastName')" class="invalid-input-message">
+        {{getFieldError('lastName')}}
+      </div>
+  
+      <ion-item class="ion-margin-top">
+        <ion-label position="floating">Legajo*</ion-label>
+        <ion-input type="text" formControlName="registrationNumber" [readonly]="!creating"></ion-input>
+      </ion-item>
+      <div *ngIf="!isFieldValid('registrationNumber')" class="invalid-input-message">
+        {{getFieldError('registrationNumber')}}
+      </div>
+
+      <ion-item-group *ngIf="creating">
+        <ion-item-divider>
+          <ion-label>
+            Datos de la cuenta
+          </ion-label>
+        </ion-item-divider>
+        
+        <ion-item class="ion-margin-top">
+          <ion-label position="floating">Email*</ion-label>
+          <ion-input type="text" formControlName="email" [readonly]="!creating"></ion-input>
+        </ion-item>
+        <!-- Estos div sirven para mostrar el error específico del campo -->
+        <div *ngIf="!isFieldValid('email')" class="invalid-input-message">
+          {{getFieldError('email')}}
+        </div>
+    
+        <ion-item class="ion-margin-top">
+          <ion-label position="floating">Contraseña*</ion-label>
+          <ion-input type="password" formControlName="password" [readonly]="!creating"></ion-input>
+        </ion-item>
+        <div *ngIf="!isFieldValid('password')" class="invalid-input-message">
+          {{getFieldError('password')}}
+        </div>
+        
+        <ion-item class="ion-margin-top">
+          <ion-label position="floating">Confirmar Contraseña*</ion-label>
+          <ion-input type="password" formControlName="confirmPassword" [readonly]="!creating"></ion-input>
+        </ion-item>
+        <div *ngIf="!isFieldValid('confirmPassword')" class="invalid-input-message">
+          {{getFieldError('confirmPassword')}}
+        </div>
+  
+        <ion-item-divider></ion-item-divider>
+      </ion-item-group>
+  </ion-item-group>
+
+  <ion-item *ngIf="creating" class="ion-margin-top">
+    <p>Para crear tu cuenta tenés que aceptar los <a href="#">Términos y Condiciones</a></p>
+    <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
+    </ion-checkbox>
+  </ion-item>
+  <div *ngIf="!isFieldValid('termsAndConditionsAccepted')" class="invalid-input-message">
+    {{getFieldError('termsAndConditionsAccepted')}}
+  </div>
+</form>

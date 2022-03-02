@@ -138,23 +138,28 @@ const getQueryClaimsForMunicipalAgent = (where) => {
  * @returns {string} Query completa para obtener un reclamo por su id
 */
 // Se usa en la función getClaimById
-const getQueryClaimById = () => {
-    return "SELECT " +
-                getSelectQuery() +
-            "FROM estado_reclamo er " +
-            "INNER JOIN " + 
-                getSubQueryLastClaimStatus( true ) +
-                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-            "INNER JOIN reclamo rec " +
-                "ON er.idReclamo = rec.idReclamo " +
-            "INNER JOIN subcategoria_reclamo scr " +
-                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-            "INNER JOIN tipo_reclamo tr " +
-                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-            "INNER JOIN estado est " +
-                "ON er.idEstado = est.idEstado " +
-            "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+const getQueryClaimById = (neighbor) => {
+    let query =
+                "SELECT " +
+                    getSelectQuery() +
+                "FROM estado_reclamo er " +
+                "INNER JOIN " + 
+                    getSubQueryLastClaimStatus( neighbor ) +
+                    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+                "INNER JOIN reclamo rec " +
+                    "ON er.idReclamo = rec.idReclamo " +
+                "INNER JOIN subcategoria_reclamo scr " +
+                    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+                "INNER JOIN tipo_reclamo tr " +
+                    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+                "INNER JOIN estado est " +
+                    "ON er.idEstado = est.idEstado " +
+                "WHERE rec.idReclamo = ?";
+    
+    if( neighbor )  query = query + " AND rec.idVecino = ?";
+
+    return query;
 };
 
 
@@ -187,6 +192,10 @@ const getQueryClaimTo = () => {
 const setFilter = (filter) => {
     let partialWhere = "";
     where = "";
+
+    //Agregué esta linea para que reconozca el filtro como un array
+    filter = filter.split(',');
+
     if ( Array.isArray(filter) ) { // Verifica si filter es un array
         partialWhere = ` AND tr.idTipoReclamo IN (?`;
         filter.forEach( (eachFilter) => {
@@ -199,6 +208,33 @@ const setFilter = (filter) => {
     } else { // Si el filter no es un array, solo se agrega el filtro
         replacements.push(filter); // Al array de reemplazos se le agrega el filtro
         where = ` AND tr.idTipoReclamo = ?`;
+    };
+};
+
+
+/**
+ * Setea el o los filtros para la query de obtener los reclamos por subtipos
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where para obtener los reclamos
+*/
+const setFilterSubcategory = (filter) => {
+    let partialWhere = "";
+    where = "";
+
+    //Agregué esta linea para que reconozca el filtro como un array
+    filter = filter.split(',');
+
+    if ( Array.isArray(filter) ) { // Verifica si filter es un array
+        partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
+        filter.forEach( (eachFilter) => {
+            replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
+            where = where + partialWhere; // Se arma la cláusula where con los filtros
+            partialWhere = `,?`;
+        });
+        partialWhere = `)`;
+        where = where + partialWhere;
+    } else { // Si el filter no es un array, solo se agrega el filtro
+        replacements.push(filter); // Al array de reemplazos se le agrega el filtro
+        where = ` AND rec.idSubcategoriaReclamo = ?`;
     };
 };
 
@@ -220,12 +256,18 @@ const getFavoriteClaims = async (req, res, next) => {
         replacements = [];
         replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
 
-        if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
-            setFilter(req.query.claimType);
+        if ( req.query.claimSubcategory) {
+            setFilterSubcategory(req.query.claimSubcategory);
             queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
-        } else { // En caso de que no se aplique ningún filtro
-            queryMyFavoritesClaims = getQueryMyFavoritesClaims();
-        };
+        }
+        else {
+            if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
+                setFilter(req.query.claimType);
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
+            } else { // En caso de que no se aplique ningún filtro
+                queryMyFavoritesClaims = getQueryMyFavoritesClaims();
+            };
+        }
 
         myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
             {
@@ -236,10 +278,6 @@ const getFavoriteClaims = async (req, res, next) => {
                 type: QueryTypes.SELECT
             }
         );
-
-        if ( myFavoritesClaims.length === 0 ) {
-            throw ApiError.notFound('There are no claims to show');
-        };
 
         return res.status(200).json(myFavoritesClaims);
     } catch (error) {
@@ -266,10 +304,6 @@ const getPendingClaims = async (req, res, next) => {
         const pendingClaims = await sequelize.query( queryPendingClaims, {
             type: QueryTypes.SELECT
         });
-
-        if ( pendingClaims.length === 0 ) {
-            throw ApiError.notFound('There are no pending claims to show');
-        };
 
         return res.status(200).json(pendingClaims);
     } catch (error) {
@@ -318,15 +352,22 @@ const getClaimById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
+        if ( !dataFromToken.neighborId && !dataFromToken.municipalAgentId  ) {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
-        const queryClaimById = getQueryClaimById();
+        // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
+        const isNeighborQuery = dataFromToken.neighborId ? true : false;
+        const replacements =
+            dataFromToken.neighborId ?
+                [ dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId ]
+                : [ req.params.claimId ];
+
+        const queryClaimById = getQueryClaimById(isNeighborQuery);
 
         const claim = await sequelize.query( queryClaimById,
             {
-                replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
+                replacements,
                 type: QueryTypes.SELECT
             }
         );
@@ -394,13 +435,18 @@ const createClaim = async (req, res, next) => {
             };
         };
 
+        let fileUrl = null;
+
         if ( req.file ) {
             // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-            req.body.photo = req.file.path;
+            fileUrl = req.file.filename;
         };
 
+        let body = req.body;
+        body.photo = fileUrl;
+        
         // Crea el nuevo reclamo
-        const newClaim = await models.Claim.create(req.body, { transaction });
+        const newClaim = await models.Claim.create(body, { transaction });
 
         // Crea un nuevo registro en favoritos
         await models.Favorites.create({
@@ -550,14 +596,21 @@ const editClaim = async (req, res, next) => {
             };
         };
 
+        let fileUrl;
         if ( claimToUpdate.length !== 0 ) {
-            req.body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+            fileUrl = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
         } else {
-            req.body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+            fileUrl = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
         };
 
+        let body = {
+            ...req.body
+        }
+
+        if(fileUrl) body.photo = fileUrl;
+
         // Actualiza el reclamo
-        await models.Claim.update(req.body, { 
+        await models.Claim.update(body, { 
             where: {
                 claimId: req.params.claimId,
                 neighborId: dataFromToken.neighborId
@@ -625,32 +678,34 @@ const changeClaimStatus = async (req, res, next) => {
         };
 
         // Busca la descripción del estado que le quiere asignar al reclamo
-        const newStatus = await models.Status.findOne({
+        const status = await models.Status.findOne({
             attributes: ['STAdescription'],
             where: {
                 statusId: req.body.statusId
             }
         });
 
-        // Si la descripción del nuevo estado es algunos de estos, entonces setea la fecha de fin del reclamo
-        if ( newStatus.STAdescription === 'Terminado' || 
-             newStatus.STAdescription === 'Rechazado' || 
-             newStatus.STAdescription === 'Rechazado por falsedad' ) {
-            req.body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
-        } else { // Si la descripción del nuevo estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
-            req.body.dateTimeEnd = null;
+        let body = req.body;
+
+        // Si la descripción del estado es algunos de estos, entonces setea la fecha de fin del reclamo
+        if ( status.STAdescription === 'Terminado' || 
+             status.STAdescription === 'Rechazado' || 
+             status.STAdescription === 'Rechazado por falsedad' ) {
+            body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
+        } else { // Si la descripción del estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
+            body.dateTimeEnd = null;
         };
 
-        req.body.municipalAgentId = dataFromToken.municipalAgentId;
-        req.body.claimId = req.params.claimId;
+        body.municipalAgentId = dataFromToken.municipalAgentId;
+        body.claimId = req.params.claimId;
 
-        await models.Claim.update(req.body, {
+        await models.Claim.update(body, {
             where: {
                 claimId: req.params.claimId
             }, transaction
         });
 
-        await models.StatusClaim.create(req.body, { transaction });
+        await models.StatusClaim.create(body, { transaction });
 
         await transaction.commit();
 
@@ -758,10 +813,6 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
             ]
         });
 
-        if ( myFavoritesInsecurityFacts.length === 0 ) {
-            throw ApiError.notFound('There are not insecurity facts to show');
-        };
-
         return res.status(200).json(myFavoritesInsecurityFacts);
     } catch (error) {
         next(error);
@@ -774,7 +825,7 @@ const getInsecurityFactById = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
-        
+
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
@@ -846,9 +897,9 @@ const deleteInsecurityFact = async (req, res, next) => {
             transaction
         });
 
-        if ( insecurityFactToDelete.photo ) {
-            await deleteImage(insecurityFactToDelete.photo);
-        };
+        // if ( insecurityFactToDelete.photo ) {
+        //     await deleteImage(insecurityFactToDelete.photo);
+        // };
 
         await transaction.commit();
 
@@ -873,17 +924,20 @@ const photoUpdateHandler = async (file, previousPhoto) => {
         if ( previousPhoto ) { // Si el reclamo ya tiene foto
             if ( file ) { // Si el usuario envía una foto
                 // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                newPhoto = file.path;
+                newPhoto = file.filename;
             } else { // Si el usuario no envía una foto
                 newPhoto = null;
             };
-            const path = previousPhoto;
+
+            // Lo dejo comentado de momento, revisar más adelante como borrar la foto anterior
+
+            // const filename = previousPhoto;
             // Borra la foto del servidor
-            await deleteImage(path);
+            // await deleteImage(filename);
         } else { // Si el reclamo no tiene foto
             if ( file ) { // Si el usuario envía una foto
                 // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
-                newPhoto = file.path;
+                newPhoto = file.filename;
             };
         };
         return newPhoto;

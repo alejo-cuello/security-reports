@@ -1,0 +1,40 @@
+ion-content {
+    --background: var(--ion-color-light);
+
+    .class-grid {
+        justify-content: center;
+        margin-top: 5vh;
+        padding: 16px;
+
+        .image-login {
+            width: 260px;
+            object-fit: cover;
+        }
+    }
+}
+
+div {
+
+    ion-grid {
+        padding-top: 50px;
+        width: 100%;
+    }
+
+    .register {
+        justify-content: center;
+        width: 100%;
+        p {
+            font-weight: 600;
+            text-align: center;
+        }
+    }
+
+    ion-button {
+        width: 100%;
+        --border-radius: 15px;
+
+        .text-bold {
+            font-weight: 600;
+        }
+    }
+}

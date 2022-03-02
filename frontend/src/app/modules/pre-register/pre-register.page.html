@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-text class="ion-margin-top">
+        Elija el tipo de usuario que desea crear:
+      </ion-text>
+    </ion-row>
+
+    <form [formGroup]="form">
+      <ion-radio-group formControlName="role">
+        <ion-item class="ion-margin-top">
+          <ion-label>Vecino</ion-label>
+          <ion-radio item-left value="neighbor"></ion-radio>
+        </ion-item>
+
+        <ion-item class="ion-margin-top">
+          <ion-label>Agente Municipal</ion-label>
+          <ion-radio item-left value="municipalAgent"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
+    </form>
+  </ion-grid>
+</ion-content>
+
+<ion-footer>
+  <ion-grid>
+    <ion-button class="ion-margin-top" expand="block" color="primary" (click)="goToRegister()" [disabled]="!this.form.valid">
+      <ion-text color="light" class="text-bold">Siguiente</ion-text>
+    </ion-button>
+  </ion-grid>
+</ion-footer>

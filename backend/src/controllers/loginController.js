@@ -1,4 +1,5 @@
 const models = require('../models');
+const path = require('path');
 const ApiError = require('../utils/apiError');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 const jwt = require('jsonwebtoken');
@@ -48,8 +49,21 @@ const login = async (req, res, next) => {
         // Genera y devuelve el token
         const token = await generateAndGetToken(req.body);
 
+        const responseUser = userWithoutPassword(user);
+
+        let neighborContacts = [];
+        if(responseUser.neighborId) {
+            neighborContacts = await models.Contact.findAll({
+                where: {
+                    neighborId: responseUser.neighborId
+                }
+            });
+        }
+
         return res.status(200).json({
-            token
+            token,
+            user: responseUser,
+            neighborContacts
         });
     } catch (error) {
         next(error);
@@ -161,12 +175,12 @@ const confirmEmail = async (req, res, next) => {
 
         // Verifica que el usuario con el email a confirmar exista
         if ( !user ) {
-            throw ApiError.notFound('User with that email not found');
+            return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
         };
 
         // Verifica que el usuario no tenga ya una cuenta activa
         if ( user.emailIsVerified ) {
-            throw ApiError.badRequest('Email is already verified');
+            return res.sendFile(path.join(__dirname, '../../public/emailAlreadyVerified.html'));
         };
 
         // Actualiza el email como verificado
@@ -174,9 +188,7 @@ const confirmEmail = async (req, res, next) => {
 
         await transaction.commit();
 
-        return res.status(200).json({
-            message: 'Email confirmed successfully'
-        });
+        return res.sendFile(path.join(__dirname, '../../public/emailConfirmedSuccessfully.html'));
     } catch (error) {
         await transaction.rollback();
         next(error);
@@ -199,6 +211,39 @@ const requiredFieldsAreCompleted = (body) => {
         const missingAttributes = checkMissingRequiredAttributes(body, ['registrationNumber', 'firstName', 'lastName', 'email', 'password']);
         return (missingAttributes.length > 0) ? false : true;
     };
+};
+
+/**
+ * Devuelve los datos del usuario sin la password 
+ * @param {object} user - Datos del usuario
+ * @returns {object} Datos del usuario sin la password
+*/
+const userWithoutPassword = (user) => {
+    const newUser = {};
+
+    if ( user.neighborId ) {
+        newUser.neighborId = user.neighborId;
+        newUser.dni = user.dni;
+        newUser.tramiteNumberDNI = user.tramiteNumberDNI;
+        newUser.street = user.street;
+        newUser.streetNumber = user.streetNumber;
+        newUser.floor = user.floor;
+        newUser.apartment = user.apartment;
+        newUser.city = user.city;
+        newUser.province = user.province;
+        newUser.phoneNumber = user.phoneNumber;
+    };
+
+    if ( user.municipalAgentId ) {
+        newUser.municipalAgentId = user.municipalAgentId;
+        newUser.registrationNumber = user.registrationNumber;
+    };
+
+    newUser.firstName = user.firstName;
+    newUser.lastName = user.lastName;
+    newUser.email = user.email;
+
+    return newUser;
 };
 
 

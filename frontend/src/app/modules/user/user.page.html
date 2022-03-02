@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button *ngIf="!creating"></ion-menu-button>
+      <ion-back-button *ngIf="creating"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="!creating">Mi perfil</ion-title>
+    <ion-title *ngIf="creating">Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+
+    <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Vecino -->
+    <app-neighbor-form [creating]="creating" 
+                       [form]="form"
+                       *ngIf="role === 'neighbor'">
+    </app-neighbor-form>
+
+
+    <!-- * Esto se muestra si seleccionó previamente que quería crear una cuenta de Agente Municipal -->
+    <app-municipal-agent-form [creating]="creating" 
+                              [form]="form"
+                              *ngIf="role === 'municipalAgent'">
+    </app-municipal-agent-form>
+      
+    <div class="ion-margin-top" *ngIf="creating">
+      <ion-button class="ion-margin-top" expand="block" color="primary" (click)="onSubmit()">
+        <ion-text color="light" class="text-bold">
+          {{ creating ? 'Registrarse' : 'Guardar' }}
+        </ion-text>
+      </ion-button>
+    </div>
+  </ion-grid>
+
+</ion-content>

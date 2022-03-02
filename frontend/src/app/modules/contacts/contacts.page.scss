@@ -1,0 +1,24 @@
+ion-grid {
+
+    .filters {
+        p {
+            font-size: 15px;
+        }
+    }
+
+    .header {
+        background: var(--ion-color-primary-tint);
+    }
+
+    .even {
+        background: var(--ion-color-medium);
+    }
+
+    .odd {
+        background: white;
+    }
+}
+
+ion-fab-button:nth-child(2) {
+    margin-top: 10px;
+}

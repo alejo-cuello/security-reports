@@ -1,0 +1,55 @@
+<ion-app>
+  <ion-split-pane contentId="main-content">
+    <ion-menu contentId="main-content" type="overlay" (ionWillOpen)="loadMenuHeader()">
+
+      <ion-header class="ion-no-border">
+        <ion-grid>
+          <ion-text color="primary">
+            <h3 class="ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
+            <h6 class="ion-margin-start text-bold">{{ userEmail }}</h6>
+            <ion-row>
+              <p class="ion-margin-start text-bold">{{ role }}</p>
+            </ion-row>
+          </ion-text>
+        </ion-grid>
+      </ion-header>
+
+      <ion-content>        
+        <ion-list id="inbox-list" *ngIf="role === 'Vecino'">
+          <ng-container *ngFor="let page of appNeighborPages">
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
+                <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
+                <ion-label>{{ page.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ng-container>
+        </ion-list>
+      
+        <ion-list id="inbox-list" *ngIf="role === 'Agente Municipal'">
+          <ng-container *ngFor="let page of appMunicipalAgentPages">
+            <ion-menu-toggle auto-hide="false">
+              <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
+                <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
+                <ion-label>{{ page.title }}</ion-label>
+              </ion-item>
+            </ion-menu-toggle>
+          </ng-container>
+        </ion-list>
+      </ion-content>
+
+      <ion-footer *ngIf="role === 'Vecino'">
+        <ion-grid>
+          <ion-row class="ion-justify-content-center">
+            <ion-button color="danger" (click)="sendMessage()">
+              <ion-icon name="warning-outline" slot="start"></ion-icon>
+              <ion-label>Mensaje de emergencia</ion-label>
+            </ion-button>
+          </ion-row>
+        </ion-grid>
+      </ion-footer>
+
+    </ion-menu>
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>
