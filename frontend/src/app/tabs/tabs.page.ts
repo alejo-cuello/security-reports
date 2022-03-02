@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { BasePage } from '../core/base.page';
 
 @Component({
@@ -8,6 +8,8 @@ import { BasePage } from '../core/base.page';
 })
 export class TabsPage extends BasePage {
 
+  @ViewChild('myTabs') tabs: any;
+
   goTo(route: string) {
     let queryParams = {};
     if( route === 'user' ) {
@@ -16,5 +18,11 @@ export class TabsPage extends BasePage {
     }
 
     this.pageService.navigateRoute( 'tabs/' + route, queryParams );
+  }
+
+  ionViewWillEnter() {
+    try {
+      if(this.tabs.outlet.activatedView.stackId != 'home')this.tabs.outlet.activatedView.ref.instance.ionViewWillEnter();
+    } catch(e) {};
   }
 }

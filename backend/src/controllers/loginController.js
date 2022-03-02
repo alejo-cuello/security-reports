@@ -49,11 +49,14 @@ const login = async (req, res, next) => {
 
         const responseUser = userWithoutPassword(user);
 
-        const neighborContacts = await models.Contact.findAll({
-            where: {
-                neighborId: responseUser.neighborId
-            }
-        });
+        let neighborContacts = [];
+        if(responseUser.neighborId) {
+            neighborContacts = await models.Contact.findAll({
+                where: {
+                    neighborId: responseUser.neighborId
+                }
+            });
+        }
 
         return res.status(200).json({
             token,
