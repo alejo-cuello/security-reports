@@ -49,9 +49,16 @@ const login = async (req, res, next) => {
 
         const responseUser = userWithoutPassword(user);
 
+        const neighborContacts = await models.Contact.findAll({
+            where: {
+                neighborId: responseUser.neighborId
+            }
+        });
+
         return res.status(200).json({
             token,
-            user: responseUser
+            user: responseUser,
+            neighborContacts
         });
     } catch (error) {
         next(error);

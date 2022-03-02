@@ -39,6 +39,7 @@ export class LoginPage extends FormPage {
       this.global.saveUser(res.user); // Guarda el usuario en el localStorage
       this.global.save(this.settings.storage.role, this.form.value.role ); // Guarda el rol del usuario en el localStorage
       this.global.save(this.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
+      this.global.save(this.settings.storage.contacts, res.neighborContacts );
       this.pageService.showSuccess('Bienvenido!');
       this.menuController.enable(true);
       this.pageService.navigateRoute('tabs/claims');

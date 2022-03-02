@@ -27,7 +27,7 @@
     <ion-item *ngIf="type === 'claim'">
       <ion-label position="floating">Subcategoría</ion-label>
       <ion-select [disabled]="!form.value.selectedClaimType || action === 'watch' || role === 'municipalAgent'" formControlName="category">
-        <ion-select-option *ngFor="let subcategory of form.value.selectedClaimType?.claimSubcategory"
+        <ion-select-option *ngFor="let subcategory of subcategories"
           [value]="subcategory?.claimSubcategoryId">
           {{subcategory?.CSCdescription}}
         </ion-select-option>

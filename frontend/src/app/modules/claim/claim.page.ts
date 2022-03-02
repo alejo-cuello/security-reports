@@ -16,7 +16,7 @@ export class ClaimPage extends ItemPage {
   type: string;
 
   categories: any[];
-  enableButton: boolean = false;
+  enableButton: boolean;
   picture: any;
   selectedClaimType: any;
   selectedStatus: any;
@@ -25,6 +25,8 @@ export class ClaimPage extends ItemPage {
   today: any;
 
   ionViewWillEnter() {
+    this.enableButton = (this.role === 'municipalAgent') ? false : true;
+
     this.getStatus();
 
     this.today = moment().format('YYYY-MM-DD');
@@ -52,6 +54,7 @@ export class ClaimPage extends ItemPage {
   }
 
   onChangeClaimType() {
+    this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
     this.form.patchValue({ category: null });
   }
 
@@ -59,16 +62,15 @@ export class ClaimPage extends ItemPage {
     if(this.type === 'claim') {
       let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
       let subcategory = category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId);
-      console.log(category);
-      console.log(subcategory);
+      
       this.form.patchValue( {
         selectedClaimType: category,
       });
+      this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
       this.form.patchValue( {
         category: subcategory.claimSubcategoryId
       });
 
-      console.log('formvalueeee',this.form.value)
     }
     else {
       let category = this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId).insecurityFactTypeId;

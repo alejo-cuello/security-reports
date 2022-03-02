@@ -10,12 +10,12 @@
 
 <ion-content>
 
-  <ion-item *ngIf="contacts.length === 0" class="ion-margin-top">
+  <ion-item *ngIf="contacts?.length === 0" class="ion-margin-top">
     <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
     <p>Aún no tienes contactos agregados</p>
   </ion-item>
 
-  <ion-grid *ngIf="contacts.length !== 0" class="ion-margin-top">
+  <ion-grid *ngIf="contacts?.length !== 0" class="ion-margin-top">
     <ion-list>
       <ng-container *ngFor="let contact of contacts">
 
@@ -44,8 +44,8 @@
     <ion-fab-button (click)="addContact()">
       <ion-icon name="add" color="white"></ion-icon>
     </ion-fab-button>
-    <ion-fab-button (click)="refreshContacts()" color="light">
+    <!-- <ion-fab-button (click)="refreshContacts()" color="light">
       <ion-icon name="refresh-outline"></ion-icon>
-    </ion-fab-button>
+    </ion-fab-button> -->
   </ion-fab>
 </ion-content>

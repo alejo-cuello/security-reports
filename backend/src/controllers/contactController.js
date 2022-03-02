@@ -88,7 +88,33 @@ const deleteContact = async (req, res, next) => {
 };
 
 
+const getContacts = async (req, res, next) => {
+
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`You can't access to this resource`);
+        };
+
+        const neighborContacts = await models.Contact.findAll({
+            where: {
+                neighborId: dataFromToken.neighborId
+            }
+        });
+
+
+        return res.status(201).json(neighborContacts);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 module.exports = {
     newContact,
-    deleteContact
+    deleteContact,
+    getContacts
 }

@@ -9,6 +9,7 @@ export class Settings {
   public static endPoints = {
     claim: 'claim',
     claimTypes: 'claimTypes',
+    contacts: 'contacts',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
@@ -38,6 +39,7 @@ export class Settings {
   // (-) EndPoints
 
   public static storage = {
+    contacts: 'securityReports.contacts',
     coordinates: 'securityReports.coordinates',
     role: 'securityReports.role',
     street: 'securityReports.street',

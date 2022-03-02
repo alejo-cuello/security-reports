@@ -75,9 +75,16 @@ export class AppComponent {
   }
 
   sendMessage() {
-    let message = 'Hola, necesito ayuda!';
-    message = message.replace(' ','%20');
-    this.pageService.iab.create('https://wa.me/5493462603682?text=' + message, "_system");
+    let contacts = this.global.load(this.global.settings.storage.contacts);
+    
+    if(!contacts || contacts.length === 0) {
+      this.pageService.showWarning('Debe cargar un contacto para enviar un mensaje');
+    }
+    else {
+      let message = 'Hola, necesito ayuda!';
+      message = message.replace(' ','%20');
+      this.pageService.iab.create('https://wa.me/549' +  contacts[0].phoneNumber + '?text=' + message, "_system");
+    }
   }
 
   setUserData() {
