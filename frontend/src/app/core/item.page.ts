@@ -54,12 +54,13 @@ export abstract class ItemPage extends FormPage {
   }
 
   onSubmitPerform( item ) {
-
+    console.log('perform', item)
     this.savePre( item );
 
     if( !this.savePreCheck( item )) return;
 
     this.savePostPre();
+
     if ( !item[this.getFieldId()] ) {
 
       delete ( item[this.getFieldId()] );
@@ -95,7 +96,6 @@ export abstract class ItemPage extends FormPage {
   }
 
   savePostPre() {
-    
   }
 
   // Override returning 'new' or id

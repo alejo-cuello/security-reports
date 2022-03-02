@@ -9,7 +9,7 @@
 
 
 <ion-content>
-  <ion-toolbar class="custom-toolbar">
+  <ion-toolbar class="custom-toolbar" *ngIf="role === 'neighbor'">
     <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
       <ion-segment-button value="claim">
         <ion-icon name="create-outline"></ion-icon>
@@ -58,10 +58,24 @@
     
   </ion-toolbar>
 
+  <ion-toolbar class="custom-toolbar" *ngIf="role === 'municipalAgent'">
+    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
+      <ion-segment-button value="pendingClaims">
+        <ion-icon name="create-outline"></ion-icon>
+        <ion-label>Pendientes</ion-label>
+      </ion-segment-button>
+  
+      <ion-segment-button value="takenClaims">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <ion-label>Tomados</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+
   <ion-grid>
 
     <!-- Muestra mensaje de que no hay reclamos para mostrar -->
-    <ion-item *ngIf="menu === 'claim' && claims.length === 0" class="ion-margin-top">
+    <ion-item *ngIf="menu !== 'insecurityFact' && claims.length === 0" class="ion-margin-top">
       <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
       <p>No hay reclamos para mostrar</p>
     </ion-item>
@@ -76,7 +90,7 @@
  
 
     <!-- Esta card es de ejemplo para un reclamo -->
-    <ng-container *ngIf="menu === 'claim' && claims.length !== 0">
+    <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
       <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
@@ -136,7 +150,7 @@
   </ion-grid>
 
 
-  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end">
+  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end" *ngIf="role === 'neighbor'">
     <ion-fab-button>
       <ion-icon name="add" color="white"></ion-icon>
     </ion-fab-button>

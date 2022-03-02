@@ -137,23 +137,28 @@ const getQueryClaimsForMunicipalAgent = (where) => {
  * @returns {string} Query completa para obtener un reclamo por su id
 */
 // Se usa en la función getClaimById
-const getQueryClaimById = () => {
-    return "SELECT " +
-                getSelectQuery() +
-            "FROM estado_reclamo er " +
-            "INNER JOIN " + 
-                getSubQueryLastClaimStatus( true ) +
-                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-            "INNER JOIN reclamo rec " +
-                "ON er.idReclamo = rec.idReclamo " +
-            "INNER JOIN subcategoria_reclamo scr " +
-                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-            "INNER JOIN tipo_reclamo tr " +
-                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-            "INNER JOIN estado est " +
-                "ON er.idEstado = est.idEstado " +
-            "WHERE rec.idReclamo = ? AND rec.idVecino = ?";
+const getQueryClaimById = (neighbor) => {
+    let query =
+                "SELECT " +
+                    getSelectQuery() +
+                "FROM estado_reclamo er " +
+                "INNER JOIN " + 
+                    getSubQueryLastClaimStatus( neighbor ) +
+                    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+                "INNER JOIN reclamo rec " +
+                    "ON er.idReclamo = rec.idReclamo " +
+                "INNER JOIN subcategoria_reclamo scr " +
+                    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+                "INNER JOIN tipo_reclamo tr " +
+                    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+                "INNER JOIN estado est " +
+                    "ON er.idEstado = est.idEstado " +
+                "WHERE rec.idReclamo = ?";
+    
+    if( neighbor )  query = query + " AND rec.idVecino = ?";
+
+    return query;
 };
 
 
@@ -346,15 +351,22 @@ const getClaimById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
+        if ( !dataFromToken.neighborId && !dataFromToken.municipalAgentId  ) {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
 
-        const queryClaimById = getQueryClaimById();
+        // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
+        const isNeighborQuery = dataFromToken.neighborId ? true : false;
+        const replacements =
+            dataFromToken.neighborId ?
+                [ dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId ]
+                : [ req.params.claimId ];
+
+        const queryClaimById = getQueryClaimById(isNeighborQuery);
 
         const claim = await sequelize.query( queryClaimById,
             {
-                replacements: [dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId],
+                replacements,
                 type: QueryTypes.SELECT
             }
         );
@@ -660,25 +672,27 @@ const changeClaimStatus = async (req, res, next) => {
             }
         });
 
+        let body = req.body;
+
         // Si la descripción del estado es algunos de estos, entonces setea la fecha de fin del reclamo
         if ( status.STAdescription === 'Terminado' || 
              status.STAdescription === 'Rechazado' || 
              status.STAdescription === 'Rechazado por falsedad' ) {
-            req.body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
+            body.dateTimeEnd = dayjs().format('YYYY-MM-DD HH:mm:ss');
         } else { // Si la descripción del estado no coincide con ninguno de los estados anteriores, entonces la fecha de fin se setea en null
-            req.body.dateTimeEnd = null;
+            body.dateTimeEnd = null;
         };
 
-        req.body.municipalAgentId = dataFromToken.municipalAgentId;
-        req.body.claimId = req.params.claimId;
+        body.municipalAgentId = dataFromToken.municipalAgentId;
+        body.claimId = req.params.claimId;
 
-        await models.Claim.update(req.body, {
+        await models.Claim.update(body, {
             where: {
                 claimId: req.params.claimId
             }, transaction
         });
 
-        await models.StatusClaim.create(req.body, { transaction });
+        await models.StatusClaim.create(body, { transaction });
 
         await transaction.commit();
 
@@ -798,7 +812,7 @@ const getInsecurityFactById = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
-        
+
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`You can't access to this resource`);
         };

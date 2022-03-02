@@ -19,6 +19,8 @@ export class Settings {
   public static endPointsMethods = {
     claim: {
       favorites: '/favorites',
+      pending: '/pending',
+      takenClaims: '/takenClaims',
       updateStatus: '/updateStatus'
     },
     insecurityFact: {

@@ -16,6 +16,7 @@ export class ClaimPage extends ItemPage {
   type: string;
 
   categories: any[];
+  enableButton: boolean = false;
   picture: any;
   selectedClaimType: any;
   selectedStatus: any;
@@ -24,6 +25,8 @@ export class ClaimPage extends ItemPage {
   today: any;
 
   ionViewWillEnter() {
+    this.getStatus();
+
     this.today = moment().format('YYYY-MM-DD');
 
     let coordinates = this.global.pop(this.settings.storage.coordinates);
@@ -52,10 +55,6 @@ export class ClaimPage extends ItemPage {
     this.form.patchValue({ category: null });
   }
 
-  changeStatus(status) {
-    this.selectedStatus = status;
-  }
-
   setCategory() {
     if(this.type === 'claim') {
       let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
@@ -68,6 +67,8 @@ export class ClaimPage extends ItemPage {
       this.form.patchValue( {
         category: subcategory.claimSubcategoryId
       });
+
+      console.log('formvalueeee',this.form.value)
     }
     else {
       let category = this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId).insecurityFactTypeId;
@@ -75,10 +76,18 @@ export class ClaimPage extends ItemPage {
     }
   }
 
+  getButtonName() {
+    if(this.role === 'neighbor') {
+      return this.creating ? 'Crear' : 'Editar';
+    }
+    else {
+      return 'Tomar reclamo';
+    }
+  }
+
   loadItemPost() {
     this.picture = this.filesUrl + this.item.photo;
     this.setCategory();
-    this.getStatus();
   }
 
   getParamId() {
@@ -156,6 +165,7 @@ export class ClaimPage extends ItemPage {
         photo: [null],
         neighborId: [this.user.neighborId, Validators.required],
         municipalAgentId: [null],
+        statusId: [1],
         //El campo category contendrá el tipo o subcategoría, según corresponda
         category: [null, Validators.required],
         selectedClaimType: [null]
@@ -176,6 +186,7 @@ export class ClaimPage extends ItemPage {
       photo: [item.photo],
       neighborId: [item.neighborId, Validators.required],
       municipalAgentId: [item.municipalAgentId],
+      statusId: [item.statusId],
       //El campo category contendrá el tipo o subcategoría, según corresponda
       category: [null, Validators.required],
       selectedClaimType: [null]
@@ -200,10 +211,12 @@ export class ClaimPage extends ItemPage {
     }
 
     if(this.role === 'municipalAgent') {
-      item = {
-        statusId: this.selectedStatus
-      };
-    }
+      item.bodyType = 'json'
+    };
+  }
+
+  onChangeStatus() {
+    this.enableButton = (this.form.value.statusId === 1) ? false : true;
   }
 
   changePicture() {

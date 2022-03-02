@@ -8,7 +8,9 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class ClaimsPage extends BasePage {
 
-  menu: string = 'claim';
+  menu: string;
+  role: string;
+
   claims: any[] = [];
   claimTypes: any[] = [];
   claimSubcategories: any[] = [];
@@ -20,15 +22,30 @@ export class ClaimsPage extends BasePage {
   selectedSubcategories: any[] = [];
 
   ionViewWillEnter() {
-    this.getClaimTypes();
-    this.getInsecurityFactTypes();
-    this.getClaims();
+    this.role = this.global.load(this.settings.storage.role);
+
+    if(this.role === 'neighbor') {
+      this.menu = 'claim';
+      this.getClaimTypes();
+      this.getInsecurityFactTypes();
+      this.getClaims();
+    }
+    else {
+      this.menu = 'pendingClaims';
+      this.getPendingClaims();
+    }
   }
 
   changeSegment() {
-    this.selectedCategories = [];
-    this.selectedSubcategories = [];
-    this.getClaims();
+    if(this.role === 'neighbor') {
+      this.selectedCategories = [];
+      this.selectedSubcategories = [];
+      this.getClaims();
+    }
+    else {
+      if(this.menu === 'pendingClaims') this.getPendingClaims();
+      else this.getTakenClaims();
+    }
   }
 
   getColor( statusId: number ) {
@@ -36,6 +53,34 @@ export class ClaimsPage extends BasePage {
     else if(statusId <= 4)  return 'warning';
     else if(statusId == 5)  return 'success';
     else if(statusId <= 7)  return 'danger';
+  }
+
+  getPendingClaims() {
+    const endPoint = this.settings.endPoints.claim
+      + this.settings.endPointsMethods.claim.pending;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (response) => {
+        this.claims = response;
+      })
+      .catch( (error) => {
+        console.log(error);
+        this.pageService.showError(error);
+      })
+  }
+
+  getTakenClaims() {
+    const endPoint = this.settings.endPoints.claim
+      + this.settings.endPointsMethods.claim.takenClaims;
+
+    this.pageService.httpGetAll(endPoint)
+      .then( (response) => {
+        this.claims = response;
+      })
+      .catch( (error) => {
+        console.log(error);
+        this.pageService.showError(error);
+      })
   }
 
   getClaimTypes() {
@@ -87,7 +132,11 @@ export class ClaimsPage extends BasePage {
 
   goToClaim( action?: string, id?: string) {
     const role = this.global.load(this.settings.storage.role);
-    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.menu } } );
+    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.getType() } } );
+  }
+
+  getType() {
+    return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
   }
 
   onSelectCategories() {
@@ -117,7 +166,12 @@ export class ClaimsPage extends BasePage {
     this.getClaims(this.idsTypes);
   }
 
-  async openOptions( id: string ) {
+  openOptions( id: string ) {
+    if(this.role === 'neighbor') this.showNeighborOptions( id );
+    else  this.goToClaim('edit', id);
+  }
+
+  async showNeighborOptions( id: string ) {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
       inputs: [
