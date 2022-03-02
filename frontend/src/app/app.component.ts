@@ -70,6 +70,7 @@ export class AppComponent {
       this.global.removeUser(); // Elimina el usuario del localStorage
       this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
       this.global.remove('securityReports.token'); // Elimina el token del localStorage
+      this.global.remove('securityReports.contacts'); // Elimina el token del localStorage
     }
     this.pageService.navigateRoute( url );
   }

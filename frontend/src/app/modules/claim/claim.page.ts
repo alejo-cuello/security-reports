@@ -67,10 +67,14 @@ export class ClaimPage extends ItemPage {
         selectedClaimType: category,
       });
       this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
-      this.form.patchValue( {
-        category: subcategory.claimSubcategoryId
-      });
 
+
+      // FIXME: Ver otra forma de cargar el select
+      setTimeout( () => {
+        this.form.patchValue( {
+          category: subcategory.claimSubcategoryId
+        });
+      }, 500);
     }
     else {
       let category = this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId).insecurityFactTypeId;
