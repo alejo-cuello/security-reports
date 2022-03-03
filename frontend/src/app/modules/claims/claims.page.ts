@@ -64,7 +64,6 @@ export class ClaimsPage extends BasePage {
         this.claims = response;
       })
       .catch( (error) => {
-        console.log(error);
         this.pageService.showError(error);
       })
   }
@@ -78,8 +77,8 @@ export class ClaimsPage extends BasePage {
         this.claims = response;
       })
       .catch( (error) => {
-        console.log(error);
-        this.pageService.showError(error);
+        this.claims = [];
+        // this.pageService.showError(error);
       })
   }
 
@@ -91,7 +90,6 @@ export class ClaimsPage extends BasePage {
         this.claimTypes = response;
       })
       .catch( (error) => {
-        console.log(error);
         this.pageService.showError(error);
       })
   }
@@ -104,7 +102,6 @@ export class ClaimsPage extends BasePage {
         this.insecurityFactTypes = response;
       })
       .catch( (error) => {
-        console.log(error);
         this.pageService.showError(error);
       })
   }
@@ -209,7 +206,6 @@ export class ClaimsPage extends BasePage {
                   this.pageService.showSuccess('Borrado exitosamente');
                 })
                 .catch( (error) => {
-                  console.log(error);
                   this.pageService.showError(error);
                 })
             }
