@@ -54,7 +54,6 @@ export abstract class ItemPage extends FormPage {
   }
 
   onSubmitPerform( item ) {
-    console.log('perform', item)
     this.savePre( item );
 
     if( !this.savePreCheck( item )) return;
