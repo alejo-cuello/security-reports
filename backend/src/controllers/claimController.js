@@ -782,6 +782,8 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
             throw ApiError.forbidden(`You can't access to this resource`);
         };
         
+        if(req.query.insecurityFactType) req.query.insecurityFactType = req.query.insecurityFactType.split(',');
+
         let where = {};
         if ( req.query.insecurityFactType ) { // Si se quiere filtrar por tipo de hecho de inseguridad
             where = {
