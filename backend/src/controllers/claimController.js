@@ -438,7 +438,7 @@ const createClaim = async (req, res, next) => {
         let fileUrl = null;
 
         if ( req.file ) {
-            // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+            // Mete en el body el nombre de la foto para poder guardarla en la base de datos
             fileUrl = req.file.filename;
         };
 
@@ -605,9 +605,9 @@ const editClaim = async (req, res, next) => {
 
         let body = {
             ...req.body
-        }
+        };
 
-        if(fileUrl) body.photo = fileUrl;
+        if( fileUrl ) body.photo = fileUrl;
 
         // Actualiza el reclamo
         await models.Claim.update(body, { 
@@ -759,7 +759,9 @@ const deleteClaim = async (req, res, next) => {
         await transaction.commit();
 
         if ( claimToDelete[0].photo ) {
-            await deleteImage(claimToDelete[0].photo);
+            // Arma el path donde está alojada la foto en el servidor para eliminarla cuando se elimina el reclamo
+            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${claimToDelete[0].photo}`;
+            await deleteImage(pathPreviousPhoto);
         };
 
         return res.status(200).json({
@@ -899,9 +901,11 @@ const deleteInsecurityFact = async (req, res, next) => {
             transaction
         });
 
-        // if ( insecurityFactToDelete.photo ) {
-        //     await deleteImage(insecurityFactToDelete.photo);
-        // };
+        if ( insecurityFactToDelete.photo ) {
+            // Arma el path donde está alojada la foto en el servidor para eliminarla cuando se elimina el hecho de inseguridad
+            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${insecurityFactToDelete.photo}`;
+            await deleteImage(pathPreviousPhoto);
+        };
 
         await transaction.commit();
 
@@ -925,7 +929,7 @@ const photoUpdateHandler = async (file, previousPhoto) => {
         let newPhoto = "";
         if ( previousPhoto ) { // Si el reclamo ya tiene foto
             if ( file ) { // Si el usuario envía una foto
-                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                // Mete en el body el nombre de la foto para poder guardarla en la base de datos
                 newPhoto = file.filename;
             } else { // Si el usuario no envía una foto
                 newPhoto = null;
@@ -933,12 +937,13 @@ const photoUpdateHandler = async (file, previousPhoto) => {
 
             // Lo dejo comentado de momento, revisar más adelante como borrar la foto anterior
 
-            // const filename = previousPhoto;
+            const filename = previousPhoto;
+            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
             // Borra la foto del servidor
-            // await deleteImage(filename);
+            await deleteImage(pathPreviousPhoto);
         } else { // Si el reclamo no tiene foto
             if ( file ) { // Si el usuario envía una foto
-                // Mete en el body la url donde está alojada la foto para poder guardarla en la base de datos
+                // Mete en el body el nombre de la foto para poder guardarla en la base de datos
                 newPhoto = file.filename;
             };
         };
