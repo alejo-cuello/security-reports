@@ -71,6 +71,8 @@ export abstract class FormPage extends BasePage {
           message = 'Email inválido';
         else if (error.min)
           message = 'El valor no puede ser menor a ' + error.min.min;
+        else if (error.max)
+          message = 'El valor no puede ser mayor a ' + error.max.max;
         else if (error.equalValue) {
           if(error.equalValue.targetKey == 'password' && error.equalValue.toMatchKey == 'passwordVerify')
             message = "Las contraseñas deben coincidir";

@@ -57,7 +57,7 @@ const getSelectQuery = () => {
             "rec.longitud 'longitude', " +
             "rec.direccionMapa 'mapAddress', " +
             "rec.comentario 'comment', " +
-            "rec.calificacionResolucion 'resolutionQualification', " +
+            "rec.calificacionResolucion 'resolutionRating', " +
             "rec.foto 'photo', " +
             "rec.idAgenteMunicipal 'municipalAgentId', " +
             "rec.idVecino 'neighborId', " +

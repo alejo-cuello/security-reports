@@ -86,7 +86,16 @@
       {{getFieldError('dateTimeObservation')}}
     </div>
 
-    <!-- Los dos campos de abajo serán mostrados en los reclamos creados previamente -->
+    <!-- Los 3 campos de abajo serán mostrados en los reclamos creados previamente -->
+
+    <!-- Solo se muestra si el estado del reclamo es 'Terminado' -->
+    <ion-item *ngIf="!creating && form.value.statusId === 5">
+      <ion-label position="floating">Calificación de la resolución</ion-label>
+      <ion-input type="number" min='1' max='10' formControlName="resolutionRating" [disabled]="action === 'watch' || role === 'municipalAgent'"></ion-input>
+    </ion-item>
+    <div *ngIf="!isFieldValid('resolutionRating')" class="invalid-input-message">
+      {{getFieldError('resolutionRating')}}
+    </div>
 
     <ion-item *ngIf="!creating">
       <ion-label position="floating">Fecha de creación</ion-label>
