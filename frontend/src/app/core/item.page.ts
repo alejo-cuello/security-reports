@@ -74,6 +74,9 @@ export abstract class ItemPage extends FormPage {
           this.savePostError( reason );
         });
     } else {
+      if (!item.photo) {
+        delete item.photo;
+      }
       this.pageService.httpUpdate( this.getEndPointUpdate(), item, item[this.getFieldId()], item.bodyType || 'json' )
         .then((response) =>{
           this.updatedItemMessage();

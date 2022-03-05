@@ -607,7 +607,7 @@ const editClaim = async (req, res, next) => {
             ...req.body
         };
 
-        if( fileUrl ) body.photo = fileUrl;
+        if ( fileUrl ) body.photo = fileUrl;
 
         // Actualiza el reclamo
         await models.Claim.update(body, { 
