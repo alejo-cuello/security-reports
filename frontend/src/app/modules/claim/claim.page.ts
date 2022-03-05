@@ -179,6 +179,27 @@ export class ClaimPage extends ItemPage {
   }
 
   getFormEdit( item ) {
+    if ( item.statusId === 5 ) {
+      return this.formBuilder.group({
+        claimId: [item.claimId],
+        dateTimeCreation: [item.dateTimeCreation],
+        dateTimeObservation: [item.dateTimeObservation, Validators.required],
+        street: [item.street, Validators.required],
+        streetNumber: [item.streetNumber, Validators.required],
+        latitude: [item.latitude],
+        longitude: [item.longitude],
+        mapAddress: [item.mapAddress],
+        comment: [item.comment],
+        resolutionRating: [item.resolutionRating, [Validators.min(1), Validators.max(10)]],
+        photo: [item.photo],
+        neighborId: [item.neighborId, Validators.required],
+        municipalAgentId: [item.municipalAgentId],
+        statusId: [item.statusId],
+        //El campo category contendrá el tipo o subcategoría, según corresponda
+        category: [null, Validators.required],
+        selectedClaimType: [null]
+      });
+    }
     return this.formBuilder.group({
       claimId: [item.claimId],
       dateTimeCreation: [item.dateTimeCreation],
@@ -189,7 +210,6 @@ export class ClaimPage extends ItemPage {
       longitude: [item.longitude],
       mapAddress: [item.mapAddress],
       comment: [item.comment],
-      resolutionRating: [item.resolutionRating, [Validators.min(1), Validators.max(10)]],
       photo: [item.photo],
       neighborId: [item.neighborId, Validators.required],
       municipalAgentId: [item.municipalAgentId],
