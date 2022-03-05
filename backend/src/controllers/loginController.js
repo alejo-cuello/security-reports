@@ -166,7 +166,6 @@ const signup = async (req, res, next) => {
 
 
 const confirmEmail = async (req, res, next) => {
-    const transaction = await sequelize.transaction();
     try {
         // Obtener los datos del token
         const data = await getTokenData(req.params.token);
@@ -182,6 +181,8 @@ const confirmEmail = async (req, res, next) => {
         if ( user.emailIsVerified ) {
             return res.sendFile(path.join(__dirname, '../../public/emailAlreadyVerified.html'));
         };
+        
+        const transaction = await sequelize.transaction();
 
         // Actualiza el email como verificado
         await updateConfirmedEmail(data, transaction);
