@@ -24,6 +24,10 @@ export class ClaimsPage extends BasePage {
   ionViewWillEnter() {
     this.role = this.global.load(this.settings.storage.role);
 
+    this.global.remove(this.settings.storage.coordinates);
+    this.global.remove(this.settings.storage.street);
+    this.global.remove(this.settings.storage.streetNumber);
+
     if(this.role === 'neighbor') {
       this.menu = 'claim';
       this.getClaimTypes();
