@@ -18,7 +18,6 @@ export class MapPage extends BasePage {
 
   ionViewWillEnter() {
 
-    if(this.map) this.map.remove();
     this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
     this.setInitialValues();
@@ -50,16 +49,20 @@ export class MapPage extends BasePage {
     })
   }
 
+  ionViewWillLeave() {
+    this.map.off();
+    this.map.remove();
+  }
+
   setInitialValues() {
     this.street = this.global.load(this.settings.storage.street);
     this.streetNumber = this.global.load(this.settings.storage.streetNumber);
-    
-    let coordinates = this.global.load(this.settings.storage.coordinates);
+    this.coordinates = this.global.load(this.settings.storage.coordinates);
 
     if(this.marker) this.marker.removeFrom(this.map);
     
-    if(coordinates) {
-      this.marker = new L.Marker(coordinates).addTo(this.map);
+    if(this.coordinates) {
+      this.marker = new L.Marker(this.coordinates).addTo(this.map);
     }
   }
 
@@ -68,6 +71,7 @@ export class MapPage extends BasePage {
       this.global.save(this.settings.storage.street, this.street);
       this.global.save(this.settings.storage.streetNumber, this.streetNumber);
       this.global.save(this.settings.storage.coordinates, this.coordinates);
+
       this.pageService.navigateBack();
     }
     else {
