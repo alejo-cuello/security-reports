@@ -90,7 +90,7 @@
 
     <ion-item *ngIf="!creating">
       <ion-label position="floating">Fecha de creación</ion-label>
-      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" disabled></ion-datetime>
+      <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" [disabled]="action === 'watch' || action === 'edit' || role === 'municipalAgent'"></ion-datetime>
     </ion-item>
     
     <ion-item *ngIf="!creating && role==='municipalAgent'">
