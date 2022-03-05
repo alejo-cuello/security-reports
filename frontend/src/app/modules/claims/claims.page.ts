@@ -208,6 +208,7 @@ export class ClaimsPage extends BasePage {
               this.pageService.httpDelete(endPoint)
                 .then( (response) => {
                   this.pageService.showSuccess('Borrado exitosamente');
+                  this.getClaims();
                 })
                 .catch( (error) => {
                   this.pageService.showError(error);
