@@ -3,7 +3,10 @@
       <ion-buttons slot="start">
         <ion-back-button></ion-back-button>
       </ion-buttons>
-      <ion-title>Nuevo reclamo</ion-title>
+      <ion-title *ngIf="creating">Nuevo reclamo</ion-title>
+      <ion-title *ngIf="action === 'watch'">Detalles del reclamo</ion-title>
+      <ion-title *ngIf="action === 'edit' && role === 'neighbor'">Editar reclamo</ion-title>
+      <ion-title *ngIf="action === 'edit' && role === 'municipalAgent'">Tomar reclamo</ion-title>
     </ion-toolbar>
 </ion-header>
   
