@@ -92,7 +92,7 @@ export class ClaimPage extends ItemPage {
   }
 
   loadItemPost() {
-    this.picture = this.filesUrl + this.item.photo;
+    if(this.item.photo) this.picture = this.filesUrl + this.item.photo;
     this.setCategory();
   }
 
@@ -248,6 +248,7 @@ export class ClaimPage extends ItemPage {
 
   changePicture() {
     if(this.action === 'watch' || this.role === 'municipalAgent') return;
+    if(!this.creating && this.item.statusId !== 1) return;
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {
@@ -259,6 +260,11 @@ export class ClaimPage extends ItemPage {
         console.log(error);
         this.pageService.showError(error);
       })
+  }
+
+  removePicture() {
+    this.form.patchValue( { photo: null } );
+    this.picture = null;
   }
 
   goToMap() {

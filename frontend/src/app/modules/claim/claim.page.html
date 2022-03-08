@@ -15,6 +15,7 @@
 
     <div class="container-img">
       <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'" (click)="changePicture()">
+      <ion-icon name="close-circle" class="delete-button" color="danger" (click)="removePicture()" *ngIf="picture && action !== 'watch'"></ion-icon>
     </div>
 
     <!-- Selects para reclamos -->

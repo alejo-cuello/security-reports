@@ -596,18 +596,29 @@ const editClaim = async (req, res, next) => {
             };
         };
 
-        let fileUrl;
-        if ( claimToUpdate.length !== 0 ) {
-            fileUrl = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
-        } else {
-            fileUrl = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
-        };
-
         let body = {
             ...req.body
         };
 
-        if ( fileUrl ) body.photo = fileUrl;
+        if  ( req.file ) {
+            if ( claimToUpdate.length !== 0 ) {
+                body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+            } else {
+                body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+            };
+        }
+        else {
+            if(req.body.photo) {
+                body.photo = req.body.photo;
+            }
+            else {
+                if ( claimToUpdate.length !== 0 ) {
+                    body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+                } else {
+                    body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+                };
+            }
+        }
 
         // Actualiza el reclamo
         await models.Claim.update(body, { 
