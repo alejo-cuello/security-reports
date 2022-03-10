@@ -112,10 +112,10 @@
 
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Teléfono</ion-label>
-        <ion-input type="number" formControlName="phoneNumber" [readonly]="!creating"></ion-input>
+        <ion-input type="tel" formControlName="phoneNumber" [readonly]="!creating"></ion-input>
       </ion-item>
-      <div *ngIf="!isFieldValid('phoneNumber')" class="invalid-input-message">
-        {{getFieldError('phoneNumber')}}
+      <div [ngClass]="!isFieldValid('phoneNumber') ? 'invalid-input-message' : 'valid-input-message' ">
+        {{ !isFieldValid('phoneNumber') ? getFieldError('phoneNumber') : 'Código área (sin 0) + número (sin 15)'}}
       </div>
   
     <ion-item-group *ngIf="creating">

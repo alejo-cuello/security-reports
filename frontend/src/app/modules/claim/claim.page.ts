@@ -50,7 +50,12 @@ export class ClaimPage extends ItemPage {
   }
 
   showMapMessage() {
-    this.pageService.showWarning('Presione el botón localizar para establecer la ubicación en el mapa');
+    if( ( this.action === 'edit' && this.role === 'neighbor' ) || this.creating ) {
+      this.pageService.showWarning('Presione el botón localizar para establecer la ubicación en el mapa');
+    }
+    else {
+      return;
+    }
   }
 
   onChangeClaimType() {

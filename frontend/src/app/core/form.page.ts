@@ -59,14 +59,18 @@ export abstract class FormPage extends BasePage {
   }
 
   getFieldError(field) {
-    let message:any = 'Validacion OK';
+    let message: any = 'Validacion OK';
     if(this.form.controls[field]) {
       if(this.form.controls[field].errors) {
         let error = this.form.controls[field].errors;
         if(error.required)
           message = 'Requerido';
+        else if(error.pattern)
+          message = 'Solo se aceptan números';
         else if(error.minlength)
           message = 'Debe tener al menos ' + error.minlength.requiredLength + ' caracteres';
+        else if(error.maxlength)
+          message = 'Debe tener como máximo ' + error.maxlength.requiredLength + ' caracteres';
         else if (error.email)
           message = 'Email inválido';
         else if (error.min)

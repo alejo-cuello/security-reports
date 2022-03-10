@@ -16,15 +16,15 @@ export class AddContactPage extends ItemPage {
   getFormNew() {
     return this.formBuilder.group({
       name: [null, Validators.required],
-      phoneNumber: [null, Validators.required],
-    })
+      phoneNumber: [null, Validators.compose([Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(10), Validators.maxLength(10)])],
+    });
   }
 
   getFormEdit( item ) {
     return this.formBuilder.group({
       name: [item.name, Validators.required],
-      phoneNumber: [item.phoneNumber, Validators.required],
-    })
+      phoneNumber: [item.phoneNumber, Validators.compose([Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(10), Validators.maxLength(10)])]
+    });
   }
 
   onSubmitPerform(item) {

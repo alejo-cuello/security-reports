@@ -27,7 +27,14 @@
 
 form {
     .invalid-input-message {
-        color: red;
+        color: var(--ion-color-danger);
+        font-size: 0.8em;
+        margin-left: 1em;
+        margin-top: .3em;
+    }
+
+    .valid-input-message {
+        color: var(--ion-color-tertiary);
         font-size: 0.8em;
         margin-left: 1em;
         margin-top: .3em;
