@@ -26,7 +26,7 @@ const login = async (req, res, next) => {
         const user = await getUserByEmail(req.body);
 
         if ( ! await userCredentialsAreValid(user, req.body) ) { 
-            throw ApiError.badRequest('Invalid credentials');
+            throw ApiError.unauthorized('Invalid credentials');
         };
 
         if ( ! await isEmailVerified(req.body) ) {

@@ -1,5 +1,4 @@
 const models = require('../models');
-const ApiError = require('../utils/apiError');
 
 
 const getClaimTypesWithSubcategories = async (req, res, next) => {
@@ -12,10 +11,6 @@ const getClaimTypesWithSubcategories = async (req, res, next) => {
                 }
             ]
         });
-
-        if ( claimTypesWithSubcategories.length === 0 ) {
-            throw ApiError.notFound('There are not claim types to show');
-        };
 
         return res.status(200).json(claimTypesWithSubcategories);
     } catch (error) {

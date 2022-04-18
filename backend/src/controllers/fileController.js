@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = './public/uploadedImages/';
-const ApiError = require('../utils/apiError');
 
 const getByFilename = async (req, res, next) => {
     try {

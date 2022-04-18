@@ -335,10 +335,6 @@ const getTakenClaims = async (req, res, next) => {
             type: QueryTypes.SELECT
         });
 
-        if ( myTakenClaims.length === 0 ) {
-            throw ApiError.notFound(`You did not take any claim`);
-        };
-
         return res.status(200).json(myTakenClaims);
     } catch (error) {
         next(error);

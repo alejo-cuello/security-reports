@@ -1,5 +1,4 @@
 const axios = require('axios').default;
-const ApiError = require('../utils/apiError');
 
 const getSecurityInstitutions = async (req, res, next) => {
     try {
@@ -12,10 +11,6 @@ const getSecurityInstitutions = async (req, res, next) => {
 
         const institutions = response.data.result.records;
         const total = response.data.result.total;
-
-        if ( institutions.length === 0 ) {
-            throw ApiError.notFound('There are not institutions to show');
-        };
         
         return res.status(200).json({
             institutions,
@@ -38,10 +33,6 @@ const getHealthInstitutions = async (req, res, next) => {
 
         const institutions = response.data.result.records;
         const total = response.data.result.total;
-
-        if ( institutions.length === 0 ) {
-            throw ApiError.notFound('There are not institutions to show');
-        };
         
         return res.status(200).json({
             institutions,

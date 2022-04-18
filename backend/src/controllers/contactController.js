@@ -25,10 +25,6 @@ const getContacts = async (req, res, next) => {
             order: [['name', 'ASC']]
         });
 
-        // if ( myContacts.length === 0 ) {
-        //     throw ApiError.notFound(`You have no contacts added yet`);
-        // };
-
         return res.status(200).json(myContacts);
     } catch (error) {
         next(error);
