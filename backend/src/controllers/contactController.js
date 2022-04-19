@@ -7,7 +7,7 @@ const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAtt
 /**
  * Define la cantidad máxima de contactos que puede tener un vecino
 */
-const maxQuantityOfContacts = 1;
+const maxQuantityOfContacts = 3;
 
 const getContacts = async (req, res, next) => {
     try {
