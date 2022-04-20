@@ -15,7 +15,7 @@ const getContacts = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const myContacts = await models.Contact.findAll({
@@ -39,12 +39,12 @@ const newContact = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['name', 'phoneNumber']);
         if ( missingAttributes.length > 0 ) {
-            throw ApiError.badRequest(`Missing required data. Please, fill all fields`);
+            throw ApiError.badRequest(`Faltan datos obligatorios. Por favos, complete todos los campos`);
         };
 
         const neighborContacts = await models.Contact.findAll({
@@ -54,7 +54,7 @@ const newContact = async (req, res, next) => {
         });
 
         if ( neighborContacts.length >= maxQuantityOfContacts ) {
-            throw ApiError.badRequest(`You can't add more contacts`);
+            throw ApiError.badRequest(`No puedes agregar más contactos`);
         };
 
         req.body.neighborId = dataFromToken.neighborId;
@@ -64,7 +64,7 @@ const newContact = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(201).json({
-            message: 'Contact created successfully'
+            message: 'Contacto creado correctamente'
         });
     } catch (error) {
         await transaction.rollback();
@@ -80,7 +80,7 @@ const deleteContact = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const contact = await models.Contact.findOne({
@@ -91,7 +91,7 @@ const deleteContact = async (req, res, next) => {
         });
 
         if ( !contact ) {
-            throw ApiError.notFound(`Contact not found for this neighbor`);
+            throw ApiError.notFound(`El contacto con id '${ req.params.contactId }' no existe para este vecino`);
         };
 
         await models.Contact.destroy({
@@ -104,7 +104,7 @@ const deleteContact = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(200).json({
-            message: 'Contact deleted successfully'
+            message: 'Contacto eliminado correctamente'
         });
     } catch (error) {
         await transaction.rollback();

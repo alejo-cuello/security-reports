@@ -3,9 +3,8 @@ const ApiError = require('../utils/apiError');
 
 const getAddress = async (req, res, next) => {
     try {
-
         if ( !req.params.lat || !req.params.lng ) {
-            throw ApiError.badRequest('Missing parameters');
+            throw ApiError.badRequest('Faltan parámetros');
         };
         
         const lat = req.params.lat;
@@ -19,16 +18,15 @@ const getAddress = async (req, res, next) => {
         const response = await axios.get(endPoint);
 
         if ( !response ) {
-            throw ApiError.badRequest('Get address failed');
+            throw ApiError.badRequest('No se pudo obtener la dirección');
         };
 
         const data = {
             street: response.data.address.road,
             streetNumber: response.data.address.house_number
-        }
+        };
 
         res.status(200).json(data);
-
     } catch (error) {
         next(error);
     }

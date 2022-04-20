@@ -16,21 +16,21 @@ const login = async (req, res, next) => {
     try {
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'password']);
         if ( missingAttributes.length > 0 ) {
-            throw ApiError.badRequest('Email and password are required');
+            throw ApiError.badRequest('El email y la contraseña son obligatorios');
         };
 
-        if ( !validator.isEmail(req.body.email)  ) {
-            throw ApiError.badRequest('Invalid email format');
+        if ( !validator.isEmail(req.body.email) ) {
+            throw ApiError.badRequest('El formato del email es inválido');
         };
         
         const user = await getUserByEmail(req.body);
 
-        if ( ! await userCredentialsAreValid(user, req.body) ) { 
-            throw ApiError.unauthorized('Invalid credentials');
+        if ( ! await userCredentialsAreValid(user, req.body) ) {
+            throw ApiError.unauthorized('Credenciales inválidas');
         };
 
         if ( ! await isEmailVerified(req.body) ) {
-            throw ApiError.badRequest('Email is not verified. Please check your mailbox');
+            throw ApiError.badRequest('El email no está verificado. Por favor verifique su casilla de correo electrónico');
         };
 
         if ( req.body.role === NEIGHBOR ) {
@@ -76,26 +76,26 @@ const signup = async (req, res, next) => {
     try {
         // Valida que los campos obligatorios estén completos
         if ( !requiredFieldsAreCompleted(req.body) ) {
-            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+            throw ApiError.badRequest('Faltan datos obligatorios. Por favor, complete todos los campos');
         };
         
         // Verifica que los términos y condiciones estén aceptados
         if ( !req.body.termsAndConditionsAccepted ) {
-            throw ApiError.badRequest('You must accept the terms and conditions');
+            throw ApiError.badRequest('Debes aceptar los términos y condiciones');
         };
 
         // Verifica que el formato del email sea correcto
-        if ( !validator.isEmail(req.body.email)  ) {
-            throw ApiError.badRequest('Invalid email format');
+        if ( !validator.isEmail(req.body.email) ) {
+            throw ApiError.badRequest('El formato del email es inválido');
         };
 
         if ( req.body.role === NEIGHBOR ) {
             if ( !validator.isNumeric(req.body.dni) ) {
-                throw ApiError.badRequest('DNI must be contains only numbers');
+                throw ApiError.badRequest('El DNI debe contener sólo números');
             };
     
             if ( !validator.isNumeric(req.body.tramiteNumberDNI) ) {
-                throw ApiError.badRequest('tramiteNumberDNI must be contains only numbers');
+                throw ApiError.badRequest('El número de trámite del DNI debe contener sólo números');
             };
 
             const dniExists = await models.Neighbor.findOne({
@@ -106,7 +106,7 @@ const signup = async (req, res, next) => {
 
             // Verifica que el dni que ingresó no esté usado
             if ( dniExists ) {
-                throw ApiError.badRequest('An account with that dni already exists');
+                throw ApiError.badRequest('El DNI ya está registrado');
             };
         };
 
@@ -119,7 +119,7 @@ const signup = async (req, res, next) => {
 
             // Verifica que el legajo que ingresó no esté usado
             if ( registrationNumberExists ) {
-                throw ApiError.badRequest('An account with that registration number already exists');
+                throw ApiError.badRequest('El legajo ya está registrado');
             };
         };
 
@@ -127,7 +127,7 @@ const signup = async (req, res, next) => {
 
         // Verifica que el email que ingresó no esté usado
         if ( emailExists ) {
-            throw ApiError.badRequest('Email already exists');
+            throw ApiError.badRequest('El email ya está registrado');
         };
 
         // Encripta la contraseña y la devuelve hasheada
@@ -156,7 +156,7 @@ const signup = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(201).json({
-            message: 'Account created successfully. Please check your mailbox'
+            message: 'Cuenta creada correctamente. Por favor, verifique su casilla de correo electrónico'
         });
     } catch (error) {
         await transaction.rollback();

@@ -250,7 +250,7 @@ const getFavoriteClaims = async (req, res, next) => {
         let queryMyFavoritesClaims = "";
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         replacements = [];
@@ -293,7 +293,7 @@ const getPendingClaims = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         where = "";
@@ -319,7 +319,7 @@ const getTakenClaims = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         replacements = [];
@@ -349,7 +349,7 @@ const getClaimById = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId && !dataFromToken.municipalAgentId  ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
@@ -369,7 +369,7 @@ const getClaimById = async (req, res, next) => {
         );
 
         if ( claim.length === 0 ) {
-            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+            throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
         };
 
         return res.status(200).json(claim);
@@ -387,47 +387,46 @@ const createClaim = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
-            throw ApiError.badRequest('Claim subcategory ID or insecurity fact type ID is required');
+            throw ApiError.badRequest('El id de la subcategoría del reclamo o del hecho de inseguridad es requerido');
         };
 
         // Valida que sea o un reclamo o un hecho de inseguridad
         if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
-            throw ApiError.badRequest('You can only create a claim or an insecurity fact');
+            throw ApiError.badRequest('Solo puedes crear un reclamo o un hecho de inseguridad');
         };
 
         // Valida que los datos obligatorios son proporcionados
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['dateTimeObservation', 'street', 'streetNumber']);
         if ( missingAttributes.length > 0 ) {
-            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+            throw ApiError.badRequest('Faltan datos obligatorios. Por favor, complete todos los campos');
         };
 
         req.body.neighborId = dataFromToken.neighborId;
         
         // Valida que el formato de la fecha de observación sea correcto
         if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The format of the observation date and time field is incorrect');
+            throw ApiError.badRequest('El formato de la fecha y hora de observación es incorrecto');
         };
 
-        // Valida que la fecha de observación sea menor a la fecha actual
-        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('Observation date and time are greater than the current date');
+        if ( !validator.isBefore(req.body.dateTimeObservation) ) {
+            throw ApiError.badRequest('La fecha y hora de observación no puede ser mayor a la fecha actual');
         };
 
         // Valida que el id de la subcategoría de reclamo sea válido
         if ( req.body.claimSubcategoryId ) {
             if ( ! await claimSubcategoryIdIsValid(req.body.claimSubcategoryId) ) {
-                throw ApiError.badRequest('Invalid claim subcategory id');
+                throw ApiError.badRequest('El id de la subcategoría del reclamo es inválido');
             };
         };
 
         // Valida que el id del tipo de hecho de inseguridad sea válido
         if ( req.body.insecurityFactTypeId ) {
             if ( ! await insecurityFactTypeIdIsValid(req.body.insecurityFactTypeId) ) {
-                throw ApiError.badRequest('Invalid insecurity fact type id');
+                throw ApiError.badRequest('El id del tipo de hecho de inseguridad es inválido');
             };
         };
 
@@ -472,13 +471,13 @@ const createClaim = async (req, res, next) => {
 
         if ( req.body.claimSubcategoryId ) {
             return res.status(201).json({
-                message: 'Claim created successfully',
+                message: 'Reclamo creado correctamente'
             });
         };
 
         if ( req.body.insecurityFactTypeId ) {
             return res.status(201).json({
-                message: 'Insecurity fact created successfully',
+                message: 'Hecho de inseguridad creado correctamente'
             });
         }
     } catch (error) {
@@ -499,32 +498,32 @@ const editClaim = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
-            throw ApiError.badRequest('Claim subcategory ID or insecurity fact type ID is required');
+            throw ApiError.badRequest('El id de la subcategoría del reclamo o del hecho de inseguridad es requerido');
         };
 
         // Valida que sea o un reclamo o un hecho de inseguridad
         if ( req.body.claimSubcategoryId && req.body.insecurityFactTypeId ) {
-            throw ApiError.badRequest('You can only update a claim or an insecurity fact');
+            throw ApiError.badRequest('Solo puedes editar un reclamo o un hecho de inseguridad');
         };
 
         // Valida que los datos obligatorios son proporcionados
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['dateTimeObservation', 'street', 'streetNumber']);
         if ( missingAttributes.length > 0 ) {
-            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+            throw ApiError.badRequest('Faltan datos obligatorios. Por favor, complete todos los campos');
         };
 
         // Valida que el formato de la fecha de observación sea correcto
         if ( !validator.isISO8601(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('The format of the observation date and time field is incorrect');
+            throw ApiError.badRequest('El formato de la fecha y hora de observación es incorrecto');
         };
 
         // Valida que la fecha de observación sea menor a la fecha actual
-        if ( !dateTimeObservationIsValid(req.body.dateTimeObservation) ) {
-            throw ApiError.badRequest('Observation date and time are greater than the current date');
+        if ( !validator.isBefore(req.body.dateTimeObservation) ) {
+            throw ApiError.badRequest('La fecha y hora de observación no puede ser mayor a la fecha actual');
         };
 
         let claimToUpdate = [];
@@ -532,7 +531,7 @@ const editClaim = async (req, res, next) => {
         if ( req.body.claimSubcategoryId ) {
             // Valida que el id de la subcategoría de reclamo sea válido
             if ( ! await claimSubcategoryIdIsValid(req.body.claimSubcategoryId) ) {
-                throw ApiError.badRequest('Invalid claim subcategory id');
+                throw ApiError.badRequest('El id de la subcategoría del reclamo es inválido');
             };
 
             const queryClaimToUpdate = getQueryClaimTo();
@@ -546,24 +545,24 @@ const editClaim = async (req, res, next) => {
             );
 
             if ( claimToUpdate.length === 0 ) {
-                throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+                throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
             };
 
             // Si el usuario envía una calificación
             if ( req.body.resolutionRating ) {
                 // Se valida que el estado sea 'Terminado'. Si no tiene ese estado, entonces no se puede actualizar.
                 if ( claimToUpdate[0].statusId !== 5 ) {
-                    throw ApiError.badRequest(`Cannot update the claim resolution rating because the status is other than 'Terminado'`);
+                    throw ApiError.badRequest(`No se puede actualizar la calificación de la resolución del reclamo porque el estado es diferente a 'Terminado'`);
                 };
 
                 // Valida que el número de la calificación esté entre 1 y 10
                 if ( req.body.resolutionRating < 1 || req.body.resolutionRating > 10 ) {
-                    throw ApiError.badRequest(`The resolution rating must be an integer between 1 and 10`);
+                    throw ApiError.badRequest(`La calificación de la resolución del reclamo debe ser un número entre 1 y 10`);
                 };
             } else { // El usuario no envía una calificación
                 // Valida que el estado sea 'Pendiente'. Si no tiene ese estado, entonces no se puede actualizar
                 if ( claimToUpdate[0].statusId !== 1 ) {
-                    throw ApiError.badRequest(`The claim cannot be updated because the status is other than 'Pendiente'`);
+                    throw ApiError.badRequest(`El reclamo no se puede actualizar porque el estado es diferente a 'Pendiente'`);
                 };
             };
         };
@@ -573,7 +572,7 @@ const editClaim = async (req, res, next) => {
         if ( req.body.insecurityFactTypeId ) {
             // Valida que el id del tipo de hecho de inseguridad sea válido
             if ( ! await insecurityFactTypeIdIsValid(req.body.insecurityFactTypeId) ) {
-                throw ApiError.badRequest('Invalid insecurity fact type id');
+                throw ApiError.badRequest('El id del tipo de hecho de inseguridad es inválido');
             };
 
             // Busca el hecho de inseguridad a actualizar
@@ -588,7 +587,7 @@ const editClaim = async (req, res, next) => {
             });
 
             if ( !insecurityFactToUpdate ) {
-                throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
+                throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
             };
         };
 
@@ -628,13 +627,13 @@ const editClaim = async (req, res, next) => {
 
         if ( req.body.claimSubcategoryId ) {
             return res.status(200).json({
-                message: 'Claim updated successfully',
+                message: 'Reclamo actualizado correctamente'
             });
         };
 
         if ( req.body.insecurityFactTypeId ) {
             return res.status(200).json({
-                message: 'Insecurity fact updated successfully',
+                message: 'Hecho de inseguridad actualizado correctamente'
             });
         }
     } catch (error) {
@@ -655,12 +654,12 @@ const changeClaimStatus = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['statusId']);
         if ( missingAttributes.length > 0 ) {
-            throw ApiError.badRequest('Missing required data. Please, fill all fields');
+            throw ApiError.badRequest('Faltan datos obligatorios. Por favor, complete todos los campos');
         };
 
         // Busca el reclamo para luego verificar si ya tiene un agente asignado o no
@@ -674,13 +673,13 @@ const changeClaimStatus = async (req, res, next) => {
         });
 
         if ( !claim ) {
-            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found`);
+            throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró`);
         };
 
         // Valida que si el reclamo encontrado ya tiene asignado un id de agente municipal, entonces el agente que intenta cambiar el estado del reclamo sea el mismo agente municipal
         if ( claim.municipalAgentId ) {
             if ( claim.municipalAgentId !== dataFromToken.municipalAgentId ) {
-                throw ApiError.badRequest(`The claim with id ${ req.params.claimId } has already been assigned to a municipal agent`);
+                throw ApiError.badRequest(`El reclamo con id '${ req.params.claimId }' ya tiene asignado un agente municipal`);
             };
         };
 
@@ -717,7 +716,7 @@ const changeClaimStatus = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(200).json({
-            message: 'Claim status updated successfully'
+            message: 'Estado del reclamo actualizado correctamente'
         });
     } catch (error) {
         await transaction.rollback();
@@ -734,7 +733,7 @@ const deleteClaim = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
         
         const queryClaimToDelete = getQueryClaimTo();
@@ -748,11 +747,11 @@ const deleteClaim = async (req, res, next) => {
         );
 
         if ( claimToDelete.length === 0 ) {
-            throw ApiError.notFound(`Claim with id ${ req.params.claimId } not found for this neighbor`);
+            throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
         };
 
         if ( claimToDelete[0].statusId !== 1 ) {
-            throw ApiError.badRequest(`The claim cannot be deleted because the status is other than 'Pendiente'`);
+            throw ApiError.badRequest(`El reclamo con id '${ req.params.claimId }' no se puede eliminar porque el estado es diferente a 'Pendiente'`);
         };
 
         await models.Claim.destroy({
@@ -772,7 +771,7 @@ const deleteClaim = async (req, res, next) => {
         };
 
         return res.status(200).json({
-            message: 'Claim deleted successfully'
+            message: 'Reclamo eliminado correctamente'
         });
     } catch (error) {
         await transaction.rollback();
@@ -788,7 +787,7 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
         
         if(req.query.insecurityFactType) req.query.insecurityFactType = req.query.insecurityFactType.split(',');
@@ -838,7 +837,7 @@ const getInsecurityFactById = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const insecurityFact = await models.Claim.findOne({
@@ -856,7 +855,7 @@ const getInsecurityFactById = async (req, res, next) => {
         });
 
         if ( !insecurityFact ) {
-            throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
+            throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
         };
 
         return res.status(200).json(insecurityFact);
@@ -874,7 +873,7 @@ const deleteInsecurityFact = async (req, res, next) => {
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`You can't access to this resource`);
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         const insecurityFactToDelete = await models.Claim.findOne({
@@ -888,13 +887,13 @@ const deleteInsecurityFact = async (req, res, next) => {
         });
 
         if ( !insecurityFactToDelete ) {
-            throw ApiError.notFound(`Insecurity fact with id ${ req.params.claimId } not found for this neighbor`);
+            throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
         };
     
         const differenceInHours = calculateHoursOfDifference(insecurityFactToDelete.dateTimeCreation);
         // Valida que la diferencia entre la fecha de creación y la fecha de hoy no sea mayor a 24hs
         if ( differenceInHours >= 24 ) {
-            throw ApiError.badRequest('The insecurity fact cannot be deleted because it was created more than 24 hours ago');
+            throw ApiError.badRequest('El hecho de inseguridad no se puede eliminar porque fue creado hace más de 24hs');
         };
 
         await models.Claim.destroy({
@@ -917,7 +916,7 @@ const deleteInsecurityFact = async (req, res, next) => {
         await transaction.commit();
 
         return res.status(200).json({
-            message: 'Insecurity fact deleted successfully'
+            message: 'Hecho de inseguridad eliminado correctamente'
         });
     } catch (error) {
         await transaction.rollback();
@@ -958,16 +957,6 @@ const photoUpdateHandler = async (file, previousPhoto) => {
     } catch (error) {
         throw error;
     }
-};
-
-
-/**
- * Valida que la fecha de observación sea menor a la fecha actual
- * @param {Date} dateTimeObservation - Fecha de observación del reclamo
- * @returns {boolean} Retorna true si la fecha de observación es menor a la fecha actual, false si no
-*/
-const dateTimeObservationIsValid = (dateTimeObservation) => {
-    return dateTimeObservation < dayjs().format('YYYY-MM-DD HH:mm:ss');
 };
 
 
