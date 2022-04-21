@@ -8,6 +8,7 @@ const MunicipalAgent = require('./municipalAgent');
 const Neighbor = require('./neighbor');
 const StatusClaim = require('./status_claim');
 const Status = require('./status');
+const EmergencyTelephones = require('./emergencyTelephones');
 
 
 // Associations
@@ -70,5 +71,6 @@ module.exports = {
     MunicipalAgent,
     Neighbor,
     StatusClaim,
-    Status
+    Status,
+    EmergencyTelephones
 };

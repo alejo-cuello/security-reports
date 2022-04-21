@@ -10,6 +10,7 @@ const contactRouter = require('./contactRouter');
 const mapRouter = require('./mapRouter');
 const statusRouter = require('./statusRouter');
 const filesRouter = require('./filesRouter');
+const emergencyTelephoneRouter = require('./emergencyTelephoneRouter');
 
 router.use('/user', loginRouter);
 
@@ -30,5 +31,7 @@ router.use('/map', mapRouter);
 router.use('/status', statusRouter);
 
 router.use('/files', filesRouter);
+
+router.use('/emergencyTelephones', emergencyTelephoneRouter);
 
 module.exports = router;
