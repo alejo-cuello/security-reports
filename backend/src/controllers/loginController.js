@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const sequelize = require('../database/db-connection');
-const { sendEmail, getEmailTemplate } = require('../config/emailConfig');
+const { sendEmail, getEmailTemplate, getEmailTemplateChangePassword } = require('../config/emailConfig');
 
 const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
@@ -140,6 +140,7 @@ const signup = async (req, res, next) => {
         // Genera y devuelve el token
         const token = await generateAndGetToken({ email: req.body.email, role: req.body.role });
 
+        // FIXME: Cambiar el nombre del método por getEmailTemplateSignup
         // Obtener el template para el email
         const emailTemplate = getEmailTemplate(req.body.firstName, token);
 
@@ -165,6 +166,75 @@ const signup = async (req, res, next) => {
 };
 
 
+const changePassword = async (req, res, next) => {
+    try {
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'role', 'newPassword', 'confirmNewPassword']);
+        if ( missingAttributes.length > 0 ) {
+            throw ApiError.badRequest('Faltan datos obligatorios. Por favor complete todos los campos');
+        };
+
+        if ( !validator.isEmail(req.body.email) ) {
+            throw ApiError.badRequest('El formato del email es inválido');
+        };
+
+        if ( req.body.newPassword !== req.body.confirmNewPassword ) {
+            throw ApiError.badRequest('Las contraseñas no coinciden');
+        };
+
+        const user = await getUserByEmail(req.body);
+
+        if ( !user ) {
+            throw ApiError.notFound('No hay una cuenta registrada con ese email');
+        };
+
+        // Encripta la contraseña y la devuelve hasheada
+        const hashedPassword = await encryptAndGetPassword(req.body.newPassword);
+
+        // Genera y devuelve el token
+        const token = await generateAndGetToken({ email: req.body.email, newPassword: hashedPassword, role: req.body.role });
+
+        // Obtener el template para el email
+        const emailTemplate = getEmailTemplateChangePassword(user.firstName, token);
+
+        // Envía un correo al usuario para confirmar el cambio de contraseña
+        await sendEmail(req.body.email, 'Cambio de contraseña', emailTemplate);
+
+        res.status(200).json({
+            message: 'Por favor verifique su casilla de correo electrónico para confirmar el cambio de contraseña'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+const confirmEmailChangePassword = async (req, res, next) => {
+    try {
+        // Obtener los datos del token
+        const data = await getTokenData(req.params.token);
+
+        const user = await getUserByEmail(data);
+
+        // Verifica que el usuario con el email a confirmar exista
+        if ( !user ) {
+            return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
+        };
+
+        const transaction = await sequelize.transaction();
+
+        await updatePassword(data, transaction);
+
+        await transaction.commit();
+
+        return res.sendFile(path.join(__dirname, '../../public/passwordChangedSuccessfully.html'));
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
+// FIXME: Cambiar el nombre a confirmEmailSignup
 const confirmEmail = async (req, res, next) => {
     try {
         // Obtener los datos del token
@@ -193,6 +263,38 @@ const confirmEmail = async (req, res, next) => {
     } catch (error) {
         await transaction.rollback();
         next(error);
+    }
+};
+
+
+/**
+ * 
+ * @param {object} userData - Datos del usuario
+ * @param {Transaction} transaction - Transacción para el update en la base de datos
+*/
+const updatePassword = async (userData, transaction) => {
+    try {
+        if (userData.role === NEIGHBOR) {
+            await models.Neighbor.update({
+                password: userData.newPassword
+            },
+            { 
+                where: {
+                    email: userData.email
+            }, transaction });
+        };
+
+        if (userData.role === MUNICIPAL_AGENT) {
+            await models.MunicipalAgent.update({
+                password: userData.newPassword
+            },
+            { 
+                where: {
+                    email: userData.email
+            }, transaction });
+        };
+    } catch (error) {
+        throw error;
     }
 };
 
@@ -455,5 +557,7 @@ const encryptAndGetPassword = (password) => {
 module.exports = {
     login,
     signup,
-    confirmEmail
+    changePassword,
+    confirmEmail,
+    confirmEmailChangePassword
 }

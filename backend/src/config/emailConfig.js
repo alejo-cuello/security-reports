@@ -28,7 +28,7 @@ const sendEmail = async (emailTo, subject, emailTemplateHtml) => {
     }
 };
 
-
+// FIXME: Cambiar el nombre del método por getEmailTemplateSignup
 const getEmailTemplate = (firstName, token) => {
     return `
     <div id="email___content">
@@ -42,7 +42,24 @@ const getEmailTemplate = (firstName, token) => {
     // TODO: Llegado el caso de subir el backend a heroku, cambiar la URL del href por el de heroku
 };
 
+
+const getEmailTemplateChangePassword = (firstName, token) => {
+    return `
+    <div id="email___content">
+        <h1>Hola ${ firstName }, has solicitado cambiar la contraseña</h1>
+        <br>
+        <p>
+            Para continuar es necesario que confirme el cambio de contraseña haciendo click <a href="http://localhost:3000/user/changePassword/confirmEmail/${ token }">aquí</a>.
+        </p>
+        <p>
+            Si no has solicitado este cambio, ignora este correo.
+        </p>
+    </div>
+    `
+};
+
 module.exports = {
     sendEmail,
-    getEmailTemplate
+    getEmailTemplate,
+    getEmailTemplateChangePassword
 }
