@@ -28,14 +28,14 @@ const sendEmail = async (emailTo, subject, emailTemplateHtml) => {
     }
 };
 
-// FIXME: Cambiar el nombre del método por getEmailTemplateSignup
-const getEmailTemplate = (firstName, token) => {
+
+const getEmailTemplateSignup = (firstName, token) => {
     return `
     <div id="email___content">
         <h1>Hola ${ firstName }, gracias por registrarse</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="http://localhost:3000/user/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="http://localhost:3000/user/signup/confirmEmail/${ token }">aquí</a>.
         </p>
     </div>
     `
@@ -60,6 +60,6 @@ const getEmailTemplateChangePassword = (firstName, token) => {
 
 module.exports = {
     sendEmail,
-    getEmailTemplate,
+    getEmailTemplateSignup,
     getEmailTemplateChangePassword
 }

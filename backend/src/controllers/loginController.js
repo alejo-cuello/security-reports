@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const sequelize = require('../database/db-connection');
-const { sendEmail, getEmailTemplate, getEmailTemplateChangePassword } = require('../config/emailConfig');
+const { sendEmail, getEmailTemplateSignup, getEmailTemplateChangePassword } = require('../config/emailConfig');
 
 const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
@@ -140,9 +140,8 @@ const signup = async (req, res, next) => {
         // Genera y devuelve el token
         const token = await generateAndGetToken({ email: req.body.email, role: req.body.role });
 
-        // FIXME: Cambiar el nombre del método por getEmailTemplateSignup
         // Obtener el template para el email
-        const emailTemplate = getEmailTemplate(req.body.firstName, token);
+        const emailTemplate = getEmailTemplateSignup(req.body.firstName, token);
 
         if ( req.body.role === NEIGHBOR ) {
             // Envía un correo al nuevo usuario para confirmar el email
@@ -234,8 +233,7 @@ const confirmEmailChangePassword = async (req, res, next) => {
 };
 
 
-// FIXME: Cambiar el nombre a confirmEmailSignup
-const confirmEmail = async (req, res, next) => {
+const confirmEmailSignup = async (req, res, next) => {
     try {
         // Obtener los datos del token
         const data = await getTokenData(req.params.token);
@@ -558,6 +556,6 @@ module.exports = {
     login,
     signup,
     changePassword,
-    confirmEmail,
+    confirmEmailSignup,
     confirmEmailChangePassword
 }
