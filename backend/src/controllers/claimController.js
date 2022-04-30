@@ -13,6 +13,7 @@ const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAtt
 // Variables globales
 let replacements = [];
 let where = "";
+let query = "";
 // -----------------------------
 
 
@@ -72,13 +73,21 @@ const getSelectQuery = () => {
 
 
 /**
+ * Devuelve el order by de la query por fechaHoraCreación de manera descendente
+ * @returns {string} Order by de la query
+ */
+const queryOrderBy = () => {
+    return " ORDER BY rec.fechaHoraCreacion DESC";
+};
+
+
+/**
  * Devuelve la query para obtener todos los reclamos favoritos de un vecino 
  * @param {string} where - Condición para filtrar los reclamos. Si no es provisto, por defecto es un string vacío
  * @returns {string} Query completa para obtener los reclamos favoritos de un vecino
 */
-const getQueryMyFavoritesClaims = ( where = "" ) => {
-    let query = 
-    "SELECT " +
+const getQueryMyFavoritesClaims = () => {
+    return "SELECT " +
         "fav.idFavoritos 'favoriteId', " +
         getSelectQuery() +
     "FROM estado_reclamo er " +
@@ -97,13 +106,6 @@ const getQueryMyFavoritesClaims = ( where = "" ) => {
     "LEFT JOIN estado est " +
         "ON er.idEstado = est.idEstado " +
     "WHERE fav.idVecino = ?";
-    
-    if ( where !== "" ) {
-        query = query + where;
-    };
-    
-    query = query + " ORDER BY rec.fechaHoraCreacion DESC";
-    return query;
 };
 
 
@@ -186,55 +188,49 @@ const getQueryClaimTo = () => {
 
 
 /**
- * Setea el o los filtros para la query de obtener los reclamos
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where para obtener los reclamos
-*/
-const setFilter = (filter) => {
-    let partialWhere = "";
-    where = "";
-
-    //Agregué esta linea para que reconozca el filtro como un array
+ * Contruye la cláusula where en base a los filtros y la parte inicial del where
+ * @param {string} filter - Filtro a aplicar a la cláusula where
+ * @param {string} partialWhere - Parte inicial de la cláusula where
+ */
+const buildWhere = (filter, partialWhere) => {
+    // Para que reconozca el filtro como un array
     filter = filter.split(',');
-
-    if ( Array.isArray(filter) ) { // Verifica si filter es un array
-        partialWhere = ` AND tr.idTipoReclamo IN (?`;
-        filter.forEach( (eachFilter) => {
-            replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
-            where = where + partialWhere; // Se arma la cláusula where con los filtros
-            partialWhere = `,?`;
-        });
-        partialWhere = `)`;
-        where = where + partialWhere;
-    } else { // Si el filter no es un array, solo se agrega el filtro
-        replacements.push(filter); // Al array de reemplazos se le agrega el filtro
-        where = ` AND tr.idTipoReclamo = ?`;
+    for ( key in filter ) {
+        replacements.push(filter[key]); // Al array de reemplazos se le agrega/n el/los filtro/s
+        where = where + partialWhere; // Se arma la cláusula where con el/los filtro/s
+        partialWhere = `,?`;
     };
+    partialWhere = `)`;
+    where = where + partialWhere;
 };
 
 
 /**
- * Setea el o los filtros para la query de obtener los reclamos por subtipos
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where para obtener los reclamos
+ * Setea el o los filtros en la cláusula where de una query
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
 */
-const setFilterSubcategory = (filter) => {
-    let partialWhere = "";
-    where = "";
+const setFilters = (filter) => {
+    query = getQueryMyFavoritesClaims();
+    
+    if ( filter.claimType ) {
+        let partialWhere = ` AND tr.idTipoReclamo IN (?`;
+        where = "";
+        buildWhere(filter.claimType, partialWhere);
+        query = query + where;
+    };
 
-    //Agregué esta linea para que reconozca el filtro como un array
-    filter = filter.split(',');
+    if ( filter.claimSubcategory ) {
+        let partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
+        where = "";
+        buildWhere(filter.claimSubcategory, partialWhere);
+        query = query + where;
+    };
 
-    if ( Array.isArray(filter) ) { // Verifica si filter es un array
-        partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
-        filter.forEach( (eachFilter) => {
-            replacements.push(eachFilter); // Al array de reemplazos se le agregan los filtros
-            where = where + partialWhere; // Se arma la cláusula where con los filtros
-            partialWhere = `,?`;
-        });
-        partialWhere = `)`;
-        where = where + partialWhere;
-    } else { // Si el filter no es un array, solo se agrega el filtro
-        replacements.push(filter); // Al array de reemplazos se le agrega el filtro
-        where = ` AND rec.idSubcategoriaReclamo = ?`;
+    if ( filter.status ) {
+        let partialWhere = ` AND est.idEstado IN (?`;
+        where = "";
+        buildWhere(filter.status, partialWhere);
+        query = query + where;
     };
 };
 
@@ -245,31 +241,19 @@ const getFavoriteClaims = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        let myFavoritesClaims = [];
-
-        let queryMyFavoritesClaims = "";
-
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
         replacements = [];
-        replacements.push(dataFromToken.neighborId, dataFromToken.neighborId); // Se agrega el vecino al array de reemplazos
+        // Se agrega el vecino al array de reemplazos
+        replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
 
-        if ( req.query.claimSubcategory) {
-            setFilterSubcategory(req.query.claimSubcategory);
-            queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
-        }
-        else {
-            if ( req.query.claimType ) { // Si se quiere filtrar por tipo de reclamo
-                setFilter(req.query.claimType);
-                queryMyFavoritesClaims = getQueryMyFavoritesClaims( where );
-            } else { // En caso de que no se aplique ningún filtro
-                queryMyFavoritesClaims = getQueryMyFavoritesClaims();
-            };
-        }
+        setFilters(req.query);
+        const orderBy = queryOrderBy();
+        query = query + orderBy;
 
-        myFavoritesClaims = await sequelize.query( queryMyFavoritesClaims,
+        const myFavoritesClaims = await sequelize.query( query,
             {
                 replacements,   // El signo '?' (ver query) se reemplaza por 
                                 // lo que está dentro de este arreglo según
@@ -296,6 +280,7 @@ const getPendingClaims = async (req, res, next) => {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
+        // TODO: Ver el tema de los filtros acá
         where = "";
         where = `WHERE est.descripcionEST = 'Pendiente' `;
         const queryPendingClaims = getQueryClaimsForMunicipalAgent(where); // TODO: Posiblemente haya que agregar un LIMIT y OFFSET
@@ -789,6 +774,8 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
+
+        // TODO: Ver el tema de los filtros acá
         
         if(req.query.insecurityFactType) req.query.insecurityFactType = req.query.insecurityFactType.split(',');
 
