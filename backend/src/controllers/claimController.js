@@ -574,6 +574,12 @@ const editClaim = async (req, res, next) => {
             if ( !insecurityFactToUpdate ) {
                 throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
             };
+
+            const differenceInHours = calculateHoursOfDifference(insecurityFactToUpdate.dateTimeCreation);
+            // Valida que la diferencia entre la fecha de creación y la fecha de hoy no sea mayor a 24hs
+            if ( differenceInHours >= 24 ) {
+                throw ApiError.badRequest('El hecho de inseguridad no se puede editar porque fue creado hace más de 24hs');
+            };
         };
 
         let body = {
@@ -710,7 +716,7 @@ const changeClaimStatus = async (req, res, next) => {
 };
 
 
-// Eliminar un reclamo
+// Eliminar solo un reclamo
 const deleteClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
@@ -852,7 +858,7 @@ const getInsecurityFactById = async (req, res, next) => {
 };
 
 
-// Elimina un hecho de inseguridad
+// Eliminar solo un hecho de inseguridad
 const deleteInsecurityFact = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
