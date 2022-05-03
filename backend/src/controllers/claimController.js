@@ -206,31 +206,87 @@ const buildWhere = (filter, partialWhere) => {
 
 
 /**
- * Setea el o los filtros en la cláusula where de una query
+ * Setea el/los filtro/s en la cláusula where de una query para obtener los reclamos favoritos de un vecino
  * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
 */
-const setFilters = (filter) => {
+const setFiltersForClaims = (filter) => {
+    let partialWhere = "";
     query = getQueryMyFavoritesClaims();
     
     if ( filter.claimType ) {
-        let partialWhere = ` AND tr.idTipoReclamo IN (?`;
+        partialWhere = ` AND tr.idTipoReclamo IN (?`;
         where = "";
         buildWhere(filter.claimType, partialWhere);
         query = query + where;
     };
 
     if ( filter.claimSubcategory ) {
-        let partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
+        partialWhere = ` AND rec.idSubcategoriaReclamo IN (?`;
         where = "";
         buildWhere(filter.claimSubcategory, partialWhere);
         query = query + where;
     };
 
     if ( filter.status ) {
-        let partialWhere = ` AND est.idEstado IN (?`;
+        partialWhere = ` AND est.idEstado IN (?`;
         where = "";
         buildWhere(filter.status, partialWhere);
         query = query + where;
+    };
+
+    if ( filter.startDate && filter.endDate ) {
+        if ( !validator.isDate(filter.startDate) || !validator.isDate(filter.endDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+        query = query + ` AND rec.fechaHoraCreacion BETWEEN ? AND ?`;
+        replacements.push(filter.startDate);
+        replacements.push(filter.endDate);
+    };
+};
+
+
+/**
+ * Setea y devuelve el/los filtro/s en la cláusula where de una query para obtener los hechos de inseguridad favoritos de un vecino
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+*/
+const setAndGetFiltersForInsecurityFacts = (filter) => {
+    let whereInsecurityFactType = {};
+    // Por defecto ya hace el where por aquellos reclamos que no tengan null los tipos de hechos de inseguridad
+    let whereClaim = {
+        insecurityFactTypeId: {
+            [Op.not]: null
+        }
+    };
+
+    if ( filter.insecurityFactType ) { // Si se quiere filtrar por tipo de hecho de inseguridad
+        filter.insecurityFactType = filter.insecurityFactType.split(',');
+        whereInsecurityFactType = {
+            insecurityFactTypeId: filter.insecurityFactType
+        };
+    };
+
+    if ( filter.startDate && filter.endDate ) { // Si se quiere filtrar por fecha de creación
+        if ( !validator.isDate(filter.startDate) || !validator.isDate(filter.endDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+        whereClaim = {
+            [Op.and]: [
+                {
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
+                },
+                {
+                    dateTimeCreation: {
+                        [Op.between]: [filter.startDate, filter.endDate]
+                    }
+                }
+            ]
+        };
+    };
+    return {
+        whereInsecurityFactType,
+        whereClaim
     };
 };
 
@@ -249,7 +305,7 @@ const getFavoriteClaims = async (req, res, next) => {
         // Se agrega el vecino al array de reemplazos
         replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
 
-        setFilters(req.query);
+        setFiltersForClaims(req.query);
         const orderBy = queryOrderBy();
         query = query + orderBy;
 
@@ -781,17 +837,8 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
-        // TODO: Ver el tema de los filtros acá
+        let where = setAndGetFiltersForInsecurityFacts(req.query);
         
-        if(req.query.insecurityFactType) req.query.insecurityFactType = req.query.insecurityFactType.split(',');
-
-        let where = {};
-        if ( req.query.insecurityFactType ) { // Si se quiere filtrar por tipo de hecho de inseguridad
-            where = {
-                insecurityFactTypeId: req.query.insecurityFactType
-            }
-        };
-
         const myFavoritesInsecurityFacts = await models.Favorites.findAll({
             where: {
                 neighborId: dataFromToken.neighborId
@@ -800,16 +847,12 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
                 {
                     model: models.Claim,
                     as: 'claim',
-                    where: {
-                        insecurityFactTypeId: {
-                            [Op.not]: null
-                        }
-                    },
+                    where: where.whereClaim,    // Solo en caso que se quiera filtrar por un rango de fechas
                     include: [
                         {
                             model: models.InsecurityFactType,
                             as: 'insecurityFactType',
-                            where      // Solo en caso que se quiera filtrar por tipo de hecho de inseguridad
+                            where: where.whereInsecurityFactType      // Solo en caso que se quiera filtrar por tipo de hecho de inseguridad
                         }
                     ]
                 }
