@@ -21,8 +21,14 @@
         <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
 
+      <div class="register">
+        <ion-text color="primary" (click)="goToChangePassword()">
+          <p class="center">¿Olvidaste tu contraseña?</p>
+        </ion-text>
+      </div>
+
       <ion-radio-group formControlName="role">
-        <ion-row class="ion-margin-top">
+        <ion-row class="row-radio-group">
           <ion-col class="ion-no-padding ion-margin-end">
                <ion-item>
                   <ion-label>Vecino</ion-label>

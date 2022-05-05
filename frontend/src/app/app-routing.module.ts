@@ -11,10 +11,10 @@ const routes: Routes = [
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
-  // {
-  //   path: 'change-password',
-  //   loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
-  // },
+  {
+    path: 'change-password',
+    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+  },
   {
     path: 'claim',
     loadChildren: () => import('./modules/claim/claim.module').then(m => m.ClaimPageModule)

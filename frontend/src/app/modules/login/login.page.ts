@@ -62,8 +62,8 @@ export class LoginPage extends FormPage {
     this.pageService.navigateRoute('pre-register');
   }
 
-  goToRecoverPassword() {
-    this.pageService.navigateRoute('recover-password');
+  goToChangePassword() {
+    this.pageService.navigateRoute('change-password');
   }
 
 }

@@ -147,8 +147,4 @@ export class UserPage extends ItemPage {
       this.pageService.navigateRoute('login');
     }
   }
-
-  goToChangePassword() {
-    this.pageService.navigateRoute('change-password');
-  }
 }

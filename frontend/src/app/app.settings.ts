@@ -31,6 +31,7 @@ export class Settings {
       getAddress: '/getAddress'
     },
     user: {
+      changePassword: '/changePassword',
       login: '/login',
       signup: '/signup'
     }
