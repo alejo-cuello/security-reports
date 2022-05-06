@@ -28,6 +28,10 @@ const routes: Routes = [
     loadChildren: () => import('./modules/contacts/contacts.module').then(m => m.ContactsPageModule)
   },
   {
+    path: 'emergency-numbers',
+    loadChildren: () => import('./modules/emergency-numbers/emergency-numbers.module').then( m => m.EmergencyNumbersPageModule)
+  },
+  {
     path: 'institutions',
     loadChildren: () => import('./modules/institutions/institutions.module').then(m => m.InstitutionsPageModule)
   },

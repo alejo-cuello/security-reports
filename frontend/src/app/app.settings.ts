@@ -10,6 +10,7 @@ export class Settings {
     claim: 'claim',
     claimTypes: 'claimTypes',
     contacts: 'contacts',
+    emergencyTelephones: 'emergencyTelephones',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
