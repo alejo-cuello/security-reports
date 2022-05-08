@@ -25,4 +25,10 @@ export class EmergencyNumbersPage extends BasePage {
       })
   }
 
+  callNumber( emergencyNumber: string ) {
+    this.pageService.callNumber.callNumber(emergencyNumber, true)
+      .then(res => this.pageService.showSuccess('Iniciando llamada'))
+      .catch(error => this.pageService.showError('Error al iniciar la llamada'));
+  }
+
 }
