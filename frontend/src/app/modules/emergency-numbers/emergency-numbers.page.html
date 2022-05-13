@@ -12,8 +12,8 @@
     <ion-row>
       <ion-col size="6" *ngFor="let emergencyTelephone of emergencyTelephones">
         <ion-card class="card-number" (click)="callNumber(emergencyTelephone?.phoneNumber)">
-          <p>{{emergencyTelephone?.phoneNumber}}</p>
-          <p class="name">{{emergencyTelephone?.name}}</p>
+          <div class="name">{{emergencyTelephone?.name}}</div>
+          <div>{{emergencyTelephone?.phoneNumber}}</div>
         </ion-card>
       </ion-col>
     </ion-row>
