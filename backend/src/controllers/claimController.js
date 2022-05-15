@@ -13,7 +13,6 @@ const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAtt
 // Variables globales
 let replacements = [];
 let where = "";
-let query = "";
 // -----------------------------
 
 
@@ -74,16 +73,17 @@ const getSelectQuery = () => {
 
 /**
  * Devuelve el order by de la query por fechaHoraCreación de manera descendente
+ * @param {string} field - Campo por el cual ordenar la query
+ * @param {string} direction - Dirección de ordenamiento de la query
  * @returns {string} Order by de la query
  */
-const queryOrderBy = () => {
-    return " ORDER BY rec.fechaHoraCreacion DESC";
+const queryOrderBy = (field, direction) => {
+    return ` ORDER BY ${field} ${direction}`;
 };
 
 
 /**
  * Devuelve la query para obtener todos los reclamos favoritos de un vecino 
- * @param {string} where - Condición para filtrar los reclamos. Si no es provisto, por defecto es un string vacío
  * @returns {string} Query completa para obtener los reclamos favoritos de un vecino
 */
 const getQueryMyFavoritesClaims = () => {
@@ -110,14 +110,21 @@ const getQueryMyFavoritesClaims = () => {
 
 
 /**
- * Devuelve la query para obtener los reclamos que están en estado pendiente o tomados por el agente municipal según la condición "where". Es usada por el agente municipal
- * @param {string} where - Condición para filtrar los reclamos
- * @returns {string} Query completa para obtener los reclamos que están en estado pendiente
-*/
-const getQueryClaimsForMunicipalAgent = (where) => {
+ * Retorna el select de la query para obtener los reclamos en estado pendiente
+ * @returns {string} Select de la query
+ */
+const getSelectOfQueryForMunicipalAgent = () => {
     return "SELECT " +
-                getSelectQuery() +
-            "FROM estado_reclamo er " +
+                getSelectQuery();
+};
+
+
+/**
+ * Retorna la parte del "FROM" y los respectivos joins de la query para obtener los reclamos en estado pendiente
+ * @returns {string} Parte del "FROM" e "INNER JOIN" de la query
+ */
+const getFromOfQueryForMunicipalAgent = () => {
+    return  "FROM estado_reclamo er " +
             "INNER JOIN " +
                 getSubQueryLastClaimStatus( false ) +
                 "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
@@ -129,9 +136,7 @@ const getQueryClaimsForMunicipalAgent = (where) => {
             "INNER JOIN subcategoria_reclamo scr " +
                 "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
             "INNER JOIN tipo_reclamo tr " +
-                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-            where +
-            "ORDER BY rec.fechaHoraCreacion ASC ";
+                "ON scr.idTipoReclamo = tr.idTipoReclamo"
 };
 
 
@@ -193,11 +198,10 @@ const getQueryClaimTo = () => {
  * @param {string} partialWhere - Parte inicial de la cláusula where
  */
 const buildWhere = (filter, partialWhere) => {
-    // Para que reconozca el filtro como un array
-    filter = filter.split(',');
+    filter = filter.split(',');             // Para que reconozca el filtro como un array
     for ( key in filter ) {
-        replacements.push(filter[key]); // Al array de reemplazos se le agrega/n el/los filtro/s
-        where = where + partialWhere; // Se arma la cláusula where con el/los filtro/s
+        replacements.push(filter[key]);     // Al array de reemplazos se le agrega/n el/los filtro/s
+        where = where + partialWhere;       // Se arma la cláusula where con el/los filtro/s
         partialWhere = `,?`;
     };
     partialWhere = `)`;
@@ -208,10 +212,11 @@ const buildWhere = (filter, partialWhere) => {
 /**
  * Setea el/los filtro/s en la cláusula where de una query para obtener los reclamos favoritos de un vecino
  * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * @param {string} query - Query a la que se le aplicará/n el/los filtro/s
+ * @returns {string} Devuelve la query con los filtros aplicados
 */
-const setFiltersForClaims = (filter) => {
+const setFiltersForClaims = (filter, query) => {
     let partialWhere = "";
-    query = getQueryMyFavoritesClaims();
     
     if ( filter.claimType ) {
         partialWhere = ` AND tr.idTipoReclamo IN (?`;
@@ -238,10 +243,14 @@ const setFiltersForClaims = (filter) => {
         if ( !validator.isDate(filter.startDate) || !validator.isDate(filter.endDate) ) {
             throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
         };
+        if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
+            throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
+        };
         query = query + ` AND rec.fechaHoraCreacion BETWEEN ? AND ?`;
-        replacements.push(filter.startDate);
-        replacements.push(filter.endDate);
+        replacements.push(filter.startDate, filter.endDate);
     };
+
+    return query;
 };
 
 
@@ -268,6 +277,9 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
     if ( filter.startDate && filter.endDate ) { // Si se quiere filtrar por fecha de creación
         if ( !validator.isDate(filter.startDate) || !validator.isDate(filter.endDate) ) {
             throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+        if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
+            throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
         };
         whereClaim = {
             [Op.and]: [
@@ -305,8 +317,10 @@ const getFavoriteClaims = async (req, res, next) => {
         // Se agrega el vecino al array de reemplazos
         replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
 
-        setFiltersForClaims(req.query);
-        const orderBy = queryOrderBy();
+        let query = getQueryMyFavoritesClaims();
+        // Este if es para que no revise cada if dentro de la función setFiltersForClaims si la query no tiene filtros
+        if ( Object.keys(req.query).length ) query = setFiltersForClaims(req.query, query);
+        const orderBy = queryOrderBy('rec.fechaHoraCreacion', 'DESC');
         query = query + orderBy;
 
         const myFavoritesClaims = await sequelize.query( query,
@@ -335,14 +349,30 @@ const getPendingClaims = async (req, res, next) => {
         if ( !dataFromToken.municipalAgentId ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
-
-        // TODO: Ver el tema de los filtros acá
-        where = "";
-        where = `WHERE est.descripcionEST = 'Pendiente' `;
-        const queryPendingClaims = getQueryClaimsForMunicipalAgent(where); // TODO: Posiblemente haya que agregar un LIMIT y OFFSET
         
+        where = " WHERE est.descripcionEST = 'Pendiente'";
+
+        // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
+        let query = getSelectOfQueryForMunicipalAgent();
+
+        if ( req.query.orderByNumberOfFavorites === "yes" ) {
+            query = query + ", count(fav.idReclamo) 'NumberOfFavorites' "
+                          + getFromOfQueryForMunicipalAgent()
+                          + " INNER JOIN favoritos fav ON rec.idReclamo = fav.idReclamo"
+                          + where
+                          + " GROUP BY fav.idReclamo"
+                          + queryOrderBy('count(fav.idReclamo)', 'DESC');
+        } else {
+            query = query + getFromOfQueryForMunicipalAgent()
+                          + where 
+                          + queryOrderBy('rec.fechaHoraCreacion', 'DESC');
+        };
+
+        // TODO: Que se pueda aplicar los demás filtros de la función setFiltersForClaims() o sino hacer una función aparte
+
+
         // Query para obtener los reclamos pendientes
-        const pendingClaims = await sequelize.query( queryPendingClaims, {
+        const pendingClaims = await sequelize.query( query, {
             type: QueryTypes.SELECT
         });
 
@@ -364,12 +394,12 @@ const getTakenClaims = async (req, res, next) => {
         };
 
         replacements = [];
-        where = "";
-
         replacements.push(dataFromToken.municipalAgentId);
-        where = `WHERE rec.idAgenteMunicipal = ? `;
 
-        const queryTakenClaims = getQueryClaimsForMunicipalAgent(where);
+        const queryTakenClaims = getSelectOfQueryForMunicipalAgent() +
+                                 getFromOfQueryForMunicipalAgent() +
+                                 " WHERE rec.idAgenteMunicipal = ?" +
+                                 queryOrderBy('rec.fechaHoraCreacion', 'ASC');
 
         const myTakenClaims = await sequelize.query( queryTakenClaims, {
             replacements,
