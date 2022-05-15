@@ -40,3 +40,19 @@ form {
         margin-top: .3em;
     }
 }
+
+.my-custom-modal-css {
+    height: 90%;
+    top: 10%;
+    border: 1px solid gray;
+    border-radius: 40px 40px 0 0 !important;
+}
+
+.modal-background {
+    position: relative;
+    --padding-top: 32px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-bottom: 16px;
+    --background: var(--ion-color-white) !important;
+}

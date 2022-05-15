@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
+import { PageService } from 'src/app/core/page.service';
+import { FiltersPage } from '../filters/filters.page';
 
 @Component({
   selector: 'app-claims',
@@ -9,6 +12,7 @@ import { BasePage } from 'src/app/core/base.page';
 export class ClaimsPage extends BasePage {
 
   menu: string;
+  filters: any;
   role: string;
 
   claims: any[] = [];
@@ -20,6 +24,14 @@ export class ClaimsPage extends BasePage {
 
   selectedCategories: any[] = [];
   selectedSubcategories: any[] = [];
+  selectedStatuses: any[];
+
+  constructor(
+    public pageService: PageService,
+    public modalController: ModalController
+  ) {
+    super(pageService);
+  }
 
   ionViewWillEnter() {
     this.role = this.global.load(this.settings.storage.role);
@@ -30,8 +42,6 @@ export class ClaimsPage extends BasePage {
 
     if(this.role === 'neighbor') {
       this.menu = 'claim';
-      this.getClaimTypes();
-      this.getInsecurityFactTypes();
       this.getClaims();
     }
     else {
@@ -42,8 +52,6 @@ export class ClaimsPage extends BasePage {
 
   changeSegment() {
     if(this.role === 'neighbor') {
-      this.selectedCategories = [];
-      this.selectedSubcategories = [];
       this.getClaims();
     }
     else {
@@ -86,30 +94,6 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  getClaimTypes() {
-    const endPoint = this.settings.endPoints.claimTypes;
-
-    this.pageService.httpGetAll(endPoint)
-      .then( (response) => {
-        this.claimTypes = response;
-      })
-      .catch( (error) => {
-        this.pageService.showError(error);
-      })
-  }
-
-  getInsecurityFactTypes( type?: string[] ) {
-    const endPoint = this.settings.endPoints.insecurityFactTypes;
-
-    this.pageService.httpGetAll(endPoint)
-      .then( (response) => {
-        this.insecurityFactTypes = response;
-      })
-      .catch( (error) => {
-        this.pageService.showError(error);
-      })
-  }
-
   getClaims( type?: string[], subcategory?: string[] ) {
     let endPoint = (this.menu === 'claim') ? 
       this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
@@ -136,35 +120,25 @@ export class ClaimsPage extends BasePage {
     this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.getType() } } );
   }
 
+  async goToFilters() {
+    const modal = await this.modalController.create({
+      component: FiltersPage,
+      cssClass: 'my-custom-modal-css',
+      componentProps: {
+        filters: this.filters || {},
+        claimType: this.menu
+      }
+    });
+
+    modal.onDidDismiss().then( (data) => {
+      console.log(data)
+    });
+
+    await modal.present();
+  }
+
   getType() {
     return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
-  }
-
-  onSelectCategories() {
-    this.selectedSubcategories = [];
-    this.claimSubcategories = [];
-    this.idsTypes = [];
-    for( let type of this.selectedCategories ) {
-      for( let subcategory of type.claimSubcategory ) {
-        this.claimSubcategories.push(subcategory);
-      }
-      this.idsTypes.push(type.claimTypeId);
-    }
-    if(this.idsTypes.length === 0)  this.idsTypes = null;
-    this.getClaims(this.idsTypes);
-  }
-
-  onSelectSubcategories() {
-    this.getClaims(this.selectedCategories, this.selectedSubcategories);
-  }
-
-  onSelectTypes() {
-    this.idsTypes = [];
-    for( let type of this.selectedCategories ) {
-      this.idsTypes.push(type);
-    }
-    if(this.idsTypes.length === 0)  this.idsTypes = null;
-    this.getClaims(this.idsTypes);
   }
 
   openOptions( id: string ) {

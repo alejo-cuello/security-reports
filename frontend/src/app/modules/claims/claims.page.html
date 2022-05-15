@@ -23,38 +23,12 @@
       </ion-segment-button>
     </ion-segment>
 
-    <!-- Select para filtrar los reclamos por tipo de reclamo -->
-    <div *ngIf="menu === 'claim'" class="ion-margin">
-      <ion-list>
-
-        <!-- Para seleccionar tipo -->
-        <ion-item>
-          <ion-label>Tipo de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
-            <ion-select-option *ngFor="let claimType of claimTypes" [value]="claimType">{{ claimType?.CTdescription }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <!-- Para seleccionar subcategoría -->
-        <ion-item *ngIf="selectedCategories.length === 1">
-          <ion-label>Subcategoría de reclamo</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" (ionChange)="onSelectSubcategories()">
-            <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
-    </div>
-  
-    <!-- Select para filtrar los hechos de inseguridad por tipo de HI -->
-    <div *ngIf="menu === 'insecurityFact'" class="ion-margin">
-      <ion-list>
-        <ion-item>
-          <ion-label>Tipo hecho de inseguridad</ion-label>
-          <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectTypes()">
-            <ion-select-option *ngFor="let insecurityFactType of insecurityFactTypes" [value]="insecurityFactType?.insecurityFactTypeId">{{ insecurityFactType?.IFTdescription }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
+    <div class="ion-margin-bottom ion-margin-end">
+      <ion-button class="button-right" shape="round" color="warning" (click)="goToFilters()">
+        <ion-text>
+          Filtrar
+        </ion-text>
+      </ion-button>
     </div>
     
   </ion-toolbar>

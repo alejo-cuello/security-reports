@@ -59,7 +59,11 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'
+  },  {
+    path: 'filters',
+    loadChildren: () => import('./modules/filters/filters.module').then( m => m.FiltersPageModule)
   }
+
 
 ];
 @NgModule({
