@@ -249,7 +249,6 @@ const setFiltersForClaims = (filter, query) => {
         query = query + ` AND rec.fechaHoraCreacion BETWEEN ? AND ?`;
         replacements.push(filter.startDate, filter.endDate);
     };
-
     return query;
 };
 
@@ -257,6 +256,7 @@ const setFiltersForClaims = (filter, query) => {
 /**
  * Setea y devuelve el/los filtro/s en la cláusula where de una query para obtener los hechos de inseguridad favoritos de un vecino
  * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * @returns {object} Devuelve un objeto con los filtros aplicados
 */
 const setAndGetFiltersForInsecurityFacts = (filter) => {
     let whereInsecurityFactType = {};
@@ -300,6 +300,32 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
         whereInsecurityFactType,
         whereClaim
     };
+};
+
+
+/**
+ * 
+ * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * @param {string} query - Query a la que se le aplicará/n el/los filtro/s
+ * @param {string} where - Parte inicial de la cláusula where
+ * @returns {string} Devuelve la query con los filtros aplicados
+*/
+const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'DESC') => {
+    if ( filter.orderByNumberOfFavorites === "yes" ) {
+        query = query + ", count(fav.idReclamo) 'NumberOfFavorites' "
+                      + getFromOfQueryForMunicipalAgent()
+                      + " INNER JOIN favoritos fav ON rec.idReclamo = fav.idReclamo"
+                      + where;
+        query = setFiltersForClaims(filter, query)
+                      + " GROUP BY fav.idReclamo"
+                      + queryOrderBy('count(fav.idReclamo)', 'DESC');
+    } else {
+        query = query + getFromOfQueryForMunicipalAgent()
+                      + where;
+        query = setFiltersForClaims(filter, query)
+                      + queryOrderBy('rec.fechaHoraCreacion', orderByDirection);
+    };
+    return query;
 };
 
 
@@ -349,30 +375,17 @@ const getPendingClaims = async (req, res, next) => {
         if ( !dataFromToken.municipalAgentId ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
-        
+
+        replacements = [];
         where = " WHERE est.descripcionEST = 'Pendiente'";
 
         // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
         let query = getSelectOfQueryForMunicipalAgent();
-
-        if ( req.query.orderByNumberOfFavorites === "yes" ) {
-            query = query + ", count(fav.idReclamo) 'NumberOfFavorites' "
-                          + getFromOfQueryForMunicipalAgent()
-                          + " INNER JOIN favoritos fav ON rec.idReclamo = fav.idReclamo"
-                          + where
-                          + " GROUP BY fav.idReclamo"
-                          + queryOrderBy('count(fav.idReclamo)', 'DESC');
-        } else {
-            query = query + getFromOfQueryForMunicipalAgent()
-                          + where 
-                          + queryOrderBy('rec.fechaHoraCreacion', 'DESC');
-        };
-
-        // TODO: Que se pueda aplicar los demás filtros de la función setFiltersForClaims() o sino hacer una función aparte
-
+        query = setFiltersForMunicipalAgent(req.query, query, where);
 
         // Query para obtener los reclamos pendientes
         const pendingClaims = await sequelize.query( query, {
+            replacements,
             type: QueryTypes.SELECT
         });
 
@@ -395,11 +408,11 @@ const getTakenClaims = async (req, res, next) => {
 
         replacements = [];
         replacements.push(dataFromToken.municipalAgentId);
-
-        const queryTakenClaims = getSelectOfQueryForMunicipalAgent() +
-                                 getFromOfQueryForMunicipalAgent() +
-                                 " WHERE rec.idAgenteMunicipal = ?" +
-                                 queryOrderBy('rec.fechaHoraCreacion', 'ASC');
+        where = " WHERE rec.idAgenteMunicipal = ?";
+        
+        // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
+        let queryTakenClaims = getSelectOfQueryForMunicipalAgent();
+        queryTakenClaims = setFiltersForMunicipalAgent(req.query, queryTakenClaims, where, 'ASC');
 
         const myTakenClaims = await sequelize.query( queryTakenClaims, {
             replacements,
