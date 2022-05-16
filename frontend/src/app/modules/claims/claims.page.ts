@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertInput, ModalController } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import { FiltersPage } from '../filters/filters.page';
@@ -141,31 +141,38 @@ export class ClaimsPage extends BasePage {
     return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
   }
 
+  getNeighborOptions() {
+    let options: AlertInput[] = [
+      { 
+        type: 'radio',
+        label: 'Ver detalle',
+        value: 'watch'
+      },
+      { 
+        type: 'radio',
+        label: 'Editar',
+        value: 'edit'
+      },
+      { 
+        type: 'radio',
+        label: 'Eliminar',
+        value: 'delete'
+      }
+    ]
+    return options;
+  }
+
   openOptions( id: string ) {
-    if(this.role === 'neighbor') this.showNeighborOptions( id );
+    if(this.role === 'neighbor') {
+      this.showNeighborOptions( id );
+    }
     else  this.goToClaim('edit', id);
   }
 
   async showNeighborOptions( id: string ) {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
-      inputs: [
-        { 
-          type: 'radio',
-          label: 'Ver detalle',
-          value: 'watch'
-        },
-        { 
-          type: 'radio',
-          label: 'Editar',
-          value: 'edit'
-        },
-        { 
-          type: 'radio',
-          label: 'Eliminar',
-          value: 'delete'
-        },
-      ],
+      inputs: this.getNeighborOptions(),
       buttons: [
         {
           text: 'CANCELAR',

@@ -62,6 +62,10 @@ const routes: Routes = [
   },  {
     path: 'filters',
     loadChildren: () => import('./modules/filters/filters.module').then( m => m.FiltersPageModule)
+  },
+  {
+    path: 'status-tracking',
+    loadChildren: () => import('./modules/status-tracking/status-tracking.module').then( m => m.StatusTrackingPageModule)
   }
 
 
