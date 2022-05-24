@@ -153,13 +153,4 @@
     </ion-item-group>
 
   </ion-item-group>
-
-  <ion-item *ngIf="creating" class="ion-margin-top">
-    <p>Para crear tu cuenta tenés que aceptar los <a href="#">Términos y Condiciones</a></p>
-    <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
-    </ion-checkbox>
-  </ion-item>
-  <div *ngIf="!isFieldValid('termsAndConditionsAccepted')" class="invalid-input-message">
-    {{getFieldError('termsAndConditionsAccepted')}}
-  </div>
 </form>

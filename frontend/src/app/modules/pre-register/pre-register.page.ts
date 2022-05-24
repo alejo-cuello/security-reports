@@ -17,20 +17,23 @@ export class PreRegisterPage extends FormPage {
   ) {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
+    this.global.remove('termsAndConditionsAccepted');
   }
 
   onSubmitPerform() {}
 
   getFormNew() {
     return this.formBuilder.group({
-      role: [null, Validators.required]
+      role: [null, Validators.required],
+      termsAndConditionsAccepted: [null, Validators.requiredTrue]
     });
   };
 
   goToRegister() {
     if ( this.form.valid ) {
+      this.global.save('termsAndConditionsAccepted', this.form.value.termsAndConditionsAccepted);
       this.pageService.navigateRoute( '/register', { queryParams: { role: this.form.value.role } } );
     };
-  }
+  };
 
 }

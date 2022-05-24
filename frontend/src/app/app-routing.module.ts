@@ -52,6 +52,10 @@ const routes: Routes = [
     loadChildren: () => import('./modules/pre-register/pre-register.module').then( m => m.PreRegisterPageModule)
   },
   {
+    path: 'terms-and-conditions',
+    loadChildren: () => import('./modules/terms-and-conditions/terms-and-conditions.module').then( m => m.TermsAndConditionsPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'
