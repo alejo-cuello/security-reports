@@ -339,25 +339,69 @@ const getFavoriteClaims = async (req, res, next) => {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
-        replacements = [];
-        // Se agrega el vecino al array de reemplazos
-        replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
+        // replacements = [];
+        // // Se agrega el vecino al array de reemplazos
+        // replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
 
-        let query = getQueryMyFavoritesClaims();
-        // Este if es para que no revise cada if dentro de la función setFiltersForClaims si la query no tiene filtros
-        if ( Object.keys(req.query).length ) query = setFiltersForClaims(req.query, query);
-        const orderBy = queryOrderBy('rec.fechaHoraCreacion', 'DESC');
-        query = query + orderBy;
+        // let query = getQueryMyFavoritesClaims();
+        // // Este if es para que no revise cada if dentro de la función setFiltersForClaims si la query no tiene filtros
+        // if ( Object.keys(req.query).length ) query = setFiltersForClaims(req.query, query);
+        // const orderBy = queryOrderBy('rec.fechaHoraCreacion', 'DESC');
+        // query = query + orderBy;
 
-        const myFavoritesClaims = await sequelize.query( query,
-            {
-                replacements,   // El signo '?' (ver query) se reemplaza por 
-                                // lo que está dentro de este arreglo según
-                                // aparición. 
-                                // Con esto evitamos la inyección SQL.
-                type: QueryTypes.SELECT
-            }
-        );
+        // const myFavoritesClaims = await sequelize.query( query,
+        //     {
+        //         replacements,   // El signo '?' (ver query) se reemplaza por 
+        //                         // lo que está dentro de este arreglo según
+        //                         // aparición. 
+        //                         // Con esto evitamos la inyección SQL.
+        //         type: QueryTypes.SELECT
+        //     }
+        // );
+
+        
+        // TODO: Ver tema de filtros
+
+        const myFavoritesClaims = await models.Favorites.findAll({
+            where: {
+                neighborId: dataFromToken.neighborId
+            },
+            order: [[{model: models.Claim, as: 'claim'}, 'dateTimeCreation', 'DESC']],
+            include: [
+                {
+                    model: models.Claim,
+                    as: 'claim',
+                    required: true,
+                    include: [
+                        {
+                            model: models.ClaimSubcategory,
+                            as: 'claimSubcategory',
+                            required: true,
+                            include: [
+                                {
+                                    model: models.ClaimType,
+                                    as: 'claimType',
+                                    required: true
+                                }
+                            ]
+                        },
+                        {
+                            model: models.StatusClaim,
+                            as: 'status_claim',
+                            required: true,
+                            include: [
+                                {
+                                    model: models.Status,
+                                    as: 'status',
+                                    required: true
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
 
         return res.status(200).json(myFavoritesClaims);
     } catch (error) {
