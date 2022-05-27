@@ -255,7 +255,7 @@ const setFiltersForClaims = (filter, query) => {
 
 /**
  * Setea y devuelve el/los filtro/s en la cláusula where de una query para obtener los hechos de inseguridad favoritos de un vecino
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * @param {object} filter - Filtro/s a aplicar a la cláusula where
  * @returns {object} Devuelve un objeto con los filtros aplicados
 */
 const setAndGetFiltersForInsecurityFacts = (filter) => {
@@ -304,10 +304,11 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
 
 
 /**
- * 
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * Setea el/los filtro/s a la cláusula where y devuelve la query armada para obtener los reclamos para un agente municipal
+ * @param {object} filter - Filtro/s a aplicar a la cláusula where
  * @param {string} query - Query a la que se le aplicará/n el/los filtro/s
  * @param {string} where - Parte inicial de la cláusula where
+ * @param {string} orderByDirection - Dirección de ordenamiento. Por defecto = 'DESC'
  * @returns {string} Devuelve la query con los filtros aplicados
 */
 const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'DESC') => {
@@ -339,71 +340,79 @@ const getFavoriteClaims = async (req, res, next) => {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
-        // replacements = [];
-        // // Se agrega el vecino al array de reemplazos
-        // replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
+        replacements = [];
+        // Se agrega el vecino al array de reemplazos
+        replacements.push(dataFromToken.neighborId, dataFromToken.neighborId);
 
-        // let query = getQueryMyFavoritesClaims();
-        // // Este if es para que no revise cada if dentro de la función setFiltersForClaims si la query no tiene filtros
-        // if ( Object.keys(req.query).length ) query = setFiltersForClaims(req.query, query);
-        // const orderBy = queryOrderBy('rec.fechaHoraCreacion', 'DESC');
-        // query = query + orderBy;
+        let query = getQueryMyFavoritesClaims();
+        // Este if es para que no revise cada if dentro de la función setFiltersForClaims si la query no tiene filtros
+        if ( Object.keys(req.query).length ) query = setFiltersForClaims(req.query, query);
+        const orderBy = queryOrderBy('rec.fechaHoraCreacion', 'DESC');
+        query = query + orderBy;
 
-        // const myFavoritesClaims = await sequelize.query( query,
-        //     {
-        //         replacements,   // El signo '?' (ver query) se reemplaza por 
-        //                         // lo que está dentro de este arreglo según
-        //                         // aparición. 
-        //                         // Con esto evitamos la inyección SQL.
-        //         type: QueryTypes.SELECT
-        //     }
-        // );
+        const myFavoritesClaims = await sequelize.query( query,
+            {
+                replacements,   // El signo '?' (ver query) se reemplaza por 
+                                // lo que está dentro de este arreglo según
+                                // aparición. 
+                                // Con esto evitamos la inyección SQL.
+                type: QueryTypes.SELECT
+            }
+        );
 
-        
-        // TODO: Ver tema de filtros
+        return res.status(200).json(myFavoritesClaims);
+    } catch (error) {
+        next(error);
+    }
+};
 
-        const myFavoritesClaims = await models.Favorites.findAll({
-            where: {
-                neighborId: dataFromToken.neighborId
-            },
-            order: [[{model: models.Claim, as: 'claim'}, 'dateTimeCreation', 'DESC']],
+
+// Devuelve todos los estados por los que pasó el reclamo para hacer un seguimiento
+const getClaimTracking = async (req, res, next) => {
+    try {
+        // TODO: Hacer función "verifyPermissions(req.headers)" que verifique que el usuario tenga permisos para ver el reclamo
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
+        };
+        // ------------------ // TODO: Hacer función "verifyPermissions" que verifique que el usuario tenga permisos para ver el reclamo
+
+        const claimTracking = await models.Claim.findOne({
+            attributes: ['claimId'],
             include: [
                 {
-                    model: models.Claim,
-                    as: 'claim',
-                    required: true,
+                    model: models.Favorites,
+                    as: 'favorites',
+                    attributes: { exclude: ['favoritesId', 'claimId', 'neighborId'] },
+                    where: {
+                        neighborId: dataFromToken.neighborId
+                    }
+                },
+                {
+                    model: models.StatusClaim,
+                    as: 'status_claim',
+                    attributes: ['dateTimeStatusStart'],
+                    where: {
+                        claimId: req.params.claimId
+                    },
                     include: [
                         {
-                            model: models.ClaimSubcategory,
-                            as: 'claimSubcategory',
-                            required: true,
-                            include: [
-                                {
-                                    model: models.ClaimType,
-                                    as: 'claimType',
-                                    required: true
-                                }
-                            ]
-                        },
-                        {
-                            model: models.StatusClaim,
-                            as: 'status_claim',
-                            required: true,
-                            include: [
-                                {
-                                    model: models.Status,
-                                    as: 'status',
-                                    required: true
-                                }
-                            ]
+                            model: models.Status,
+                            as: 'status',
+                            attributes: ['statusId', 'STAdescription']
                         }
                     ]
                 }
             ]
         });
 
+        if ( !claimTracking ) {
+            throw ApiError.notFound(`No se encontró el reclamo con id '${ req.params.claimId }'`);
+        };
 
-        return res.status(200).json(myFavoritesClaims);
+        return res.status(200).json(claimTracking);
     } catch (error) {
         next(error);
     }
@@ -479,6 +488,8 @@ const getClaimById = async (req, res, next) => {
         if ( !dataFromToken.neighborId && !dataFromToken.municipalAgentId  ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
+
+        // FIXME: Revisar que pueda consultar un reclamo que marqué como favorito
 
         // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
         const isNeighborQuery = dataFromToken.neighborId ? true : false;
@@ -1148,6 +1159,7 @@ const deleteImage = async (path) => {
 
 module.exports = {
     getFavoriteClaims,
+    getClaimTracking,
     getPendingClaims,
     getTakenClaims,
     getClaimById,
