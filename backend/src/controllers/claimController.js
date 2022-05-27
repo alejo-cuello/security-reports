@@ -46,8 +46,7 @@ const getSubQueryLastClaimStatus = ( withJoin ) => {
  * @returns {string} Select de la query
 */
 const getSelectQuery = () => {
-    return "er.idEstadoReclamo 'statusClaimId', " +
-            "rec.idReclamo 'claimId', " + 
+    return  "rec.idReclamo 'claimId', " + 
             "rec.fechaHoraCreacion 'dateTimeCreation', " +
             "rec.fechaHoraObservacion 'dateTimeObservation', " +
             "rec.fechaHoraFin 'dateTimeEnd', " +
@@ -65,9 +64,10 @@ const getSelectQuery = () => {
             "scr.descripcionSCR 'CSCdescription', " +
             "tr.idTipoReclamo 'claimTypeId', " +
             "tr.descripcionTR 'CTdescription', " +
+            "er.idEstadoReclamo 'statusClaimId', " +
+            "er.fechaHoraInicioEstado 'dateTimeStatusStart', " +
             "est.idEstado 'statusId', " +
-            "est.descripcionEST 'STAdescription', " +
-            "er.fechaHoraInicioEstado 'dateTimeStatusStart' ";
+            "est.descripcionEST 'STAdescription' ";
 };
 
 
@@ -136,7 +136,7 @@ const getFromOfQueryForMunicipalAgent = () => {
             "INNER JOIN subcategoria_reclamo scr " +
                 "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
             "INNER JOIN tipo_reclamo tr " +
-                "ON scr.idTipoReclamo = tr.idTipoReclamo"
+                "ON scr.idTipoReclamo = tr.idTipoReclamo";
 };
 
 
@@ -146,27 +146,22 @@ const getFromOfQueryForMunicipalAgent = () => {
 */
 // Se usa en la función getClaimById
 const getQueryClaimById = (neighbor) => {
-    let query =
-                "SELECT " +
-                    getSelectQuery() +
-                "FROM estado_reclamo er " +
-                "INNER JOIN " + 
-                    getSubQueryLastClaimStatus( neighbor ) +
-                    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-                        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-                "INNER JOIN reclamo rec " +
-                    "ON er.idReclamo = rec.idReclamo " +
-                "INNER JOIN subcategoria_reclamo scr " +
-                    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-                "INNER JOIN tipo_reclamo tr " +
-                    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-                "INNER JOIN estado est " +
-                    "ON er.idEstado = est.idEstado " +
-                "WHERE rec.idReclamo = ?";
-    
-    if( neighbor )  query = query + " AND rec.idVecino = ?";
-
-    return query;
+    return "SELECT " +
+                getSelectQuery() +
+            "FROM estado_reclamo er " +
+            "INNER JOIN " + 
+                getSubQueryLastClaimStatus( neighbor ) +
+                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+            "INNER JOIN reclamo rec " +
+                "ON er.idReclamo = rec.idReclamo " +
+            "INNER JOIN subcategoria_reclamo scr " +
+                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+            "INNER JOIN tipo_reclamo tr " +
+                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+            "INNER JOIN estado est " +
+                "ON er.idEstado = est.idEstado " +
+            "WHERE rec.idReclamo = ?";
 };
 
 
@@ -489,13 +484,11 @@ const getClaimById = async (req, res, next) => {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
 
-        // FIXME: Revisar que pueda consultar un reclamo que marqué como favorito
-
         // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
         const isNeighborQuery = dataFromToken.neighborId ? true : false;
         const replacements =
             dataFromToken.neighborId ?
-                [ dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId ]
+                [ dataFromToken.neighborId, req.params.claimId ]
                 : [ req.params.claimId ];
 
         const queryClaimById = getQueryClaimById(isNeighborQuery);
@@ -507,8 +500,14 @@ const getClaimById = async (req, res, next) => {
             }
         );
 
-        if ( claim.length === 0 ) {
-            throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
+        if ( isNeighborQuery ) {
+            if ( claim.length === 0 ) {
+                throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
+            };
+        } else {
+            if ( claim.length === 0 ) {
+                throw ApiError.notFound(`No se encontró el reclamo con id '${ req.params.claimId }'`);
+            };
         };
 
         return res.status(200).json(claim);
