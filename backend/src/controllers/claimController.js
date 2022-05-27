@@ -365,14 +365,12 @@ const getFavoriteClaims = async (req, res, next) => {
 // Devuelve todos los estados por los que pasó el reclamo para hacer un seguimiento
 const getClaimTracking = async (req, res, next) => {
     try {
-        // TODO: Hacer función "verifyPermissions(req.headers)" que verifique que el usuario tenga permisos para ver el reclamo
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         if ( !dataFromToken.neighborId ) {
             throw ApiError.forbidden(`No puedes acceder a este recurso`);
         };
-        // ------------------ // TODO: Hacer función "verifyPermissions" que verifique que el usuario tenga permisos para ver el reclamo
 
         const claimTracking = await models.Claim.findOne({
             attributes: ['claimId'],
