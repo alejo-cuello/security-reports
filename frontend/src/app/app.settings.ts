@@ -20,6 +20,7 @@ export class Settings {
 
   public static endPointsMethods = {
     claim: {
+      claimById: '/claimById',
       favorites: '/favorites',
       pending: '/pending',
       takenClaims: '/takenClaims',

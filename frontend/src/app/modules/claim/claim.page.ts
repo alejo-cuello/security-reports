@@ -127,7 +127,7 @@ export class ClaimPage extends ItemPage {
 
   getEndPoint() {
     return (this.type === 'claim') ?
-      this.settings.endPoints.claim
+      this.settings.endPoints.claim + this.settings.endPointsMethods.claim.claimById
       : this.settings.endPoints.insecurityFact;
   }
 
