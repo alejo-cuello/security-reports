@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ItemPage } from 'src/app/core/item.page';
 
@@ -8,17 +8,23 @@ import { ItemPage } from 'src/app/core/item.page';
   styleUrls: ['./user.page.scss'],
 })
 
-export class UserPage extends ItemPage {
+export class UserPage extends ItemPage implements OnDestroy {
 
   creating: boolean = true;
   role: string;
+  termsAndConditionsAccepted: boolean;
 
   ngOnInit() {
+    this.termsAndConditionsAccepted = this.global.get("termsAndConditionsAccepted");
     this.activatedRoute.queryParams.subscribe( (params) => {
       this.role = params.role;
       this.form = this.getFormNew();
       this.initialize();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.global.remove("termsAndConditionsAccepted");
   }
 
   getParamId() {
@@ -59,7 +65,7 @@ export class UserPage extends ItemPage {
         email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+        termsAndConditionsAccepted: [this.termsAndConditionsAccepted, Validators.requiredTrue]
       });
     }
 
@@ -71,7 +77,7 @@ export class UserPage extends ItemPage {
         email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+        termsAndConditionsAccepted: [this.termsAndConditionsAccepted, Validators.requiredTrue]
       });
     };
   }
@@ -93,8 +99,7 @@ export class UserPage extends ItemPage {
         phoneNumber: [user.phoneNumber, Validators.compose([Validators.minLength(10), Validators.maxLength(10)])],
         email: [user.email, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
-        confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+        confirmPassword: [null, Validators.required]
       });
     }
 
@@ -105,8 +110,7 @@ export class UserPage extends ItemPage {
         registrationNumber: [user.registrationNumber, Validators.required],
         email: [user.email, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
-        confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [null, Validators.requiredTrue]
+        confirmPassword: [null, Validators.required]
       });
     };
   }

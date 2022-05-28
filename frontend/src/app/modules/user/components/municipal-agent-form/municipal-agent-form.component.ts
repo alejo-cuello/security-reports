@@ -9,7 +9,6 @@ import { FormPage } from 'src/app/core/form.page';
 })
 export class MunicipalAgentFormComponent extends FormPage {
 
-  // @Input() queryParam: string;
   @Input() creating: boolean;
   @Input() form: FormGroup;
 

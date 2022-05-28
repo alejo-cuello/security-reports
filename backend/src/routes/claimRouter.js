@@ -16,7 +16,9 @@ router.put('/updateStatus/:claimId', verifyToken, claimController.changeClaimSta
 // Rutas del Vecino
 router.get('/favorites', verifyToken, claimController.getFavoriteClaims);
 
-router.get('/:claimId', verifyToken, claimController.getClaimById);
+router.get('/claimById/:claimId', verifyToken, claimController.getClaimById);
+
+router.get('/claimTracking/:claimId', verifyToken, claimController.getClaimTracking);
 
 // * Se usa tanto para crear un nuevo reclamo como un nuevo hecho de inseguridad
 router.post('/', verifyToken, uploadImageErrorHandler, claimController.createClaim);

@@ -59,13 +59,23 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'
-  },  {
+  },
+  {
     path: 'filters',
     loadChildren: () => import('./modules/filters/filters.module').then( m => m.FiltersPageModule)
   },
   {
     path: 'status-tracking',
     loadChildren: () => import('./modules/status-tracking/status-tracking.module').then( m => m.StatusTrackingPageModule)
+  },
+  {
+    path: 'terms-and-conditions',
+    loadChildren: () => import('./modules/terms-and-conditions/terms-and-conditions.module').then( m => m.TermsAndConditionsPageModule)
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+    pathMatch: 'full'
   }
 
 

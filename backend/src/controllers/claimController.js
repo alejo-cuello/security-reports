@@ -46,8 +46,7 @@ const getSubQueryLastClaimStatus = ( withJoin ) => {
  * @returns {string} Select de la query
 */
 const getSelectQuery = () => {
-    return "er.idEstadoReclamo 'statusClaimId', " +
-            "rec.idReclamo 'claimId', " + 
+    return  "rec.idReclamo 'claimId', " + 
             "rec.fechaHoraCreacion 'dateTimeCreation', " +
             "rec.fechaHoraObservacion 'dateTimeObservation', " +
             "rec.fechaHoraFin 'dateTimeEnd', " +
@@ -65,9 +64,10 @@ const getSelectQuery = () => {
             "scr.descripcionSCR 'CSCdescription', " +
             "tr.idTipoReclamo 'claimTypeId', " +
             "tr.descripcionTR 'CTdescription', " +
+            "er.idEstadoReclamo 'statusClaimId', " +
+            "er.fechaHoraInicioEstado 'dateTimeStatusStart', " +
             "est.idEstado 'statusId', " +
-            "est.descripcionEST 'STAdescription', " +
-            "er.fechaHoraInicioEstado 'dateTimeStatusStart' ";
+            "est.descripcionEST 'STAdescription' ";
 };
 
 
@@ -136,7 +136,7 @@ const getFromOfQueryForMunicipalAgent = () => {
             "INNER JOIN subcategoria_reclamo scr " +
                 "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
             "INNER JOIN tipo_reclamo tr " +
-                "ON scr.idTipoReclamo = tr.idTipoReclamo"
+                "ON scr.idTipoReclamo = tr.idTipoReclamo";
 };
 
 
@@ -146,27 +146,22 @@ const getFromOfQueryForMunicipalAgent = () => {
 */
 // Se usa en la función getClaimById
 const getQueryClaimById = (neighbor) => {
-    let query =
-                "SELECT " +
-                    getSelectQuery() +
-                "FROM estado_reclamo er " +
-                "INNER JOIN " + 
-                    getSubQueryLastClaimStatus( neighbor ) +
-                    "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
-                        "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
-                "INNER JOIN reclamo rec " +
-                    "ON er.idReclamo = rec.idReclamo " +
-                "INNER JOIN subcategoria_reclamo scr " +
-                    "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
-                "INNER JOIN tipo_reclamo tr " +
-                    "ON scr.idTipoReclamo = tr.idTipoReclamo " +
-                "INNER JOIN estado est " +
-                    "ON er.idEstado = est.idEstado " +
-                "WHERE rec.idReclamo = ?";
-    
-    if( neighbor )  query = query + " AND rec.idVecino = ?";
-
-    return query;
+    return "SELECT " +
+                getSelectQuery() +
+            "FROM estado_reclamo er " +
+            "INNER JOIN " + 
+                getSubQueryLastClaimStatus( neighbor ) +
+                "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
+                    "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
+            "INNER JOIN reclamo rec " +
+                "ON er.idReclamo = rec.idReclamo " +
+            "INNER JOIN subcategoria_reclamo scr " +
+                "ON rec.idSubcategoriaReclamo = scr.idSubcategoriaReclamo " +
+            "INNER JOIN tipo_reclamo tr " +
+                "ON scr.idTipoReclamo = tr.idTipoReclamo " +
+            "INNER JOIN estado est " +
+                "ON er.idEstado = est.idEstado " +
+            "WHERE rec.idReclamo = ?";
 };
 
 
@@ -255,7 +250,7 @@ const setFiltersForClaims = (filter, query) => {
 
 /**
  * Setea y devuelve el/los filtro/s en la cláusula where de una query para obtener los hechos de inseguridad favoritos de un vecino
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * @param {object} filter - Filtro/s a aplicar a la cláusula where
  * @returns {object} Devuelve un objeto con los filtros aplicados
 */
 const setAndGetFiltersForInsecurityFacts = (filter) => {
@@ -304,10 +299,11 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
 
 
 /**
- * 
- * @param {string|string[]} filter - Filtro a aplicar a la cláusula where
+ * Setea el/los filtro/s a la cláusula where y devuelve la query armada para obtener los reclamos para un agente municipal
+ * @param {object} filter - Filtro/s a aplicar a la cláusula where
  * @param {string} query - Query a la que se le aplicará/n el/los filtro/s
  * @param {string} where - Parte inicial de la cláusula where
+ * @param {string} orderByDirection - Dirección de ordenamiento. Por defecto = 'DESC'
  * @returns {string} Devuelve la query con los filtros aplicados
 */
 const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'DESC') => {
@@ -360,6 +356,56 @@ const getFavoriteClaims = async (req, res, next) => {
         );
 
         return res.status(200).json(myFavoritesClaims);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// Devuelve todos los estados por los que pasó el reclamo para hacer un seguimiento
+const getClaimTracking = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        if ( !dataFromToken.neighborId ) {
+            throw ApiError.forbidden(`No puedes acceder a este recurso`);
+        };
+
+        const claimTracking = await models.Claim.findOne({
+            attributes: ['claimId'],
+            include: [
+                {
+                    model: models.Favorites,
+                    as: 'favorites',
+                    attributes: { exclude: ['favoritesId', 'claimId', 'neighborId'] },
+                    where: {
+                        neighborId: dataFromToken.neighborId
+                    }
+                },
+                {
+                    model: models.StatusClaim,
+                    as: 'status_claim',
+                    attributes: ['dateTimeStatusStart'],
+                    where: {
+                        claimId: req.params.claimId
+                    },
+                    include: [
+                        {
+                            model: models.Status,
+                            as: 'status',
+                            attributes: ['statusId', 'STAdescription']
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if ( !claimTracking ) {
+            throw ApiError.notFound(`No se encontró el reclamo con id '${ req.params.claimId }'`);
+        };
+
+        return res.status(200).json(claimTracking);
     } catch (error) {
         next(error);
     }
@@ -440,7 +486,7 @@ const getClaimById = async (req, res, next) => {
         const isNeighborQuery = dataFromToken.neighborId ? true : false;
         const replacements =
             dataFromToken.neighborId ?
-                [ dataFromToken.neighborId, req.params.claimId, dataFromToken.neighborId ]
+                [ dataFromToken.neighborId, req.params.claimId ]
                 : [ req.params.claimId ];
 
         const queryClaimById = getQueryClaimById(isNeighborQuery);
@@ -452,8 +498,14 @@ const getClaimById = async (req, res, next) => {
             }
         );
 
-        if ( claim.length === 0 ) {
-            throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
+        if ( isNeighborQuery ) {
+            if ( claim.length === 0 ) {
+                throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
+            };
+        } else {
+            if ( claim.length === 0 ) {
+                throw ApiError.notFound(`No se encontró el reclamo con id '${ req.params.claimId }'`);
+            };
         };
 
         return res.status(200).json(claim);
@@ -1104,6 +1156,7 @@ const deleteImage = async (path) => {
 
 module.exports = {
     getFavoriteClaims,
+    getClaimTracking,
     getPendingClaims,
     getTakenClaims,
     getClaimById,
