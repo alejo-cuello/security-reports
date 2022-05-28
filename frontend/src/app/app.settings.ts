@@ -24,6 +24,7 @@ export class Settings {
       favorites: '/favorites',
       pending: '/pending',
       takenClaims: '/takenClaims',
+      claimTracking: '/claimTracking',
       updateStatus: '/updateStatus'
     },
     insecurityFact: {

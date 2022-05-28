@@ -5,7 +5,6 @@ import * as moment from 'moment';
 import { ModalController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
-import { StatusTrackingPage } from '../status-tracking/status-tracking.page';
 
 @Component({
   selector: 'app-claim',
@@ -286,22 +285,6 @@ export class ClaimPage extends ItemPage {
   removePicture() {
     this.form.patchValue( { photo: null } );
     this.picture = null;
-  }
-
-  async goToStatusTracking() {
-    const modal = await this.modalController.create({
-      component: StatusTrackingPage,
-      cssClass: 'my-custom-modal-css',
-      componentProps: {
-        claimId: this.id
-      }
-    });
-
-    modal.onDidDismiss().then( (data) => {
-      console.log(data)
-    });
-
-    await modal.present();
   }
 
   goToMap() {

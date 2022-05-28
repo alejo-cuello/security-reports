@@ -56,16 +56,11 @@ const routes: Routes = [
     loadChildren: () => import('./modules/pre-register/pre-register.module').then( m => m.PreRegisterPageModule)
   },
   {
-    path: '**',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  },
-  {
     path: 'filters',
     loadChildren: () => import('./modules/filters/filters.module').then( m => m.FiltersPageModule)
   },
   {
-    path: 'status-tracking',
+    path: 'status-tracking/:id',
     loadChildren: () => import('./modules/status-tracking/status-tracking.module').then( m => m.StatusTrackingPageModule)
   },
   {

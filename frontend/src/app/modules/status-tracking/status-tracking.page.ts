@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { BasePage } from 'src/app/core/base.page';
+import { PageService } from 'src/app/core/page.service';
 
 @Component({
   selector: 'app-status-tracking',
@@ -8,19 +10,26 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class StatusTrackingPage extends BasePage {
 
-  @Input() claimId: any;
+  claimId: string;
   statuses = []; 
 
-  ionViewWillEnter() {
-    this.getStatusTracking();
+  constructor(
+    pageService: PageService,
+    activatedRoute: ActivatedRoute
+  ){
+    super(pageService);
+    activatedRoute.params.subscribe( (params) => {
+      this.claimId = params.id;
+      this.getStatusTracking();
+    })
   }
 
   getStatusTracking() {
-    const endPoint = this.settings.endPoints.status + this.settings.endPointsMethods.status;
+    const endPoint = this.settings.endPoints.claim + this.settings.endPointsMethods.claim.claimTracking;
 
-    this.pageService.httpGetAll(endPoint)
+    this.pageService.httpGetById(endPoint, this.claimId)
       .then( (res) => {
-        this.statuses = res;
+        this.statuses = res.status_claim;
       })
       .catch( (err) => {
         console.log(err);

@@ -113,14 +113,6 @@
       </ion-select>
     </ion-item>
 
-    <ion-item *ngIf="!creating && role==='neighbor'">
-      <ion-button expand="block" color="primary" type="submit" [disabled]="!enableButton" (click)="goToStatusTracking()">
-        <ion-text color="medium">
-          Seguimiento de estados
-        </ion-text>
-      </ion-button>
-    </ion-item>
-
     <div *ngIf="action !== 'watch'">
       <ion-button expand="block" color="primary" type="submit" [disabled]="!enableButton">
         <ion-text color="light">

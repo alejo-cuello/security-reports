@@ -150,6 +150,11 @@ export class ClaimsPage extends BasePage {
       },
       { 
         type: 'radio',
+        label: 'Seguimiento de estados',
+        value: 'tracking'
+      },
+      { 
+        type: 'radio',
         label: 'Editar',
         value: 'edit'
       },
@@ -196,7 +201,12 @@ export class ClaimsPage extends BasePage {
                 })
             }
             else {
-              this.goToClaim(action, id);
+              if(action === 'tracking') {
+                this.goToStatustracking(id);
+              }
+              else {
+                this.goToClaim(action, id);
+              }
             }
           }
         }
@@ -204,5 +214,9 @@ export class ClaimsPage extends BasePage {
     });
 
     await alert.present();
+  }
+
+  goToStatustracking(id: string) {
+    this.pageService.navigateRoute('status-tracking/' + id);
   }
 }
