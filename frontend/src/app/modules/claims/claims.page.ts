@@ -141,7 +141,8 @@ export class ClaimsPage extends BasePage {
     return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
   }
 
-  getNeighborOptions() {
+  getNeighborOptions(neighborId) {
+    let isOwnClaim = this.user.neighborId === neighborId;
     let options: AlertInput[] = [
       { 
         type: 'radio',
@@ -160,24 +161,24 @@ export class ClaimsPage extends BasePage {
       },
       { 
         type: 'radio',
-        label: 'Eliminar',
-        value: 'delete'
+        label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
+        value: isOwnClaim ? 'delete' : 'deleteFavorite'
       }
     ]
     return options;
   }
 
-  openOptions( id: string ) {
+  openOptions( id: string, neighborId: string ) {
     if(this.role === 'neighbor') {
-      this.showNeighborOptions( id );
+      this.showNeighborOptions( id, neighborId );
     }
     else  this.goToClaim('edit', id);
   }
 
-  async showNeighborOptions( id: string ) {
+  async showNeighborOptions( id: string, neighborId: string ) {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
-      inputs: this.getNeighborOptions(),
+      inputs: this.getNeighborOptions(neighborId),
       buttons: [
         {
           text: 'CANCELAR',
@@ -194,6 +195,18 @@ export class ClaimsPage extends BasePage {
               this.pageService.httpDelete(endPoint)
                 .then( (response) => {
                   this.pageService.showSuccess('Borrado exitosamente');
+                  this.getClaims();
+                })
+                .catch( (error) => {
+                  this.pageService.showError(error);
+                })
+            }
+            else if(action === 'deleteFavorite') {
+              let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
+              endPoint += '/' + id;
+              this.pageService.httpDelete(endPoint)
+                .then( (response) => {
+                  this.pageService.showSuccess('Favorito borrado exitosamente');
                   this.getClaims();
                 })
                 .catch( (error) => {

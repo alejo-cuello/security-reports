@@ -37,4 +37,9 @@ export class StatusTrackingPage extends BasePage {
       })
   }
 
+  getCheckImage(index: number) {
+    this.statuses = [1,2,3]
+    return index === (this.statuses.length - 1) ? 'assets/imgs/traking-check-finish.png' : 'assets/imgs/traking-check-up.png';
+  }
+
 }
