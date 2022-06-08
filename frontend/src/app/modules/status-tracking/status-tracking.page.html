@@ -7,12 +7,13 @@
   </ion-toolbar>
 </ion-header>
 
+<ion-content>
   <div class="tracking-list">
     <ion-list class="ion-margin-bottom">
-      <ion-item lines="none" class="ion-align-items-start" *ngFor="status of [1,2,3]; index as i">
+      <ion-item lines="none" class="ion-align-items-start" *ngFor="let status of statuses; index as i">
         <img slot="start" [src]="getCheckImage(i)" alt="">
-        <ion-label class="ion-no-margin">Estado</ion-label>
-        <ion-label class="ion-no-margin">12/12/12 12:00</ion-label>
+        <ion-label class="ion-no-margin">{{status?.status?.STAdescription}}</ion-label>
+        <ion-label class="ion-no-margin">{{status?.dateTimeStatusStart | date: 'dd/MM/yy HH:mm'}}</ion-label>
       </ion-item>    
     </ion-list>
   </div>

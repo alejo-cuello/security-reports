@@ -141,18 +141,13 @@ export class ClaimsPage extends BasePage {
     return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
   }
 
-  getNeighborOptions(neighborId) {
+  getNeighborOptions(neighborId, isInsecurityFact) {
     let isOwnClaim = this.user.neighborId === neighborId;
     let options: AlertInput[] = [
       { 
         type: 'radio',
         label: 'Ver detalle',
         value: 'watch'
-      },
-      { 
-        type: 'radio',
-        label: 'Seguimiento de estados',
-        value: 'tracking'
       },
       { 
         type: 'radio',
@@ -164,21 +159,26 @@ export class ClaimsPage extends BasePage {
         label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
         value: isOwnClaim ? 'delete' : 'deleteFavorite'
       }
-    ]
+    ];
+    if(!isInsecurityFact) options.push({
+      type: 'radio',
+      label: 'Seguimiento de estados',
+      value: 'tracking'
+    });
     return options;
   }
 
-  openOptions( id: string, neighborId: string ) {
+  openOptions( id: string, neighborId: string, isInsecurityFact = false ) {
     if(this.role === 'neighbor') {
-      this.showNeighborOptions( id, neighborId );
+      this.showNeighborOptions( id, neighborId, isInsecurityFact);
     }
     else  this.goToClaim('edit', id);
   }
 
-  async showNeighborOptions( id: string, neighborId: string ) {
+  async showNeighborOptions( id: string, neighborId: string, isInsecurityFact: boolean) {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
-      inputs: this.getNeighborOptions(neighborId),
+      inputs: this.getNeighborOptions(neighborId, isInsecurityFact),
       buttons: [
         {
           text: 'CANCELAR',
