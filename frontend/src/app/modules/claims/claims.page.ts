@@ -13,6 +13,7 @@ export class ClaimsPage extends BasePage {
 
   menu: string;
   filters: any;
+  haveFilters: boolean = false;
   role: string;
 
   claims: any[] = [];
@@ -94,7 +95,7 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  getClaims( type?: string[], subcategory?: string[] ) {
+  getClaims( type?: string[], subcategory?: string[], filters?: any ) {
     let endPoint = (this.menu === 'claim') ? 
       this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
       : this.settings.endPoints.insecurityFact;
@@ -103,6 +104,10 @@ export class ClaimsPage extends BasePage {
     else if(type) {
       if( this.menu === 'claim' ) endPoint += '?claimType=' + type;
       else endPoint += '?insecurityFactType=' + type;
+    }
+    else if(filters) {
+      endPoint += filters;
+      this.haveFilters = true;
     }
 
     this.pageService.httpGetAll(endPoint)
@@ -121,24 +126,38 @@ export class ClaimsPage extends BasePage {
   }
 
   async goToFilters() {
-    const modal = await this.modalController.create({
-      component: FiltersPage,
-      cssClass: 'my-custom-modal-css',
-      componentProps: {
-        filters: this.filters || {},
-        claimType: this.menu
-      }
-    });
+    if(this.haveFilters) {
+      this.haveFilters = false;
+      this.getClaims();
+    }
+    else {
+      const modal = await this.modalController.create({
+        component: FiltersPage,
+        cssClass: 'my-custom-modal-css',
+        componentProps: {
+          filters: this.filters || {},
+          claimType: this.menu
+        }
+      });
+  
+      modal.onDidDismiss().then( (data) => {
+        this.getClaims(null, null, this.getQueryString(data.data));
+      });
 
-    modal.onDidDismiss().then( (data) => {
-      console.log(data)
-    });
-
-    await modal.present();
+      await modal.present();
+    }
   }
 
   getType() {
     return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
+  }
+
+  getQueryString(data: any) {
+    let queryStrings = '?'
+    for (let filter in data) {
+      if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
+    }
+    return queryStrings;
   }
 
   getNeighborOptions(neighborId, isInsecurityFact) {

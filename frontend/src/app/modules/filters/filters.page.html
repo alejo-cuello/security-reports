@@ -31,7 +31,7 @@
   </ion-item>
   <ion-item>
     <ion-label>Fecha hasta</ion-label>
-    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
+    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
   </ion-item>
 
   <ion-item>
@@ -41,12 +41,12 @@
   </ion-item>
   <ion-radio-group [(ngModel)]="sort">
     <ion-item>
-      <ion-label>Cantidad de favoritos</ion-label>
-      <ion-radio value="favorites"></ion-radio>
+      <ion-label>Fecha</ion-label>
+      <ion-radio value="rec.fechaHoraCreacion"></ion-radio>
     </ion-item>
     <ion-item>
-      <ion-label>Fecha</ion-label>
-      <ion-radio value="date"></ion-radio>
+      <ion-label>Cantidad de favoritos</ion-label>
+      <ion-radio value="favorites"></ion-radio>
     </ion-item>
   </ion-radio-group>
   <ion-button class="ion-margin-top button-right" shape="round" color="warning" (click)="sendFilters()">

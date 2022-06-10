@@ -18,7 +18,7 @@ export class FiltersPage extends BasePage {
   idsTypes: any[];
   selectedCategories: any[] = [];
   selectedStatuses: any[];
-  sort: string;
+  sort: string = 'rec.fechaHoraCreacion';
   today: any;
   dateFrom: any;
   dateTo: any;
@@ -75,36 +75,30 @@ export class FiltersPage extends BasePage {
     this.selectedSubcategories = [];
     this.claimSubcategories = [];
     this.idsTypes = [];
+
     for( let type of this.selectedCategories ) {
       for( let subcategory of type.claimSubcategory ) {
         this.claimSubcategories.push(subcategory);
       }
       this.idsTypes.push(type.claimTypeId);
     }
+
     if(this.idsTypes.length === 0)  this.idsTypes = null;
   }
-
-  onSelectTypes() {
-    this.idsTypes = [];
-    for( let type of this.selectedCategories ) {
-      this.idsTypes.push(type);
-    }
-    if(this.idsTypes.length === 0)  this.idsTypes = null;
-  }
-
+  
   sendFilters() {
     this.filters = {
-      dateFrom: this.dateFrom,
-      dateTo: this.dateTo,
-      sort: this.sort,
-      status: this.selectedStatuses
+      startDate: this.dateFrom ? this.dateFrom.split('T')[0] : null,
+      endDate: this.dateTo ? this.dateTo.split('T')[0] : null,
+      sort: this.sort || null,
+      status: this.selectedStatuses || null
     }
     if(this.isInsecurityFact) {
-      this.filters.types = this.idsTypes;
+      this.filters.insecurityFactType = this.idsTypes.length > 0 ? this.idsTypes : null;
     }
     else {
-      this.filters.categories = this.idsTypes;
-      this.filters.subcategories = this.selectedSubcategories;
+      this.filters.claimType = (this.idsTypes && this.idsTypes.length > 0) ? this.idsTypes : null;
+      this.filters.claimSubcategory = (this.selectedSubcategories && this.selectedSubcategories.length > 0) ? this.selectedSubcategories : null;
     }
     this.closeModal();
   }
@@ -115,6 +109,7 @@ export class FiltersPage extends BasePage {
   }
 
   closeModal() {
+    console.log(this.filters)
     this.pageService.modalCtrl.dismiss(this.filters);
   }
 }
