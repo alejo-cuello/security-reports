@@ -14,6 +14,7 @@ export class ClaimsPage extends BasePage {
   menu: string;
   filters: any;
   haveFilters: boolean = false;
+  prevFilters: any;
   role: string;
 
   claims: any[] = [];
@@ -52,6 +53,7 @@ export class ClaimsPage extends BasePage {
   }
 
   changeSegment() {
+    this.prevFilters = null;
     if(this.role === 'neighbor') {
       this.getClaims();
     }
@@ -107,7 +109,7 @@ export class ClaimsPage extends BasePage {
     }
     else if(filters) {
       endPoint += filters;
-      this.haveFilters = true;
+      if(filters != '?')  this.haveFilters = true;
     }
 
     this.pageService.httpGetAll(endPoint)
@@ -126,26 +128,28 @@ export class ClaimsPage extends BasePage {
   }
 
   async goToFilters() {
-    if(this.haveFilters) {
-      this.haveFilters = false;
-      this.getClaims();
-    }
-    else {
-      const modal = await this.modalController.create({
-        component: FiltersPage,
-        cssClass: 'my-custom-modal-css',
-        componentProps: {
-          filters: this.filters || {},
-          claimType: this.menu
-        }
-      });
-  
-      modal.onDidDismiss().then( (data) => {
-        this.getClaims(null, null, this.getQueryString(data.data));
-      });
+    const modal = await this.modalController.create({
+      component: FiltersPage,
+      cssClass: 'my-custom-modal-css',
+      componentProps: {
+        filters: this.filters || {},
+        claimType: this.menu,
+        prevFilters: this.prevFilters || {}
+      }
+    });
 
-      await modal.present();
-    }
+    modal.onDidDismiss().then( (data) => {
+      if(data.data) this.prevFilters = data.data;
+      this.getClaims(null, null, this.getQueryString(this.prevFilters));
+    });
+
+    await modal.present();
+  }
+
+  deleteFilters() {
+    this.haveFilters = false;
+    this.prevFilters = null;
+    this.getClaims();
   }
 
   getType() {

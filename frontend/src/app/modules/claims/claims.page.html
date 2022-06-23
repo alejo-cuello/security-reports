@@ -24,9 +24,13 @@
     </ion-segment>
 
     <div class="ion-margin-bottom ion-margin-end">
+      <ion-button class="button-right" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
+          <ion-icon name="close-outline">
+          </ion-icon>
+      </ion-button>
       <ion-button class="button-right" shape="round" color="warning" (click)="goToFilters()">
         <ion-text>
-          {{!haveFilters ? 'Filtrar' : 'Quitar filtros'}}
+          Filtrar
         </ion-text>
       </ion-button>
     </div>

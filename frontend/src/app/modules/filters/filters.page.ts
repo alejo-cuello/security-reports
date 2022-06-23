@@ -9,8 +9,9 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class FiltersPage extends BasePage {
 
-  @Input() filters: any;
   @Input() claimType: any;
+  @Input() filters: any;
+  @Input() prevFilters: any = {};
 
   categories: any[];
   selectedSubcategories: any[];
@@ -28,43 +29,56 @@ export class FiltersPage extends BasePage {
 
   ionViewWillEnter() {
     this.isInsecurityFact = this.claimType === 'insecurityFact'
-    this.isInsecurityFact ? this.getInsecurityFactTypes() : this.getClaimTypes();
+    this.isInsecurityFact ? this.getInsecurityFactTypes(true) : this.getClaimTypes(true);
 
     this.today = moment().format('YYYY-MM-DD');
 
-    this.getStatuses();
+    this.getStatuses(true);
+
+    if(this.prevFilters.startDate)  this.dateFrom = this.prevFilters.startDate;
+    if(this.prevFilters.endDate)  this.dateTo = this.setEndDate(this.prevFilters.endDate, -1);
+    if(this.prevFilters.sort)  this.sort = this.prevFilters.sort;
   }
 
-  getStatuses() {
+  getStatuses(firstTime = false) {
     const endPoint = this.settings.endPoints.status;
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.statuses = response;
+        if(firstTime) this.selectedStatuses = this.prevFilters.status;
       })
       .catch( (error) => {
         this.pageService.showError(error);
       })
   }
 
-  getClaimTypes() {
+  getClaimTypes(firstTime = false) {
     const endPoint = this.settings.endPoints.claimTypes;
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.categories = response;
+        if(firstTime && this.prevFilters && this.prevFilters.claimType) {
+          this.idsTypes = this.prevFilters.claimType;
+          this.selectedCategories = this.categories.filter(category => this.idsTypes.includes(category.claimTypeId));
+        }
       })
       .catch( (error) => {
         this.pageService.showError(error);
       })
   }
 
-  getInsecurityFactTypes( type?: string[] ) {
+  getInsecurityFactTypes(firstTime = false) {
     const endPoint = this.settings.endPoints.insecurityFactTypes;
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.categories = response;
+        if(firstTime && this.prevFilters && this.prevFilters.insecurityFactType) {
+          this.idsTypes = this.prevFilters.insecurityFactType;
+          this.selectedCategories = this.categories.filter(category => this.idsTypes.includes(category.insecurityFactTypeId));
+        }
       })
       .catch( (error) => {
         this.pageService.showError(error);
@@ -89,7 +103,7 @@ export class FiltersPage extends BasePage {
   sendFilters() {
     this.filters = {
       startDate: this.dateFrom ? this.dateFrom.split('T')[0] : null,
-      endDate: this.dateTo ? this.dateTo.split('T')[0] : null,
+      endDate: this.dateTo ? this.setEndDate(this.dateTo.split('T')[0], 1) : null,
       sort: this.sort || null,
       status: this.selectedStatuses || null
     }
@@ -101,6 +115,10 @@ export class FiltersPage extends BasePage {
       this.filters.claimSubcategory = (this.selectedSubcategories && this.selectedSubcategories.length > 0) ? this.selectedSubcategories : null;
     }
     this.closeModal();
+  }
+
+  setEndDate(date: string, number) {
+    return moment(date).add(number, 'days').format('YYYY-MM-DD');
   }
 
   cancel() {
