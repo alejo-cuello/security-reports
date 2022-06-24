@@ -11,10 +11,10 @@ const routes: Routes = [
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
-  // {
-  //   path: 'change-password',
-  //   loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
-  // },
+  {
+    path: 'change-password',
+    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+  },
   {
     path: 'claim',
     loadChildren: () => import('./modules/claim/claim.module').then(m => m.ClaimPageModule)
@@ -26,6 +26,10 @@ const routes: Routes = [
   {
     path: 'contacts',
     loadChildren: () => import('./modules/contacts/contacts.module').then(m => m.ContactsPageModule)
+  },
+  {
+    path: 'emergency-numbers',
+    loadChildren: () => import('./modules/emergency-numbers/emergency-numbers.module').then( m => m.EmergencyNumbersPageModule)
   },
   {
     path: 'institutions',
@@ -52,6 +56,14 @@ const routes: Routes = [
     loadChildren: () => import('./modules/pre-register/pre-register.module').then( m => m.PreRegisterPageModule)
   },
   {
+    path: 'filters',
+    loadChildren: () => import('./modules/filters/filters.module').then( m => m.FiltersPageModule)
+  },
+  {
+    path: 'status-tracking/:id',
+    loadChildren: () => import('./modules/status-tracking/status-tracking.module').then( m => m.StatusTrackingPageModule)
+  },
+  {
     path: 'terms-and-conditions',
     loadChildren: () => import('./modules/terms-and-conditions/terms-and-conditions.module').then( m => m.TermsAndConditionsPageModule)
   },
@@ -60,6 +72,7 @@ const routes: Routes = [
     redirectTo: 'login',
     pathMatch: 'full'
   }
+
 
 ];
 @NgModule({

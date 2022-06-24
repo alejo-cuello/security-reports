@@ -40,7 +40,7 @@ export class ContactsPage extends BasePage {
     this.pageService.httpDelete(endPoint)
       .then( (response) => {
         this.contacts = [];
-        this.global.save(this.settings.storage.contacts, [] );
+        this.getContacts();
         this.pageService.showSuccess('Contacto borrado correctamente');
       })
       .catch( (error) => {
@@ -50,7 +50,7 @@ export class ContactsPage extends BasePage {
   }
 
   addContact() {
-    if(this.contacts.length > 0) {
+    if(this.contacts.length === 3) {
       this.pageService.showError('No puedes agregar más contactos');
       return;
     }

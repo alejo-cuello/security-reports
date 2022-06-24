@@ -10,6 +10,7 @@ export class Settings {
     claim: 'claim',
     claimTypes: 'claimTypes',
     contacts: 'contacts',
+    emergencyTelephones: 'emergencyTelephones',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
@@ -19,9 +20,11 @@ export class Settings {
 
   public static endPointsMethods = {
     claim: {
+      claimById: '/claimById',
       favorites: '/favorites',
       pending: '/pending',
       takenClaims: '/takenClaims',
+      claimTracking: '/claimTracking',
       updateStatus: '/updateStatus'
     },
     insecurityFact: {
@@ -31,6 +34,7 @@ export class Settings {
       getAddress: '/getAddress'
     },
     user: {
+      changePassword: '/changePassword',
       login: '/login',
       signup: '/signup'
     }

@@ -3,7 +3,7 @@
 
     <ion-row class="ion-justify-content-center ion-margin-top">
       <ion-col size="10" class="ion-text-center">
-        <img src="assets/imgs/userLogin.png" class="image-login">
+        <img src="assets/imgs/logo.png" class="image-login">
       </ion-col>
     </ion-row>
 
@@ -21,8 +21,14 @@
         <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
 
+      <div class="register">
+        <ion-text color="primary" (click)="goToChangePassword()">
+          <p class="center">¿Olvidaste tu contraseña?</p>
+        </ion-text>
+      </div>
+
       <ion-radio-group formControlName="role">
-        <ion-row class="ion-margin-top">
+        <ion-row class="row-radio-group">
           <ion-col class="ion-no-padding ion-margin-end">
                <ion-item>
                   <ion-label>Vecino</ion-label>

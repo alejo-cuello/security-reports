@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Seguimiento de estados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="tracking-list">
+    <ion-list class="ion-margin-bottom">
+      <ion-item lines="none" class="ion-align-items-start" *ngFor="let status of statuses; index as i">
+        <img slot="start" [src]="getCheckImage(i)" alt="">
+        <ion-label class="ion-no-margin">{{status?.status?.STAdescription}}</ion-label>
+        <ion-label class="ion-no-margin">{{status?.dateTimeStatusStart | date: 'dd/MM/yy HH:mm'}}</ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <ion-button class="ion-margin-top" slot="end" shape="round" color="danger" (click)="cancel()">
+    <ion-text>
+      Volver
+    </ion-text>
+  </ion-button>
+</ion-content>

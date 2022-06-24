@@ -151,8 +151,4 @@ export class UserPage extends ItemPage implements OnDestroy {
       this.pageService.navigateRoute('login');
     }
   }
-
-  goToChangePassword() {
-    this.pageService.navigateRoute('change-password');
-  }
 }

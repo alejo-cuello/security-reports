@@ -45,6 +45,11 @@ export class AppComponent {
       icon: 'call-outline'
     },
     {
+      title: 'Números de emergencia',
+      url: '/emergency-numbers',
+      icon: 'information-circle-outline'
+    },
+    {
       title: 'Cerrar sesión',
       url: '/login',
       icon: 'log-out-outline'

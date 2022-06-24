@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
-import { Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ItemPage } from 'src/app/core/item.page';
 import * as moment from 'moment';
+import { ModalController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PageService } from 'src/app/core/page.service';
 
 @Component({
   selector: 'app-claim',
@@ -23,6 +26,18 @@ export class ClaimPage extends ItemPage {
   statuses: any[];
   subcategories: any[];
   today: any;
+
+  constructor(
+    public formBuilder: FormBuilder,
+    public activatedRoute: ActivatedRoute,
+    public pageService: PageService,
+    public changeDetectorRef: ChangeDetectorRef,
+    public router: Router,
+    public modalController: ModalController
+
+  ) {
+    super(formBuilder ,activatedRoute, pageService, changeDetectorRef, router);
+  }
 
   ionViewWillEnter() {
     this.enableButton = (this.role === 'municipalAgent') ? false : true;
@@ -111,7 +126,7 @@ export class ClaimPage extends ItemPage {
 
   getEndPoint() {
     return (this.type === 'claim') ?
-      this.settings.endPoints.claim
+      this.settings.endPoints.claim + this.settings.endPointsMethods.claim.claimById
       : this.settings.endPoints.insecurityFact;
   }
 

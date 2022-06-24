@@ -242,9 +242,27 @@ const setFiltersForClaims = (filter, query) => {
         if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
             throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
         };
-        query = query + ` AND rec.fechaHoraCreacion BETWEEN ? AND ?`;
+        query = query + ` AND rec.fechaHoraObservacion BETWEEN ? AND ?`;
         replacements.push(filter.startDate, filter.endDate);
+    }
+    //Agreué estos dos else if para los casos que ingrese una sola fecha
+    else if ( filter.startDate ) {
+        if ( !validator.isDate(filter.startDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        query = query + ` AND rec.fechaHoraObservacion >= ?`;
+        replacements.push(filter.startDate);
+    }
+    else if ( filter.endDate ) {
+        if ( !validator.isDate(filter.endDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        query = query + ` AND rec.fechaHoraObservacion <= ?`;
+        replacements.push(filter.endDate);
     };
+
     return query;
 };
 

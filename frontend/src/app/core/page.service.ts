@@ -10,6 +10,7 @@ import { GlobalService } from './global.service';
 import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
+import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,7 @@ export class PageService {
     public sms: SMS,
     public iab: InAppBrowser,
     public sanitizer: DomSanitizer,
+    public callNumber: CallNumber
   ) {
   }
 

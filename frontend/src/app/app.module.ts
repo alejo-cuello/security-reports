@@ -6,6 +6,7 @@ import { Camera } from '@awesome-cordova-plugins/camera/ngx';
 import { Geolocation } from '@awesome-cordova-plugins/geolocation/ngx';
 import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
@@ -27,7 +28,8 @@ import { AppComponent } from './app.component';
     Geolocation,
     Camera,
     SMS,
-    InAppBrowser
+    InAppBrowser,
+    CallNumber
   ],
   bootstrap: [AppComponent],
 })
