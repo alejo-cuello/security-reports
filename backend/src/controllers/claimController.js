@@ -7,6 +7,7 @@ const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 const fs = require('fs/promises');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
+const ValidateAuthorization = require('../utils/validateAuthorization');
 
 
 
@@ -331,9 +332,7 @@ const getFavoriteClaims = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         replacements = [];
         // Se agrega el vecino al array de reemplazos
@@ -368,9 +367,7 @@ const getClaimTracking = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const claimTracking = await models.Claim.findOne({
             attributes: ['claimId'],
@@ -418,9 +415,7 @@ const getPendingClaims = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el municipalAgentId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
 
         replacements = [];
         where = " WHERE est.descripcionEST = 'Pendiente'";
@@ -448,9 +443,7 @@ const getTakenClaims = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el municipalAgentId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
 
         replacements = [];
         replacements.push(dataFromToken.municipalAgentId);
@@ -478,9 +471,7 @@ const getClaimById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId && !dataFromToken.municipalAgentId  ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.bothUsersHaveAuthorization(dataFromToken.neighborId, dataFromToken.municipalAgentId);
 
         // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
         const isNeighborQuery = dataFromToken.neighborId ? true : false;
@@ -522,9 +513,7 @@ const createClaim = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
             throw ApiError.badRequest('El id de la subcategoría del reclamo o del hecho de inseguridad es requerido');
@@ -633,9 +622,7 @@ const editClaim = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         if ( !req.body.claimSubcategoryId && !req.body.insecurityFactTypeId ) {
             throw ApiError.badRequest('El id de la subcategoría del reclamo o del hecho de inseguridad es requerido');
@@ -795,9 +782,7 @@ const changeClaimStatus = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el municipalAgentId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.municipalAgentId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
 
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['statusId']);
         if ( missingAttributes.length > 0 ) {
@@ -874,9 +859,7 @@ const deleteClaim = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
         
         const queryClaimToDelete = getQueryClaimTo();
 
@@ -928,9 +911,7 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         let where = setAndGetFiltersForInsecurityFacts(req.query);
         
@@ -967,9 +948,7 @@ const getInsecurityFactById = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const insecurityFact = await models.Claim.findOne({
             where: {
@@ -1003,9 +982,7 @@ const deleteInsecurityFact = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const insecurityFactToDelete = await models.Claim.findOne({
             where: {

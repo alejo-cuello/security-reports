@@ -7,7 +7,7 @@ const verifyToken = (req, res, next) => {
         const bearerHeader = req.headers['authorization'];
         
         if (typeof bearerHeader === 'undefined') {
-            throw ApiError.unauthorized('No se encontró el token. Debes iniciar sesión primero');
+            throw ApiError.unauthorized('Debes iniciar sesión para acceder a este recurso');
         };
 
         const bearerToken = bearerHeader.split(' ')[1];

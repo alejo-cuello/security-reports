@@ -3,6 +3,7 @@ const sequelize = require('../database/db-connection');
 const getDataFromToken = require('../utils/getDataFromToken');
 const ApiError = require('../utils/apiError');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
+const ValidateAuthorization = require('../utils/validateAuthorization');
 
 /**
  * Define la cantidad máxima de contactos que puede tener un vecino
@@ -14,9 +15,7 @@ const getContacts = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const myContacts = await models.Contact.findAll({
             where: {
@@ -38,9 +37,7 @@ const newContact = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['name', 'phoneNumber']);
         if ( missingAttributes.length > 0 ) {
@@ -79,9 +76,7 @@ const deleteContact = async (req, res, next) => {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        if ( !dataFromToken.neighborId ) {
-            throw ApiError.forbidden(`No puedes acceder a este recurso`);
-        };
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
         const contact = await models.Contact.findOne({
             where: {

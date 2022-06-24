@@ -12,7 +12,7 @@ const getDataFromToken = (headerAuthorization) => {
         const bearerHeader = headerAuthorization;
         
         if (typeof bearerHeader === 'undefined') {
-            throw ApiError.forbidden('No se encontró el token. Debes iniciar sesión primero');
+            throw ApiError.forbidden('Debes iniciar sesión para acceder a este recurso');
         };
 
         const bearerToken = bearerHeader.split(' ')[1];

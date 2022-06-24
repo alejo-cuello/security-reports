@@ -18,6 +18,11 @@ const EmergencyTelephones = sequelize.define('telefonos_emergencia', {
             type: DataTypes.STRING(45),
             allowNull: false,
             field: 'numeroTelefono'
+        },
+        shortName: {
+            type: DataTypes.STRING(45),
+            allowNull: false,
+            field: 'nombreCorto'
         }
     }, {
         sequelize,
