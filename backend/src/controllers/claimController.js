@@ -441,8 +441,7 @@ const getClaimsForMap = async (req, res, next) => {
 
         const query = getSelectOfGenericalQuery()
                       + getFromOfQuery()
-                      + ` WHERE est.descripcionEST != 'Pendiente' AND`
-                      + ` rec.fechaHoraCreacion BETWEEN '${dateTwoDaysAgo}' AND '${tomorrow}'`;
+                      + ` WHERE rec.fechaHoraCreacion BETWEEN '${dateTwoDaysAgo}' AND '${tomorrow}'`;
 
         const claimsForMap = await sequelize.query(query, {type: QueryTypes.SELECT});
 
