@@ -111,20 +111,20 @@ const getQueryMyFavoritesClaims = () => {
 
 
 /**
- * Retorna el select de la query para obtener los reclamos en estado pendiente
+ * Retorna un select genérico de una query para obtener reclamos
  * @returns {string} Select de la query
  */
-const getSelectOfQueryForMunicipalAgent = () => {
+const getSelectOfGenericalQuery = () => {
     return "SELECT " +
                 getSelectQuery();
 };
 
 
 /**
- * Retorna la parte del "FROM" y los respectivos joins de la query para obtener los reclamos en estado pendiente
+ * Retorna la parte del "FROM" y los respectivos joins de una query genérica para obtener reclamos
  * @returns {string} Parte del "FROM" e "INNER JOIN" de la query
  */
-const getFromOfQueryForMunicipalAgent = () => {
+const getFromOfQuery = () => {
     return  "FROM estado_reclamo er " +
             "INNER JOIN " +
                 getSubQueryLastClaimStatus( false ) +
@@ -328,14 +328,14 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
 const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'DESC') => {
     if ( filter.orderByNumberOfFavorites === "yes" ) {
         query = query + ", count(fav.idReclamo) 'NumberOfFavorites' "
-                      + getFromOfQueryForMunicipalAgent()
+                      + getFromOfQuery()
                       + " INNER JOIN favoritos fav ON rec.idReclamo = fav.idReclamo"
                       + where;
         query = setFiltersForClaims(filter, query)
                       + " GROUP BY fav.idReclamo"
                       + queryOrderBy('count(fav.idReclamo)', 'DESC');
     } else {
-        query = query + getFromOfQueryForMunicipalAgent()
+        query = query + getFromOfQuery()
                       + where;
         query = setFiltersForClaims(filter, query)
                       + queryOrderBy('rec.fechaHoraCreacion', orderByDirection);
@@ -427,6 +427,32 @@ const getClaimTracking = async (req, res, next) => {
 };
 
 
+// Devuelve los reclamos creados en las últimas 48hs para mostrarlos en el mapa.
+const getClaimsForMap = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        // Lo que buscamos es que se muestren los reclamos hechos el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
+        const tomorrow = calculateDate(dayjs(), 1);
+        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
+
+        const query = getSelectOfGenericalQuery()
+                      + getFromOfQuery()
+                      + ` WHERE est.descripcionEST != 'Pendiente' AND`
+                      + ` rec.fechaHoraCreacion BETWEEN '${dateTwoDaysAgo}' AND '${tomorrow}'`;
+
+        const claimsForMap = await sequelize.query(query, {type: QueryTypes.SELECT});
+
+        return res.status(200).json(claimsForMap);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // Funcionalidad para el agente municipal: Listar todos los reclamos pendientes
 const getPendingClaims = async (req, res, next) => {
     try {
@@ -439,7 +465,7 @@ const getPendingClaims = async (req, res, next) => {
         where = " WHERE est.descripcionEST = 'Pendiente'";
 
         // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
-        let query = getSelectOfQueryForMunicipalAgent();
+        let query = getSelectOfGenericalQuery();
         query = setFiltersForMunicipalAgent(req.query, query, where);
 
         // Query para obtener los reclamos pendientes
@@ -468,7 +494,7 @@ const getTakenClaims = async (req, res, next) => {
         where = " WHERE rec.idAgenteMunicipal = ?";
         
         // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
-        let queryTakenClaims = getSelectOfQueryForMunicipalAgent();
+        let queryTakenClaims = getSelectOfGenericalQuery();
         queryTakenClaims = setFiltersForMunicipalAgent(req.query, queryTakenClaims, where, 'ASC');
 
         const myTakenClaims = await sequelize.query( queryTakenClaims, {
@@ -486,7 +512,7 @@ const getTakenClaims = async (req, res, next) => {
 // Devuelve un reclamo en específico por id
 const getClaimById = async (req, res, next) => {
     try {
-        // Obtiene la información contenida en el token para poder usar el neighborId
+        // Obtiene la información contenida en el token para poder usar el neighborId y/o municipalAgentId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
         ValidateAuthorization.bothUsersHaveAuthorization(dataFromToken.neighborId, dataFromToken.municipalAgentId);
@@ -960,6 +986,42 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
 };
 
 
+// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa.
+const getInsecurityFactsForMap = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
+        const tomorrow = calculateDate(dayjs(), 1);
+        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
+        
+        const insecurityFactsForMap = await models.Claim.findAll({
+            where: {
+                dateTimeCreation: {
+                    [Op.between]: [dateTwoDaysAgo, tomorrow]
+                },
+                insecurityFactTypeId: {
+                    [Op.not]: null
+                }
+            },
+            include: [
+                {
+                    model: models.InsecurityFactType,
+                    as: 'insecurityFactType'
+                }
+            ]
+        });
+
+        return res.status(200).json(insecurityFactsForMap);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // Devuelve un hecho de inseguridad en específico por id
 const getInsecurityFactById = async (req, res, next) => {
     try {
@@ -1149,9 +1211,21 @@ const deleteImage = async (path) => {
     }
 };
 
+
+/**
+ * Función genérica para calcular fechas. Es necesario usar la librería dayjs().
+ * @param {Date} date - Fecha original.
+ * @param {number} days - Si el parámetro es positivo, suma los días. Si es negativo, los resta.
+ * @returns Fecha calculada
+ */
+const calculateDate = (date, days) => {
+    return date.add(days, 'day').format('YYYY-MM-DD');
+};
+
 module.exports = {
     getFavoriteClaims,
     getClaimTracking,
+    getClaimsForMap,
     getPendingClaims,
     getTakenClaims,
     getClaimById,
@@ -1160,6 +1234,7 @@ module.exports = {
     changeClaimStatus,
     deleteClaim,
     getFavoriteInsecurityFacts,
+    getInsecurityFactsForMap,
     getInsecurityFactById,
     deleteInsecurityFact
 }

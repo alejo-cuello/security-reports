@@ -20,6 +20,8 @@ router.get('/claimById/:claimId', verifyToken, claimController.getClaimById);
 
 router.get('/claimTracking/:claimId', verifyToken, claimController.getClaimTracking);
 
+router.get('/claimsForMap', verifyToken, claimController.getClaimsForMap);
+
 // * Se usa tanto para crear un nuevo reclamo como un nuevo hecho de inseguridad
 router.post('/', verifyToken, uploadImageErrorHandler, claimController.createClaim);
 
