@@ -658,6 +658,49 @@ const createClaim = async (req, res, next) => {
 };
 
 
+// Marca como favorito un reclamo o un hecho de inseguridad
+const markClaimOrInsecurityFactAsFavorite = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        const claim = await models.Claim.findByPk(req.params.claimId);
+
+        if (!claim) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' no existe`);
+        };
+
+        const isAlreadyMarkAsFavorite = await models.Favorites.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            }
+        });
+
+        if ( isAlreadyMarkAsFavorite ) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' ya está marcado como favorito`);
+        };
+
+        await models.Favorites.create({
+            claimId: req.params.claimId,
+            neighborId: dataFromToken.neighborId
+        }, { transaction });
+
+        await transaction.commit();
+
+        return res.status(201).json({
+            message: 'Reclamo marcado como favorito correctamente'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
 // Editar un reclamo o un hecho de inseguridad existente
 const editClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
@@ -1229,6 +1272,7 @@ module.exports = {
     getTakenClaims,
     getClaimById,
     createClaim,
+    markClaimOrInsecurityFactAsFavorite,
     editClaim,
     changeClaimStatus,
     deleteClaim,
