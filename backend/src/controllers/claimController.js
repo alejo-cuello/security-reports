@@ -1074,14 +1074,21 @@ const getInsecurityFactById = async (req, res, next) => {
 
         const insecurityFact = await models.Claim.findOne({
             where: {
-                claimId: req.params.claimId,
-                neighborId: dataFromToken.neighborId
+                claimId: req.params.claimId
             },
             include: [
                 {
                     model: models.InsecurityFactType,
                     as: 'insecurityFactType',
                     required: true                      // Para hacer un inner join
+                },
+                {
+                    model: models.Favorites,
+                    as: 'favorites',
+                    required: true,
+                    where: {
+                        neighborId: dataFromToken.neighborId
+                    }
                 }
             ]
         });
