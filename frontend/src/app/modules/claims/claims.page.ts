@@ -70,9 +70,13 @@ export class ClaimsPage extends BasePage {
     else if(statusId <= 7)  return 'danger';
   }
 
-  getPendingClaims() {
-    const endPoint = this.settings.endPoints.claim
+  getPendingClaims( filters?: any ) {
+    let endPoint = this.settings.endPoints.claim
       + this.settings.endPointsMethods.claim.pending;
+    if(filters) {
+      endPoint += filters;
+      if(filters != '?')  this.haveFilters = true;
+    }
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
@@ -83,9 +87,14 @@ export class ClaimsPage extends BasePage {
       })
   }
 
-  getTakenClaims() {
-    const endPoint = this.settings.endPoints.claim
+  getTakenClaims( filters?: any ) {
+    let endPoint = this.settings.endPoints.claim
       + this.settings.endPointsMethods.claim.takenClaims;
+
+    if(filters) {
+      endPoint += filters;
+      if(filters != '?')  this.haveFilters = true;
+    }
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
@@ -140,7 +149,11 @@ export class ClaimsPage extends BasePage {
 
     modal.onDidDismiss().then( (data) => {
       if(data.data) this.prevFilters = data.data;
-      this.getClaims(null, null, this.getQueryString(this.prevFilters));
+      if(this.role === 'neighbor' && this.menu === 'claim') this.getClaims(null, null, this.getQueryString(this.prevFilters));
+      else if(this.role === 'municipalAgent') {
+        if(this.menu === 'takenClaims') this.getTakenClaims(this.getQueryString(this.prevFilters));
+        else this.getPendingClaims(this.getQueryString(this.prevFilters));
+      }
     });
 
     await modal.present();
@@ -149,7 +162,11 @@ export class ClaimsPage extends BasePage {
   deleteFilters() {
     this.haveFilters = false;
     this.prevFilters = null;
-    this.getClaims();
+    if(this.role === 'neighbor' && this.menu === 'claim') this.getClaims();
+    else if(this.role === 'municipalAgent') {
+      if(this.menu === 'takenClaims') this.getTakenClaims();
+      else this.getPendingClaims();
+    }
   }
 
   getType() {
@@ -157,7 +174,7 @@ export class ClaimsPage extends BasePage {
   }
 
   getQueryString(data: any) {
-    let queryStrings = '?'
+    let queryStrings = '?';
     for (let filter in data) {
       if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
     }

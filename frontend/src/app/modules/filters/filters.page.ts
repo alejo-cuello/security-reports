@@ -19,16 +19,19 @@ export class FiltersPage extends BasePage {
   idsTypes: any[];
   selectedCategories: any[] = [];
   selectedStatuses: any[];
-  sort: string = 'rec.fechaHoraCreacion';
+  sort: string = '';
   today: any;
   dateFrom: any;
   dateTo: any;
   isInsecurityFact: boolean;
+  role: string;
   statuses: any[];
 
 
   ionViewWillEnter() {
-    this.isInsecurityFact = this.claimType === 'insecurityFact'
+    this.role = this.global.load(this.settings.storage.role);
+
+    this.isInsecurityFact = this.claimType === 'insecurityFact';
     this.isInsecurityFact ? this.getInsecurityFactTypes(true) : this.getClaimTypes(true);
 
     this.today = moment().format('YYYY-MM-DD');
@@ -104,8 +107,10 @@ export class FiltersPage extends BasePage {
     this.filters = {
       startDate: this.dateFrom ? this.dateFrom.split('T')[0] : null,
       endDate: this.dateTo ? this.setEndDate(this.dateTo.split('T')[0], 1) : null,
-      sort: this.sort || null,
       status: this.selectedStatuses || null
+    }
+    if(this.role === 'municipalAgent' && this.sort) {
+      this.filters.orderByNumberOfFavorites = this.sort == 'yes' ? 'yes' : null
     }
     if(this.isInsecurityFact) {
       this.filters.insecurityFactType = this.idsTypes.length > 0 ? this.idsTypes : null;
@@ -127,7 +132,6 @@ export class FiltersPage extends BasePage {
   }
 
   closeModal() {
-    console.log(this.filters)
     this.pageService.modalCtrl.dismiss(this.filters);
   }
 }
