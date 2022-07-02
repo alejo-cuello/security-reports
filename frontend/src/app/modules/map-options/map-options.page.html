@@ -13,6 +13,14 @@
       <ion-label>Instituciones de Salud</ion-label>
       <ion-radio value="health"></ion-radio>
     </ion-item>
+    <ion-item>
+      <ion-label>Reclamos</ion-label>
+      <ion-radio value="claims"></ion-radio>
+    </ion-item>
+    <ion-item *ngIf="role === 'neighbor'">
+      <ion-label>Hechos de Inseguridad</ion-label>
+      <ion-radio value="insecurityFacts"></ion-radio>
+    </ion-item>
   </ion-radio-group>
 </ion-content>
 <ion-footer>

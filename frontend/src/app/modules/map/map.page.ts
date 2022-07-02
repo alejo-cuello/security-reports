@@ -19,6 +19,7 @@ export class MapPage extends BasePage {
   markers: any[] = [];
   map: any;
   places: any = [];
+  role: string;
   showForm: boolean = false;
   street: string;
   streetNumber: string;
@@ -32,6 +33,7 @@ export class MapPage extends BasePage {
   }
 
   ionViewWillEnter() {
+    this.role = this.global.load(this.settings.storage.role);
 
     this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
@@ -43,30 +45,52 @@ export class MapPage extends BasePage {
     ).addTo(this.map);
 
     this.map.on("click", (data: any) => {
-      if(this.marker) this.marker.removeFrom(this.map);
-      this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(this.map);
-
-      this.coordinates = [data.latlng.lat, data.latlng.lng];
-
-      const endPoint = this.settings.endPoints.map
-        + this.settings.endPointsMethods.map.getAddress
-        + '/' + data.latlng.lat
-        + '&' + data.latlng.lng;
-
-      this.pageService.httpGet(endPoint)
-        .then( (response) => {
-          this.street = response.street;
-          this.streetNumber = response.streetNumber;
-        })
-        .catch( (error) => {
-          console.log(error);
-        })
+      if(!this.handleClickOptions(data)) {
+        if(this.marker) this.marker.removeFrom(this.map);
+        this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(this.map);
+  
+        this.coordinates = [data.latlng.lat, data.latlng.lng];
+  
+        const endPoint = this.settings.endPoints.map
+          + this.settings.endPointsMethods.map.getAddress
+          + '/' + data.latlng.lat
+          + '&' + data.latlng.lng;
+  
+        this.pageService.httpGet(endPoint)
+          .then( (response) => {
+            this.street = response.street;
+            this.streetNumber = response.streetNumber;
+          })
+          .catch( (error) => {
+            console.log(error);
+          })
+      }
     })
   }
 
   ionViewWillLeave() {
     this.map.off();
     this.map.remove();
+  }
+
+  handleClickOptions(data: any) {
+    //Este return false es para que ponga un marcador donde toque el usuario
+    if(!data.originalEvent.target.alt) return false;
+    else{
+      if(data.originalEvent.target.alt.includes('institution')) {
+        // Acá podemos hacer alguna acción cuando se toca una institución
+        // this.pageService.showSuccess(data.originalEvent.target.alt.split('.')[1]);
+      }
+      else if(data.originalEvent.target.alt.includes('claim')) {
+        let id = data.originalEvent.target.alt.split('.')[1];
+        this.pageService.navigateRoute( 'claim', { queryParams: { action: 'watch', id, role: this.role, type: 'claim' } } );
+      }
+      else if(data.originalEvent.target.alt.includes('insecurityFact')) {
+        let id = data.originalEvent.target.alt.split('.')[1];
+        this.pageService.navigateRoute( 'claim', { queryParams: { action: 'watch', id, role: this.role, type: 'insecurityFact' } } );
+      }
+      return true;
+    }
   }
 
   setInitialValues() {
@@ -106,7 +130,9 @@ export class MapPage extends BasePage {
         this.removeMarkers();
         
         if(data.data && data.data == 'health')  this.getInstitutions(data.data);
-        if(data.data && data.data == 'security')  this.getInstitutions(data.data);
+        else if(data.data && data.data == 'security')  this.getInstitutions(data.data);
+        else if(data.data && data.data == 'claims')  this.getClaims();
+        else if(data.data && data.data == 'insecurityFacts')  this.getInsecurityFacts();
       }
 
       if(data.data && data.data != '') this.lastOption = data.data;
@@ -129,12 +155,67 @@ export class MapPage extends BasePage {
           if(place.geojson) {
             let coordinates = place.geojson.geometry.coordinates;
             let markerCoordinates: any = [ coordinates[1], coordinates[0] ];
-            this.markers.push(new L.Marker(markerCoordinates).addTo(this.map));
+            this.markers.push(
+              new L.Marker(
+                markerCoordinates,
+                {
+                  riseOnHover: true,
+                  title: place.name,
+                  alt: 'institution.' + place.contactos
+                })
+                .addTo(this.map));
           }
         }
       })
       .catch( (error) => {
         this.places = [];
       })
-  };
+  }
+
+  getClaims() {
+    let endPoint = this.settings.endPoints.claim;
+    
+    endPoint += this.role === 'neighbor'
+      ? this.settings.endPointsMethods.claim.claimsForMap
+      : this.settings.endPointsMethods.claim.pending;
+
+    this.pageService.httpGetAll(endPoint)
+    .then( (response) => {
+      this.places = response;
+      this.setMarkers('claim');
+    })
+    .catch( (error) => {
+      this.places = [];
+    })
+  }
+
+  getInsecurityFacts() {
+    let endPoint = this.settings.endPoints.insecurityFact + this.settings.endPointsMethods.insecurityFact.insecurityFactsForMap;
+
+    this.pageService.httpGetAll(endPoint)
+    .then( (response) => {
+      this.places = response;
+      this.setMarkers('insecurityFact');
+    })
+    .catch( (error) => {
+      this.places = [];
+    })
+  }
+
+  setMarkers(type: string) {
+    for(let place of this.places) {
+      if(place.longitude && place.latitude) {
+        let coordinates: any = [place.latitude, place.longitude];
+        this.markers.push(
+          new L.Marker(
+            coordinates,
+            {
+              riseOnHover: true,
+              title: place.CSCdescription || place.insecurityFactType.IFTdescription,
+              alt: type + '.' + place.claimId
+            })
+            .addTo(this.map));
+      }
+    }
+  }
 }

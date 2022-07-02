@@ -21,14 +21,16 @@ export class Settings {
   public static endPointsMethods = {
     claim: {
       claimById: '/claimById',
+      claimsForMap: '/claimsForMap',
+      claimTracking: '/claimTracking',
       favorites: '/favorites',
       pending: '/pending',
       takenClaims: '/takenClaims',
-      claimTracking: '/claimTracking',
       updateStatus: '/updateStatus'
     },
     insecurityFact: {
       favorites: '/favorites',
+      insecurityFactsForMap: '/insecurityFactsForMap'
     },
     map: {
       getAddress: '/getAddress'
