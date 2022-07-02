@@ -68,6 +68,10 @@ const routes: Routes = [
     loadChildren: () => import('./modules/terms-and-conditions/terms-and-conditions.module').then( m => m.TermsAndConditionsPageModule)
   },
   {
+    path: 'map-options',
+    loadChildren: () => import('./modules/map-options/map-options.module').then( m => m.MapOptionsPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'

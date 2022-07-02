@@ -21,8 +21,8 @@ export class HttpService {
     return this.get(endPoint);
   }
 
-  getAllWithFilters( endPoint, offset, query ) {
-    return this.getWithFilters(endPoint, offset, query);
+  getAllWithFilters( endPoint, offset, query, limit ) {
+    return this.getWithFilters(endPoint, offset, query, limit);
   }
 
   getById( endPoint ) {
@@ -109,9 +109,9 @@ export class HttpService {
   }
 
 
-  getWithFilters(endPoint, offset, query, showLoading = true) {
+  getWithFilters(endPoint, offset, query, limit, showLoading = true) {
     const url = environment.serverUrl + endPoint;
-    return this.http.get(url, this.getOptions(offset, query))
+    return this.http.get(url, this.getOptions(offset, query, limit))
       .toPromise()
       .then( (response:any) => {
         return response;
@@ -152,15 +152,15 @@ export class HttpService {
   // }
 
 
-  getOptions(offset, query) {
-    return {...this.getHeaders(), ...this.getParams(offset, query)};
+  getOptions(offset, query, limit) {
+    return {...this.getHeaders(), ...this.getParams(offset, query, limit)};
   }
 
 
-  getParams(offset, query) {
+  getParams(offset, query, limit) {
     return {
       params: new HttpParams({
-        fromString: `offset=${offset}&query=${query}`
+        fromString: `offset=${offset}&query=${query}&limit=${limit}`
       })
     }
   }

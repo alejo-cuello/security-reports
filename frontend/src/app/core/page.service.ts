@@ -76,8 +76,8 @@ export class PageService {
     return this.httpService.getAll( endPoint );
   }
 
-  httpGetAllWithFilters( endPoint, offset, query) {
-    return this.httpService.getAllWithFilters(endPoint, offset, query);
+  httpGetAllWithFilters( endPoint, offset, query, limit = 6) {
+    return this.httpService.getAllWithFilters(endPoint, offset, query, limit);
   }
 
   httpUpdate( endPoint, item, id, bodyType = 'json' ) {

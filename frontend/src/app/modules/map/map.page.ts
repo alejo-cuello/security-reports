@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { BasePage } from 'src/app/core/base.page';
 import * as L from 'leaflet';
+import { Router } from '@angular/router';
+import { PageService } from 'src/app/core/page.service';
 
 @Component({
   selector: 'app-map',
@@ -12,9 +14,20 @@ export class MapPage extends BasePage {
 
   coordinates: any;
   marker: any;
+  markers: any[] = [];
   map: any;
+  places: any = [];
+  showForm: boolean = false;
   street: string;
   streetNumber: string;
+
+  constructor(
+    public pageService: PageService,
+    public router: Router
+  ) {
+    super(pageService);
+    this.showForm = !this.router.url.includes('tabs');
+  }
 
   ionViewWillEnter() {
 
@@ -78,4 +91,21 @@ export class MapPage extends BasePage {
       this.pageService.showError('Por favor marque la posición en el mapa y complete los campos');
     }
   }
+
+  getInstitutions(institutionsType: string) {
+    this.pageService.httpGetAllWithFilters('institutions/' + 'health', 0, '', 100)
+      .then( (response) => {
+        this.places = response.institutions;
+        for(let place of this.places) {
+          if(place.geojson) {
+            let coordinates = place.geojson.geometry.coordinates;
+            let markerCoordinates: any = [ coordinates[1], coordinates[0] ];
+            this.markers.push(new L.Marker(markerCoordinates).addTo(this.map));
+          }
+        }
+      })
+      .catch( (error) => {
+        this.places = [];
+      })
+  };
 }
