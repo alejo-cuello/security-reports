@@ -33,5 +33,8 @@ router.put('/:claimId', verifyToken, uploadImageErrorHandler, claimController.ed
 
 router.delete('/:claimId', verifyToken, claimController.deleteClaim);
 
+// * Se usa para eliminar de favoritos tanto un reclamo como un hecho de inseguridad 
+router.delete('/deleteClaimMarkedAsFavorite/:claimId', verifyToken, claimController.deleteClaimOrInsecurityFactMarkedAsFavorite);
+
 
 module.exports = router;

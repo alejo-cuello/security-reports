@@ -701,6 +701,70 @@ const markClaimOrInsecurityFactAsFavorite = async (req, res, next) => {
 };
 
 
+// Elimina de favoritos un reclamo o un hecho de inseguridad
+const deleteClaimOrInsecurityFactMarkedAsFavorite = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        // Busca que exista el reclamo y esté marcado como favorito por el vecino actual
+        const claim = await models.Favorites.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            }
+        });
+        
+        if (!claim) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' no está marcado como favorito para este vecino`);
+        };
+
+        // Si esta query devuelve un resultado, entonces no puede eliminar el reclamo, si no devuelve resultado entonces sí puede. Esto es para que no pueda eliminar un reclamo o HI creado por el usuario actual.
+        const claimOfUser = await models.Claim.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            },
+            include: [
+                {
+                    model: models.Favorites,
+                    as: 'favorites',
+                    required: true,
+                    where: {
+                        claimId: req.params.claimId,
+                        neighborId: dataFromToken.neighborId
+                    }
+                }
+            ]
+        });
+
+        if (claimOfUser) {
+            throw ApiError.badRequest(`No puedes eliminar de favoritos un reclamo propio`);
+        };
+
+        await models.Favorites.destroy({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        return res.status(200).json({
+            message: `El reclamo se eliminó de favoritos correctamente`
+        })
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
 // Editar un reclamo o un hecho de inseguridad existente
 const editClaim = async (req, res, next) => {
     const transaction = await sequelize.transaction();
@@ -1280,6 +1344,7 @@ module.exports = {
     getClaimById,
     createClaim,
     markClaimOrInsecurityFactAsFavorite,
+    deleteClaimOrInsecurityFactMarkedAsFavorite,
     editClaim,
     changeClaimStatus,
     deleteClaim,
