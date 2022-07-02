@@ -10,7 +10,7 @@
 <ion-content>
   <div id="map" class="map-complete" #map></div>
   <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!showForm">
-    <ion-fab-button>
+    <ion-fab-button (click)="openMapOptions()">
       <ion-icon name="information-circle-outline" color="white"></ion-icon>
     </ion-fab-button>
   </ion-fab>

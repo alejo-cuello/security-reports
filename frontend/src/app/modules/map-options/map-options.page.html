@@ -1,12 +1,4 @@
 <ion-content class="modal-background">
-  <div class="card-header">
-    <ion-item>
-      <ion-text color="primary">
-        <h4>Filtrar por</h4>
-      </ion-text>
-    </ion-item>
-  </div>
-
   <ion-item>
     <ion-text color="primary">
       <h4>Mostrar</h4>
@@ -14,8 +6,12 @@
   </ion-item>
   <ion-radio-group [(ngModel)]="selectedOption">
     <ion-item>
-      <ion-label>Instituciones</ion-label>
-      <ion-radio value="institutions"></ion-radio>
+      <ion-label>Instituciones Policiales</ion-label>
+      <ion-radio value="security"></ion-radio>
+    </ion-item>
+    <ion-item>
+      <ion-label>Instituciones de Salud</ion-label>
+      <ion-radio value="health"></ion-radio>
     </ion-item>
   </ion-radio-group>
 </ion-content>

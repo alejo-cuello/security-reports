@@ -3,6 +3,7 @@ import { BasePage } from 'src/app/core/base.page';
 import * as L from 'leaflet';
 import { Router } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
+import { MapOptionsPage } from '../map-options/map-options.page';
 
 @Component({
   selector: 'app-map',
@@ -13,6 +14,7 @@ import { PageService } from 'src/app/core/page.service';
 export class MapPage extends BasePage {  
 
   coordinates: any;
+  lastOption: string = '';
   marker: any;
   markers: any[] = [];
   map: any;
@@ -92,8 +94,35 @@ export class MapPage extends BasePage {
     }
   }
 
+  async openMapOptions() {
+    const modal = await this.pageService.modalCtrl.create({
+      component: MapOptionsPage,
+      cssClass: 'my-custom-modal-css',
+      componentProps: { selectedOption: this.lastOption }
+    });
+
+    modal.onDidDismiss().then( (data) => {
+      if(data.data != this.lastOption) {
+        this.removeMarkers();
+        
+        if(data.data && data.data == 'health')  this.getInstitutions(data.data);
+        if(data.data && data.data == 'security')  this.getInstitutions(data.data);
+      }
+
+      if(data.data && data.data != '') this.lastOption = data.data;
+    });
+
+    await modal.present();
+  }
+
+  removeMarkers() {
+    for(let marker of this.markers) {
+      marker.removeFrom(this.map);
+    }
+  }
+
   getInstitutions(institutionsType: string) {
-    this.pageService.httpGetAllWithFilters('institutions/' + 'health', 0, '', 100)
+    this.pageService.httpGetAllWithFilters('institutions/' + institutionsType, 0, '', 100)
       .then( (response) => {
         this.places = response.institutions;
         for(let place of this.places) {
