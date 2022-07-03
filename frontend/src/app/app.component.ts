@@ -26,6 +26,7 @@ export class AppComponent {
     this.global.remove('securityReports.token'); // Elimina el token del localStorage
     this.global.remove('securityReports.contacts'); // Elimina los contactos del vecino del localStorage
     this.global.remove('termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
+    this.global.remove('securityReports.hideMenu');
   }
 
   public appNeighborPages = [

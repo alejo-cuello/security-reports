@@ -21,8 +21,9 @@ export class TabsPage extends BasePage {
   }
 
   ionViewWillEnter() {
+    this.hideMenu = this.pageService.global.load(this.settings.storage.hideMenu);
     try {
-      if(this.tabs.outlet.activatedView.stackId != 'home')this.tabs.outlet.activatedView.ref.instance.ionViewWillEnter();
+      if(this.tabs.outlet.activatedView.stackId != 'map')this.tabs.outlet.activatedView.ref.instance.ionViewWillEnter();
     } catch(e) {};
   }
 }

@@ -20,7 +20,6 @@ export class MapPage extends BasePage {
   map: any;
   places: any = [];
   role: string;
-  showForm: boolean = false;
   street: string;
   streetNumber: string;
 
@@ -29,12 +28,11 @@ export class MapPage extends BasePage {
     public router: Router
   ) {
     super(pageService);
-    this.showForm = !this.router.url.includes('tabs');
   }
 
   ionViewWillEnter() {
     this.role = this.global.load(this.settings.storage.role);
-
+    this.hideMenu = this.pageService.global.load(this.settings.storage.hideMenu);
     this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
 
     this.setInitialValues();
@@ -69,6 +67,7 @@ export class MapPage extends BasePage {
   }
 
   ionViewWillLeave() {
+    this.pageService.global.remove(this.settings.storage.hideMenu);
     this.map.off();
     this.map.remove();
   }

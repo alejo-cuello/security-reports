@@ -47,6 +47,7 @@ export class Settings {
   public static storage = {
     contacts: 'securityReports.contacts',
     coordinates: 'securityReports.coordinates',
+    hideMenu: 'securityReports.hideMenu',
     role: 'securityReports.role',
     street: 'securityReports.street',
     streetNumber: 'securityReports.streetNumber',

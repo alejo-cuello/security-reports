@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 export class BasePage {
 
   global: any;
+  hideMenu: boolean = false;
   settings: any;
   filesUrl = environment.filesUrl + '/';
   user: any;

@@ -294,7 +294,9 @@ export class ClaimPage extends ItemPage {
       this.global.save(this.settings.storage.street, this.form.value.street);
       this.global.save(this.settings.storage.streetNumber, this.form.value.streetNumber);
     }
-    this.pageService.navigateRoute('/map');
+
+    this.global.save(this.settings.storage.hideMenu, true);
+    this.pageService.navigateRoute('/tabs/map');
   }
 
   goToHome() {
