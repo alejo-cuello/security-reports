@@ -5,7 +5,9 @@ const claimController = require('../controllers/claimController');
 
 router.get('/', verifyToken, claimController.getFavoriteInsecurityFacts);
 
-router.get('/insecurityFactsForMap', verifyToken, claimController.getInsecurityFactsForMap);
+router.get('/insecurityFactsForMapForNeighbor', verifyToken, claimController.getInsecurityFactsForMapForNeighbor);
+
+router.get('/insecurityFactsForMapForMunicipalAgent', verifyToken, claimController.getInsecurityFactsForMapForMunicipalAgent);
 
 router.get('/:claimId', verifyToken, claimController.getInsecurityFactById);
 
