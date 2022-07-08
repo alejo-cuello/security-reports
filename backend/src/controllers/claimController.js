@@ -330,12 +330,14 @@ const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'D
         query = query + ", count(fav.idReclamo) 'NumberOfFavorites' "
                       + getFromOfQuery()
                       + " INNER JOIN favoritos fav ON rec.idReclamo = fav.idReclamo"
+                      + " INNER JOIN vecino vec ON rec.idVecino = vec.idVecino"
                       + where;
         query = setFiltersForClaims(filter, query)
                       + " GROUP BY fav.idReclamo"
                       + queryOrderBy('count(fav.idReclamo)', 'DESC');
     } else {
         query = query + getFromOfQuery()
+                      + " INNER JOIN vecino vec ON rec.idVecino = vec.idVecino"
                       + where;
         query = setFiltersForClaims(filter, query)
                       + queryOrderBy('rec.fechaHoraCreacion', orderByDirection);
@@ -464,7 +466,9 @@ const getPendingClaims = async (req, res, next) => {
         where = " WHERE est.descripcionEST = 'Pendiente'";
 
         // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
-        let query = getSelectOfGenericalQuery();
+        let query = getSelectOfGenericalQuery()
+                    + ", vec.nombre 'neighborFirstName', "
+                    + " vec.apellido 'neighborLastName'";
         query = setFiltersForMunicipalAgent(req.query, query, where);
 
         // Query para obtener los reclamos pendientes
@@ -493,7 +497,9 @@ const getTakenClaims = async (req, res, next) => {
         where = " WHERE rec.idAgenteMunicipal = ?";
         
         // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
-        let queryTakenClaims = getSelectOfGenericalQuery();
+        let queryTakenClaims = getSelectOfGenericalQuery()
+                               + ", vec.nombre 'neighborFirstName', "
+                               + " vec.apellido 'neighborLastName'";
         queryTakenClaims = setFiltersForMunicipalAgent(req.query, queryTakenClaims, where, 'ASC');
 
         const myTakenClaims = await sequelize.query( queryTakenClaims, {
@@ -653,6 +659,113 @@ const createClaim = async (req, res, next) => {
         if ( req.file ) {
             await deleteImage(req.file.path);
         };
+        next(error);
+    }
+};
+
+
+// Marca como favorito un reclamo o un hecho de inseguridad
+const markClaimOrInsecurityFactAsFavorite = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        const claim = await models.Claim.findByPk(req.params.claimId);
+
+        if (!claim) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' no existe`);
+        };
+
+        const isAlreadyMarkAsFavorite = await models.Favorites.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            }
+        });
+
+        if ( isAlreadyMarkAsFavorite ) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' ya está marcado como favorito`);
+        };
+
+        await models.Favorites.create({
+            claimId: req.params.claimId,
+            neighborId: dataFromToken.neighborId
+        }, { transaction });
+
+        await transaction.commit();
+
+        return res.status(201).json({
+            message: 'Reclamo marcado como favorito correctamente'
+        });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
+// Elimina de favoritos un reclamo o un hecho de inseguridad
+const deleteClaimOrInsecurityFactMarkedAsFavorite = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+
+        // Busca que exista el reclamo y esté marcado como favorito por el vecino actual
+        const claim = await models.Favorites.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            }
+        });
+        
+        if (!claim) {
+            throw ApiError.badRequest(`El reclamo con id '${req.params.claimId}' no está marcado como favorito para este vecino`);
+        };
+
+        // Si esta query devuelve un resultado, entonces no puede eliminar el reclamo, si no devuelve resultado entonces sí puede. Esto es para que no pueda eliminar un reclamo o HI creado por el usuario actual.
+        const claimOfUser = await models.Claim.findOne({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            },
+            include: [
+                {
+                    model: models.Favorites,
+                    as: 'favorites',
+                    required: true,
+                    where: {
+                        claimId: req.params.claimId,
+                        neighborId: dataFromToken.neighborId
+                    }
+                }
+            ]
+        });
+
+        if (claimOfUser) {
+            throw ApiError.badRequest(`No puedes eliminar de favoritos un reclamo propio`);
+        };
+
+        await models.Favorites.destroy({
+            where: {
+                claimId: req.params.claimId,
+                neighborId: dataFromToken.neighborId
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        return res.status(200).json({
+            message: `El reclamo se eliminó de favoritos correctamente`
+        })
+    } catch (error) {
+        await transaction.rollback();
         next(error);
     }
 };
@@ -985,8 +1098,8 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
 };
 
 
-// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa.
-const getInsecurityFactsForMap = async (req, res, next) => {
+// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa para un vecino.
+const getInsecurityFactsForMapForNeighbor = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
@@ -1021,30 +1134,109 @@ const getInsecurityFactsForMap = async (req, res, next) => {
 };
 
 
+// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa para un agente municipal.
+const getInsecurityFactsForMapForMunicipalAgent = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
+
+        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
+        const tomorrow = calculateDate(dayjs(), 1);
+        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
+        
+        const insecurityFactsForMap = await models.Claim.findAll({
+            where: {
+                dateTimeCreation: {
+                    [Op.between]: [dateTwoDaysAgo, tomorrow]
+                },
+                insecurityFactTypeId: {
+                    [Op.not]: null
+                }
+            },
+            include: [
+                {
+                    model: models.InsecurityFactType,
+                    as: 'insecurityFactType',
+                    required: true
+                },
+                {
+                    model: models.Neighbor,
+                    as: 'neighbor',
+                    required: true,
+                    attributes: ['firstName', 'lastName']
+                }
+            ]
+        });
+
+        return res.status(200).json(insecurityFactsForMap);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 // Devuelve un hecho de inseguridad en específico por id
 const getInsecurityFactById = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
 
-        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
+        ValidateAuthorization.bothUsersHaveAuthorization(dataFromToken.neighborId, dataFromToken.municipalAgentId);
 
-        const insecurityFact = await models.Claim.findOne({
-            where: {
-                claimId: req.params.claimId,
-                neighborId: dataFromToken.neighborId
-            },
-            include: [
-                {
-                    model: models.InsecurityFactType,
-                    as: 'insecurityFactType',
-                    required: true                      // Para hacer un inner join
-                }
-            ]
-        });
+        let insecurityFact = {};
 
-        if ( !insecurityFact ) {
-            throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
+        if ( dataFromToken.neighborId ) {
+            insecurityFact = await models.Claim.findOne({
+                where: {
+                    claimId: req.params.claimId
+                },
+                include: [
+                    {
+                        model: models.InsecurityFactType,
+                        as: 'insecurityFactType',
+                        required: true                      // Para hacer un inner join
+                    },
+                    {
+                        model: models.Favorites,
+                        as: 'favorites',
+                        required: true,
+                        where: {
+                            neighborId: dataFromToken.neighborId
+                        }
+                    }
+                ]
+            });
+            
+            if ( !insecurityFact ) {
+                throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
+            };
+        };
+
+        if ( dataFromToken.municipalAgentId ) {
+            insecurityFact = await models.Claim.findOne({
+                where: {
+                    claimId: req.params.claimId
+                },
+                include: [
+                    {
+                        model: models.InsecurityFactType,
+                        as: 'insecurityFactType',
+                        required: true                      // Para hacer un inner join
+                    },
+                    {
+                        model: models.Neighbor,
+                        as: 'neighbor',
+                        required: true,
+                        attributes: ['firstName', 'lastName']
+                    }
+                ]
+            });
+
+            if ( !insecurityFact ) {
+                throw ApiError.notFound(`No se encontró el hecho de inseguridad con id '${ req.params.claimId }'`);
+            };
         };
 
         return res.status(200).json(insecurityFact);
@@ -1229,11 +1421,14 @@ module.exports = {
     getTakenClaims,
     getClaimById,
     createClaim,
+    markClaimOrInsecurityFactAsFavorite,
+    deleteClaimOrInsecurityFactMarkedAsFavorite,
     editClaim,
     changeClaimStatus,
     deleteClaim,
     getFavoriteInsecurityFacts,
-    getInsecurityFactsForMap,
+    getInsecurityFactsForMapForNeighbor,
+    getInsecurityFactsForMapForMunicipalAgent,
     getInsecurityFactById,
     deleteInsecurityFact
 }
