@@ -30,7 +30,8 @@ export class Settings {
     },
     insecurityFact: {
       favorites: '/favorites',
-      insecurityFactsForMap: '/insecurityFactsForMap'
+      insecurityFactsForMapForMunicipalAgent: '/insecurityFactsForMapForMunicipalAgent',
+      insecurityFactsForMapForNeighbor: '/insecurityFactsForMapForNeighbor',
     },
     map: {
       getAddress: '/getAddress'

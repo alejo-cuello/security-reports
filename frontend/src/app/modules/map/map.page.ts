@@ -189,7 +189,11 @@ export class MapPage extends BasePage {
   }
 
   getInsecurityFacts() {
-    let endPoint = this.settings.endPoints.insecurityFact + this.settings.endPointsMethods.insecurityFact.insecurityFactsForMap;
+    let endPoint = this.settings.endPoints.insecurityFact;
+    
+    endPoint += this.role === 'neighbor'
+      ? this.settings.endPointsMethods.insecurityFact.insecurityFactsForMapForNeighbor
+      : this.settings.endPointsMethods.insecurityFact.insecurityFactsForMapForMunicipalAgent;
 
     this.pageService.httpGetAll(endPoint)
     .then( (response) => {
