@@ -39,7 +39,8 @@ export class Settings {
     user: {
       changePassword: '/changePassword',
       login: '/login',
-      signup: '/signup'
+      signup: '/signup',
+      update: '/update',
     }
   };
 

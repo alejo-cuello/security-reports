@@ -39,12 +39,20 @@ export class UserPage extends ItemPage implements OnDestroy {
     this.processing = false;
   }
 
+  getFieldId(): string {
+    return this.role === 'neighbor' ? 'neighborId' : 'municipalAgentId';
+  }
+
   getEndPoint() {
     return this.settings.endPoints.user;
   }
 
   getEndPointCreate() {
     return this.settings.endPoints.user + this.settings.endPointsMethods.user.signup;
+  }
+
+  getEndPointUpdate() {
+    return this.settings.endPoints.user + this.settings.endPointsMethods.user.update;
   }
 
   getFormNew() {
@@ -83,9 +91,9 @@ export class UserPage extends ItemPage implements OnDestroy {
   }
 
   getFormEdit( user: any ) {
-
     if ( this.role === 'neighbor' ) {
       return this.formBuilder.group({
+        neighborId: [user.neighborId, Validators.required],
         firstName: [user.firstName, Validators.required],
         lastName: [user.lastName, Validators.required],
         dni: [user.dni, Validators.required],
@@ -97,20 +105,16 @@ export class UserPage extends ItemPage implements OnDestroy {
         city: [user.city, Validators.required],
         province: [user.province, Validators.required],
         phoneNumber: [user.phoneNumber, Validators.compose([Validators.minLength(10), Validators.maxLength(10)])],
-        email: [user.email, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.required],
-        confirmPassword: [null, Validators.required]
+        email: [user.email, Validators.compose([Validators.required, Validators.email])]
       });
     }
 
     else {
       return this.formBuilder.group({
+        municipalAgentId: [user.municipalAgentId, Validators.required],
         firstName: [user.firstName, Validators.required],
         lastName: [user.lastName, Validators.required],
-        registrationNumber: [user.registrationNumber, Validators.required],
-        email: [user.email, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.required],
-        confirmPassword: [null, Validators.required]
+        registrationNumber: [user.registrationNumber, Validators.required]
       });
     };
   }
@@ -149,6 +153,9 @@ export class UserPage extends ItemPage implements OnDestroy {
 
       this.pageService.showSuccess(message);
       this.pageService.navigateRoute('login');
+    }
+    else {
+      this.pageService.showSuccess('Cambios guardados exitosamente');
     }
   }
 }

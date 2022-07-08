@@ -25,10 +25,10 @@
                               *ngIf="role === 'municipalAgent'">
     </app-municipal-agent-form>
       
-    <div class="ion-margin-top" *ngIf="creating">
+    <div class="ion-margin-top">
       <ion-button class="ion-margin-top" expand="block" color="primary" (click)="onSubmit()">
         <ion-text color="light" class="text-bold">
-          {{ creating ? 'Registrarse' : 'Guardar' }}
+          {{ creating ? 'Registrarse' : 'Guardar cambios' }}
         </ion-text>
       </ion-button>
     </div>
