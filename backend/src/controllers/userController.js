@@ -7,6 +7,9 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const sequelize = require('../database/db-connection');
 const { sendEmail, getEmailTemplateSignup, getEmailTemplateChangePassword } = require('../config/emailConfig');
+const getDataFromToken = require('../utils/getDataFromToken');
+const ValidateAuthorization = require('../utils/validateAuthorization');
+const checkNonEditableAttributes = require('../utils/checkNonEditableAttributes');
 
 const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
@@ -258,6 +261,68 @@ const confirmEmailSignup = async (req, res, next) => {
         await transaction.commit();
 
         return res.sendFile(path.join(__dirname, '../../public/emailConfirmedSuccessfully.html'));
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
+const editProfileData = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.bothUsersHaveAuthorization(dataFromToken.neighborId, dataFromToken.municipalAgentId);
+        
+        let updatedUserData;
+
+        if ( dataFromToken.neighborId ) {
+            // Verifica que el usuario al que se quiere editar los datos, sea el mismo al que está loggeado
+            if ( req.params.userId != dataFromToken.neighborId ) {
+                throw ApiError.forbidden('No puedes editar este perfil');
+            };
+            
+            // Verifica que en el body no manden un atributo que no se puede editar
+            checkNonEditableAttributes(Object.keys(req.body));
+
+            await models.Neighbor.update(req.body, {
+                where: {
+                    neighborId: dataFromToken.neighborId
+                },
+                transaction
+            });
+            
+            await transaction.commit();
+
+            const user = await models.Neighbor.findByPk(dataFromToken.neighborId);
+            updatedUserData = userWithoutPassword(user);
+        };
+
+        if ( dataFromToken.municipalAgentId ) {
+            // Verifica que el usuario al que se quiere editar los datos, sea el mismo al que está loggeado
+            if ( req.params.userId != dataFromToken.municipalAgentId ) {
+                throw ApiError.forbidden('No puedes editar este perfil');
+            };
+            
+            // Verifica que en el body no manden un atributo que no se puede editar
+            checkNonEditableAttributes(Object.keys(req.body));
+
+            await models.MunicipalAgent.update(req.body, {
+                where: {
+                    municipalAgentId: dataFromToken.municipalAgentId
+                },
+                transaction
+            });
+            
+            await transaction.commit();
+
+            const user = await models.MunicipalAgent.findByPk(dataFromToken.municipalAgentId);
+            updatedUserData = userWithoutPassword(user);
+        };
+
+        return res.status(200).json(updatedUserData);
     } catch (error) {
         await transaction.rollback();
         next(error);
@@ -557,5 +622,6 @@ module.exports = {
     signup,
     changePassword,
     confirmEmailSignup,
-    confirmEmailChangePassword
+    confirmEmailChangePassword,
+    editProfileData
 }
