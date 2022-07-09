@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const loginRouter = require('./loginRouter');
+const userRouter = require('./userRouter');
 const claimRouter = require('./claimRouter');
 const insecurityFactRouter = require('./insecurityFactRouter');
 const claimTypeRouter = require('./claimTypeRouter');
@@ -12,7 +12,7 @@ const statusRouter = require('./statusRouter');
 const filesRouter = require('./filesRouter');
 const emergencyTelephoneRouter = require('./emergencyTelephoneRouter');
 
-router.use('/user', loginRouter);
+router.use('/user', userRouter);
 
 router.use('/claim', claimRouter);
 
