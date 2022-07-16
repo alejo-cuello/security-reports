@@ -20,6 +20,7 @@ export class PageService {
   loading: any;
   moduleName = '';
   hideMenu: Boolean = false;
+  params: URLSearchParams;
 
   constructor(
     public activatedRoute: ActivatedRoute,
@@ -237,4 +238,13 @@ export class PageService {
     this.global.hideLoading();
   }
   // (-) Loading
+
+
+  // (+) Query Param
+  getQueryString() {
+    const queryString = window.location.search;
+    this.params = new URLSearchParams(queryString);
+    return this.params;
+  }
+  // (-) Query Param
 }

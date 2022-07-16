@@ -7,20 +7,21 @@ const session = require('express-session');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+// const googleAuth = require('./config/googleAuthConfig');
+const facebookAuth = require('./config/facebookAuthConfig');
+
 
 const PORT = process.env.PORT || 8080;
 
-// Google Authentication
-require('./config/googleAuthConfig')(passport);
-
 const app = express();
 
-// Session for Google Authentication
+// Session for Google and Facebook Authentication
 app.use(session({
-    secret: 'keyboard cat',
+    secret: process.env.TOKEN_KEY,
     resave: false,
     saveUninitialized: false
 }));
+
 
 // Middleware
 app.use(express.static('../public'));
@@ -29,6 +30,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(passport.initialize());
 app.use(passport.session())
+
+
+// Google Authentication
+// googleAuth(passport);
+
+// Facebook Authentication
+facebookAuth(passport);
 
 
 // Routes

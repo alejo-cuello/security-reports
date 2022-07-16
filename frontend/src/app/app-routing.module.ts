@@ -36,6 +36,10 @@ const routes: Routes = [
     loadChildren: () => import('./modules/institutions/institutions.module').then(m => m.InstitutionsPageModule)
   },
   {
+    path: 'pre-login',
+    loadChildren: () => import('./modules/pre-login/pre-login.module').then( m => m.PreLoginPageModule)
+  },
+  {
     path: 'login',
     loadChildren: () => import('./modules/login/login.module').then(m => m.LoginPageModule)
   },
