@@ -52,7 +52,7 @@ export class UserPage extends ItemPage implements OnDestroy {
   }
 
   getEndPointUpdate() {
-    return this.settings.endPoints.user + this.settings.endPointsMethods.user.update;
+    return this.settings.endPoints.user + this.settings.endPointsMethods.user.editProfileData;
   }
 
   getFormNew() {
@@ -136,7 +136,19 @@ export class UserPage extends ItemPage implements OnDestroy {
     delete item.passwordVerify;
     item.role = this.role;
 
-    if ( this.role === 'neighbor' ) {
+    if(!this.creating) {
+      if(this.role == 'neighbor') {
+        delete item.dni;
+        delete item.tramiteNumberDNI;
+        delete item.email;
+        if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
+      }
+      else {
+        delete item.registrationNumber;
+      }
+    }
+
+    if ( this.role === 'neighbor' && this.creating ) {
       item.dni = item.dni.toString();
       item.tramiteNumberDNI = item.tramiteNumberDNI.toString();
       if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
@@ -156,6 +168,8 @@ export class UserPage extends ItemPage implements OnDestroy {
     }
     else {
       this.pageService.showSuccess('Cambios guardados exitosamente');
+      this.global.saveUser(res); // Guarda el usuario actualizado en el localStorage
+      this.pageService.navigateBack();
     }
   }
 }

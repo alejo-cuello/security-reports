@@ -8,7 +8,7 @@
 
     <ion-item class="ion-margin-top">
       <ion-label position="floating">Nombre*</ion-label>
-      <ion-input type="text" formControlName="firstName" [readonly]="!creating"></ion-input>
+      <ion-input type="text" formControlName="firstName"></ion-input>
     </ion-item>
     <div *ngIf="!isFieldValid('firstName')" class="invalid-input-message">
       {{getFieldError('firstName')}}
@@ -16,7 +16,7 @@
 
     <ion-item class="ion-margin-top">
       <ion-label position="floating">Apellido*</ion-label>
-      <ion-input type="text" formControlName="lastName" [readonly]="!creating"></ion-input>
+      <ion-input type="text" formControlName="lastName"></ion-input>
     </ion-item>
     <div *ngIf="!isFieldValid('lastName')" class="invalid-input-message">
       {{getFieldError('lastName')}}
