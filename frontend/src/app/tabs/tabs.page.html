@@ -1,17 +1,17 @@
 <ion-tabs #myTabs>
 
-  <ion-tab-bar slot="bottom" *ngIf="!hideMenu">
-    <ion-tab-button (click)="goTo('user')">
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="user">
       <ion-icon name="person-circle-outline"></ion-icon>
       <ion-label>Mi Perfil</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button (click)="goTo('claims')">
+    <ion-tab-button tab="claims">
       <ion-icon name="list-outline"></ion-icon>
       <ion-label>Mis Reclamos</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button (click)="goTo('map')">
+    <ion-tab-button tab="map">
       <ion-icon name="map-outline"></ion-icon>
       <ion-label>Mapa</ion-label>
     </ion-tab-button>

@@ -1,70 +1,85 @@
 <ion-content>
-  <ion-grid class="class-grid">
+    <ion-grid class="container-img ion-no-padding">
+      <ion-row class="ion-justify-content-end">
+        <ion-icon name="call" color="danger" class="danger-icon" (click)="goToEmergencyNumbers()"></ion-icon>
+      </ion-row>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="10" class="ion-text-center">
+          <img src="assets/imgs/logo.png" class="image-login">
+        </ion-col>
+      </ion-row>
+    </ion-grid>
 
-    <ion-row class="ion-justify-content-center ion-margin-top">
-      <ion-col size="10" class="ion-text-center">
-        <img src="assets/imgs/logo.png" class="image-login">
-      </ion-col>
-    </ion-row>
+    <form class="form" #loginForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="inputs-form">
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">
+            Email</ion-label>
+          <ion-input type="email" formControlName="email"></ion-input>
+        </ion-item>
 
-    <form class="inverse ion-margin-top" #loginForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
-      <ion-item>
-        <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
-        <ion-label position="floating">
-          Email</ion-label>
-        <ion-input type="email" formControlName="email"></ion-input>
-      </ion-item>
+        <ion-item>
+          <ion-icon name="key" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Contraseña</ion-label>
+          <ion-input type="password" formControlName="password"></ion-input>
+        </ion-item>
 
-      <ion-item class="ion-margin-top">
-        <ion-icon name="key" slot="start" color="primary"></ion-icon>
-        <ion-label position="floating">Contraseña</ion-label>
-        <ion-input type="password" formControlName="password"></ion-input>
-      </ion-item>
-
-      <div class="register">
-        <ion-text color="primary" (click)="goToChangePassword()">
-          <p class="center">¿Olvidaste tu contraseña?</p>
-        </ion-text>
-      </div>
-
-      <ion-radio-group formControlName="role">
-        <ion-row class="row-radio-group">
-          <ion-col class="ion-no-padding ion-margin-end">
-               <ion-item>
-                  <ion-label>Vecino</ion-label>
-                  <ion-radio item-left value="neighbor"></ion-radio>
-             </ion-item>
-           </ion-col>
-      
-          <ion-col class="ion-no-padding">
-              <ion-item>
-                  <ion-label>Agente Municipal</ion-label>
-                  <ion-radio item-left value="municipalAgent"></ion-radio>
-             </ion-item>
-          </ion-col>
-        </ion-row>
-      </ion-radio-group>
-
-
-      <div>
-        <ion-grid class="ion-padding-horizontal">
-            <ion-button class="ion-justify-content-center" expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
-              <ion-text class="text-bold">
-                Ingresar
-              </ion-text>
-            </ion-button>
+        <ion-radio-group formControlName="role">
+          <ion-row class="row-radio-group">
+            <ion-col class="ion-no-padding">
+                <ion-item>
+                    <ion-label><p>Vecino</p></ion-label>
+                    <ion-radio value="neighbor"></ion-radio>
+              </ion-item>
+            </ion-col>
         
-            <div class="register">
-              <ion-text color="primary" (click)="goToPreRegister()">
-                <p>¿No tenés cuenta? Registrate</p>
-              </ion-text>
-            </div>
-        </ion-grid>
+            <ion-col class="ion-no-padding">
+                <ion-item>
+                    <ion-label><p>Agente Municipal</p></ion-label>
+                    <ion-radio value="municipalAgent"></ion-radio>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-radio-group>
+
+        <ion-button class="ion-justify-content-center ion-margin-top"
+          expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
+          <ion-text class="text-bold">
+            Ingresar
+          </ion-text>
+        </ion-button>
+
+        <div>
+          <ion-text color="primary" (click)="goToChangePassword()">
+            <p class="center">¿Olvidaste tu contraseña?</p>
+          </ion-text>
+        </div>
+
+        <div>
+          <ion-text color="primary" class="center" (click)="goToPreRegister()">
+            <p>¿No tenés cuenta? Registrate</p>
+          </ion-text>
+        </div>
       </div>
     </form>
-
-  </ion-grid>
-
+   
+    <ion-grid class="ion-padding-horizontal social-buttons">
   
-</ion-content>
+      <ion-row lines="none">
+        <ion-col size="6">
+          <ion-button color="white" expand="block" shape="round" class="ion-no-padding" size="small">
+            <ion-icon class="ion-padding-end" name="logo-google" color="dark"></ion-icon>
+            <ion-text color="dark">Google</ion-text>
+          </ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button color="white" expand="block" shape="round" class="ion-no-padding" size="small" (click)="loginWithFacebook()">
+            <ion-icon class="ion-padding-end" name="logo-facebook" color="tertiary"></ion-icon>
+            <ion-text color="tertiary">Facebook</ion-text>
+          </ion-button>
+        </ion-col>
+      </ion-row>
 
+    </ion-grid>
+</ion-content>

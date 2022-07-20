@@ -151,7 +151,7 @@ const getQueryClaimById = (neighbor) => {
                 getSelectQuery() +
             "FROM estado_reclamo er " +
             "INNER JOIN " + 
-                getSubQueryLastClaimStatus( neighbor ) +
+                getSubQueryLastClaimStatus( false ) +
                 "ON er.idReclamo = ultimos_estado_reclamo.idReclamo " +
                     "AND er.fechaHoraInicioEstado = ultimos_estado_reclamo.ultFechaHoraInicioEstado " +
             "INNER JOIN reclamo rec " +
@@ -164,6 +164,11 @@ const getQueryClaimById = (neighbor) => {
                 "ON er.idEstado = est.idEstado " +
             "WHERE rec.idReclamo = ?";
 };
+
+
+const getQueryFavoriteByClaimId = (claimId, neighborId) => {
+    return "SELECT * FROM favoritos WHERE idReclamo =" + claimId + " AND idVecino =" + neighborId;
+}
 
 
 /**
@@ -245,7 +250,6 @@ const setFiltersForClaims = (filter, query) => {
         query = query + ` AND rec.fechaHoraObservacion BETWEEN ? AND ?`;
         replacements.push(filter.startDate, filter.endDate);
     }
-    //Agreué estos dos else if para los casos que ingrese una sola fecha
     else if ( filter.startDate ) {
         if ( !validator.isDate(filter.startDate) ) {
             throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
@@ -295,6 +299,7 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
         if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
             throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
         };
+
         whereClaim = {
             [Op.and]: [
                 {
@@ -309,7 +314,45 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
                 }
             ]
         };
-    };
+    } else if ( filter.startDate ) {
+        if ( !validator.isDate(filter.startDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        whereClaim = {
+            [Op.and]: [
+                {
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
+                },
+                {
+                    dateTimeCreation: {
+                        [Op.gte]: filter.startDate
+                    }
+                }
+            ]
+        };
+    } else if ( filter.endDate ) {
+        if ( !validator.isDate(filter.endDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        whereClaim = {
+            [Op.and]: [
+                {
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
+                },
+                {
+                    dateTimeCreation: {
+                        [Op.lte]: filter.endDate
+                    }
+                }
+            ]
+        };
+    }
     return {
         whereInsecurityFactType,
         whereClaim
@@ -524,10 +567,7 @@ const getClaimById = async (req, res, next) => {
 
         // Definí estos dos parámetros para modificar la query en caso que acceda un agente municipal
         const isNeighborQuery = dataFromToken.neighborId ? true : false;
-        const replacements =
-            dataFromToken.neighborId ?
-                [ dataFromToken.neighborId, req.params.claimId ]
-                : [ req.params.claimId ];
+        const replacements = [ req.params.claimId ];
 
         const queryClaimById = getQueryClaimById(isNeighborQuery);
 
@@ -541,6 +581,28 @@ const getClaimById = async (req, res, next) => {
         if ( isNeighborQuery ) {
             if ( claim.length === 0 ) {
                 throw ApiError.notFound(`El reclamo con id '${ req.params.claimId }' no se encontró para este vecino`);
+            }
+            else {
+                if( claim[0].neighborId === dataFromToken.neighborId ) {
+                    claim[0].own = true;
+                }
+                else {
+                    claim[0].own = false;
+                }
+
+                if ( claim[0].own === false ) {
+                    const queryFavoriteByClaimId = getQueryFavoriteByClaimId(claim[0].claimId, dataFromToken.neighborId);
+                    
+                    let favorite = await sequelize.query( queryFavoriteByClaimId, { type: QueryTypes.SELECT } );
+                    
+                    if ( favorite.length === 0 ) {
+                        claim[0].hasFavorite = false;
+                    }
+                    else {
+                        claim[0].hasFavorite = true;
+                    }
+                    
+                }
             };
         } else {
             if ( claim.length === 0 ) {

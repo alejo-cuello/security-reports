@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="reports"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reporte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="graphic-container" id="graphic-container">
+    <ion-text color="tertiary">
+      <h1 class="no-reports" *ngIf="chartOptions?.series?.length == 0">No hay reportes disponibles en este rango de fechas</h1>
+    </ion-text>
+    <apx-chart *ngIf="chartOptions?.series?.length > 0" #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
+      [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle">
+    </apx-chart>
+  </div>
+</ion-content>

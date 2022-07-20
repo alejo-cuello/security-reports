@@ -1,5 +1,5 @@
-<ion-content class="modal-background">
-  <div class="card-header">
+<ion-content>
+  <div>
     <ion-item>
       <ion-text color="primary">
         <h4>Filtrar por</h4>
@@ -9,29 +9,29 @@
 
   <ion-item>
     <ion-label position="floating">Categoría</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
       <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId || category">{{ category?.CTdescription || category?.IFTdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Subcategoría</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" [disabled]="selectedCategories.length === 0">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" [disabled]="selectedCategories.length === 0">
       <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
-  <ion-item>
+  <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Estado</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
       <ion-select-option *ngFor="let status of statuses" [value]="status.statusId">{{ status?.STAdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item>
     <ion-label>Fecha desde</ion-label>
-    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
   </ion-item>
   <ion-item>
     <ion-label>Fecha hasta</ion-label>
-    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
   </ion-item>
 
   <ion-item *ngIf="role === 'municipalAgent'">
@@ -51,12 +51,12 @@
   </ion-radio-group>
 </ion-content>
 <ion-footer>
-  <ion-button class="ion-margin-bottom button-right" shape="round" color="warning" (click)="sendFilters()">
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="primary" (click)="sendFilters()">
     <ion-text>
       Filtrar
     </ion-text>
   </ion-button>
-  <ion-button class="ion-margin-bottom button-right" shape="round" color="danger" (click)="cancel()">
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="medium" (click)="cancel()">
     <ion-text>
       Cancelar
     </ion-text>

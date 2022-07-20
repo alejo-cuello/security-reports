@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="tertiary">
     <ion-buttons slot="start" *ngIf="hideMenu">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -8,7 +8,13 @@
 </ion-header>
 
 <ion-content>
-  <div id="map" class="map-complete" #map></div>
+  <div class="map-complete"
+     leaflet 
+     [leafletOptions]="options"
+     [leafletLayers]="layers"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletClick)="onClick($event)">
+  </div>
   <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!hideMenu">
     <ion-fab-button (click)="openMapOptions()">
       <ion-icon name="information-circle-outline" color="white"></ion-icon>
@@ -35,7 +41,7 @@
     </ion-grid>
   
   <div class="btn-container">
-    <ion-button expand="block" type="button" (click)="goToClaims()">
+    <ion-button expand="block" type="button" (click)="goToClaims()" shape="round">
       <ion-text color="light">
         Continuar
       </ion-text>
