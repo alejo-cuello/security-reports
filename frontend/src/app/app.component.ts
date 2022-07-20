@@ -16,6 +16,10 @@ export class AppComponent {
   userEmail: string = "";
   role: string = "";
 
+  isLoading = false;
+  isLoadingProcessing = false;
+  loading: any;
+
   constructor(
     public pageService: PageService,
     public global: GlobalService,
@@ -24,9 +28,11 @@ export class AppComponent {
     this.global.removeUser(); // Elimina el usuario del localStorage
     this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
     this.global.remove('securityReports.token'); // Elimina el token del localStorage
+    this.global.remove('securityReports.typeClaim'); // Elimina el menu a seleccionar en el listado de reclamos
     this.global.remove('securityReports.contacts'); // Elimina los contactos del vecino del localStorage
     this.global.remove('termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
-    this.global.remove('securityReports.hideMenu');
+
+    this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
   }
 
   public appNeighborPages = [
@@ -121,5 +127,23 @@ export class AppComponent {
 
   loadMenuHeader() {
     this.setUserData();
+  }
+
+  async showLoading(content = 'Procesando...') {
+    console.log('appcomponent show')
+    if (this.isLoading) return;
+    
+    this.isLoading = true;
+    this.isLoadingProcessing = true;
+    
+    this.loading = await this.pageService.loadingController.create({ message: content });
+    await this.loading.present();
+    this.isLoadingProcessing = false;
+  }
+
+  hideLoading() {
+    if (this.isLoadingProcessing) return setTimeout(() => this.hideLoading(), 100);
+    if (this.loading) this.loading.dismiss();
+    this.isLoading = false;
   }
 }

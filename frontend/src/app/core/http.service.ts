@@ -17,37 +17,44 @@ export class HttpService {
 
   // (+) Items
 
-  getAll( endPoint ) {
-    return this.get(endPoint);
+  getAll( endPoint, showLoading ) {
+    return this.get(endPoint, showLoading);
   }
 
-  getAllWithFilters( endPoint, offset, query, limit ) {
-    return this.getWithFilters(endPoint, offset, query, limit);
+  getAllWithFilters( endPoint, offset, query, limit, showLoading ) {
+    return this.getWithFilters(endPoint, offset, query, limit, showLoading);
   }
 
-  getById( endPoint ) {
-    return this.get(endPoint);
+  getById( endPoint, showLoading ) {
+    return this.get(endPoint, showLoading);
   }
   
-  update( endPoint, value, bodyType) {
-    return this.put(endPoint, value, bodyType);
+  update( endPoint, value, bodyType, showLoading) {
+    return this.put(endPoint, value, bodyType, showLoading);
   }
 
   // (-) Items
 
   // (+) Basic
 
-  delete( endPoint ) {
+  delete( endPoint, showLoading ) {
+
+    if(showLoading) this.global.showLoading();
+
     const url = environment.serverUrl + endPoint;
     return this.http.delete(url, this.getHeaders())
       .toPromise()
       .then( (response:any) =>
         response
       )
-      .catch(this.handleError.bind(this));
+      .catch(this.handleError.bind(this))
+      .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
-  put( endPoint, value, bodyType ) {
+  put( endPoint, value, bodyType, showLoading ) {
+
+    if(showLoading) this.global.showLoading();
+
     let body: any;
     let enctype = 'json';
 
@@ -68,10 +75,13 @@ export class HttpService {
       .then( (response:any) =>
         response
       )
-      .catch(this.handleError.bind(this));
+      .catch(this.handleError.bind(this))
+      .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
-  post( endPoint, value, bodyType ) {
+  post( endPoint, value, bodyType, showLoading ) {
+
+    if(showLoading) this.global.showLoading();
 
     let body: any;
     let enctype = 'json';
@@ -93,10 +103,14 @@ export class HttpService {
       .then( (response:any) =>
         response
       )
-      .catch(this.handleError.bind(this));
+      .catch(this.handleError.bind(this))
+      .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
-  get(endPoint, showLoading = true) {
+  get(endPoint, showLoading) {
+
+    if(showLoading) this.global.showLoading();
+
     const url = environment.serverUrl + endPoint;
     return this.http.get(url, this.getHeaders())
       .toPromise()
@@ -105,11 +119,15 @@ export class HttpService {
       })
       .catch( (error) => {
         return this.handleError(error);
-      });
+      })
+      .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
 
-  getWithFilters(endPoint, offset, query, limit, showLoading = true) {
+  getWithFilters(endPoint, offset, query, limit, showLoading) {
+    
+    if(showLoading) this.global.showLoading();
+
     const url = environment.serverUrl + endPoint;
     return this.http.get(url, this.getOptions(offset, query, limit))
       .toPromise()
@@ -118,38 +136,11 @@ export class HttpService {
       })
       .catch( (error) => {
         return this.handleError(error);
-      });
+      })
+      .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
   // (-) Basic
-
-  // postFileBase64(file, resolve, reject) {
-  //   const url = environment.serverUrl + this.global.settings.endPoints.files + '/upload';
-
-  //   let fileUploadOptions: FileUploadOptions = {
-  //     fileKey: 'file',
-  //     fileName: 'file',
-  //     chunkedMode: false,
-  //     mimeType: 'image/jpeg',
-  //     headers: {
-  //       'x-content-type': 'on',
-  //       'x-access-token': this.global.getUser()?this.global.getUser().token:''
-  //     }
-  //   };
-  //   let fileTransferObject: FileTransferObject = this.transfer.create();
-  //   return fileTransferObject.upload(
-  //     'data:image/jpeg;base64,' + file.replace('data:image/jpeg;base64,', ''),
-  //     url,
-  //     fileUploadOptions
-  //   ).then((result: any) => {
-  //     if (result && result.response) {
-  //       let data = JSON.parse(result.response) || null;
-  //       resolve(data);
-  //     }
-  //   }, (error) => {
-  //     reject(error);
-  //   });
-  // }
 
 
   getOptions(offset, query, limit) {
