@@ -7,9 +7,15 @@ const ValidateAuthorization = require("../utils/validateAuthorization");
 const validator = require('validator');
 
 
+// Variables globales
 let replacements = [];
+// -----------------------------
 
-const getReport = async (req, res, next) => {
+
+// Devuelve un json con los datos preparados para hacer un // * GRÁFICO DE TORTA.
+// Devuelve la cantidad de hechos de inseguridad agrupados por tipo de hecho de inseguridad.
+// Además se pueden filtrar por un rango de fecha.
+const getReportByInsecurityFactType = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
         const dataFromToken = getDataFromToken(req.headers['authorization']);
@@ -19,7 +25,7 @@ const getReport = async (req, res, next) => {
         replacements = [];
         let query = `SELECT 
                         insecurityFactType.idTipoHechoDeInseguridad AS insecurityFactTypeId,
-                        insecurityFactType.descripcionTHI AS IFTdescription,
+                        insecurityFactType.descripcionTHI AS description,
                         COUNT(claim.idTipoHechoDeInseguridad) AS count
                     FROM
                         tipo_hecho_de_inseguridad AS insecurityFactType
@@ -29,7 +35,8 @@ const getReport = async (req, res, next) => {
         
         if ( Object.keys(req.query).length ) query = setAndGetFilterByDateRange(req.query, query);
 
-        query = query + ` GROUP BY claim.idTipoHechoDeInseguridad`;
+        query = query + ` GROUP BY insecurityFactTypeId`
+                      + ` ORDER BY insecurityFactTypeId ASC`;
 
         const countInsecurityFactsGroupedByInsecurityFactTypeId = await sequelize.query(query, 
             { 
@@ -51,6 +58,61 @@ const getReport = async (req, res, next) => {
         return res.status(200).json({
             series,
             labels,
+            totalRecords
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// Devuelve un json con los datos preparados para hacer un // * GRÁFICO DE BARRAS.
+// Devuelve la cantidad de reclamos agrupados por tipo de reclamo.
+// Además se pueden filtrar por un rango de fecha.
+const getReportByClaimType = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
+
+        replacements = [];
+        let query = `SELECT
+                        tr.idTipoReclamo AS claimTypeId,
+                        tr.descripcionTR AS description,
+                        COUNT(claim.idSubcategoriaReclamo) AS count
+                    FROM
+                        tipo_reclamo AS tr
+                    LEFT JOIN subcategoria_reclamo AS scr
+                        ON tr.idTipoReclamo = scr.idTipoReclamo
+                    LEFT JOIN reclamo AS claim
+                        ON scr.idSubcategoriaReclamo = claim.idSubcategoriaReclamo`;
+        
+        if ( Object.keys(req.query).length ) query = setAndGetFilterByDateRange(req.query, query);
+
+        query = query + ` GROUP BY claimTypeId`
+                      + ` ORDER BY claimTypeId ASC`;
+
+        const countClaimsGroupedByClaimTypeId = await sequelize.query(query, 
+            { 
+                replacements,
+                type: QueryTypes.SELECT 
+            }
+        );
+
+        let series = [];
+        let categories = [];
+        let totalRecords = 0;
+
+        if ( countClaimsGroupedByClaimTypeId.length ) {
+            series = getSeries(countClaimsGroupedByClaimTypeId);
+            categories = getLabels(countClaimsGroupedByClaimTypeId);
+            totalRecords = getTotalRecords(countClaimsGroupedByClaimTypeId);
+        };
+        
+        return res.status(200).json({
+            series,
+            categories,
             totalRecords
         });
     } catch (error) {
@@ -118,7 +180,7 @@ const getSeries = (data) => {
 const getLabels = (data) => {
     const labels = [];
     data.forEach(element => {
-        labels.push(element.IFTdescription);
+        labels.push(element.description);
     });
     return labels;
 };
@@ -138,82 +200,7 @@ const getTotalRecords = (data) => {
 };
 
 
-// FIXME: BORRARME SI NO ME USAN
-const setAndGetFilters = (filter) => {
-    let whereInsecurityFactType = {};
-    let whereClaimType = {};
-    let whereClaimSubcategory = {};
-    let whereDateTimeRange = {};
-
-    // Si se quiere filtrar por tipo de hecho de inseguridad
-    if ( filter.insecurityFactType ) {
-        filter.insecurityFactType = filter.insecurityFactType.split(',');
-        whereInsecurityFactType = {
-            insecurityFactTypeId: filter.insecurityFactType
-        };
-    };
-
-    // Si se quiere filtrar por tipo de reclamo
-    if ( filter.claimType ) {
-        filter.claimType = filter.claimType.split(',');
-        whereClaimType = {
-            claimTypeId: filter.claimType
-        };
-    };
-
-    // Si se quiere filtrar por subcategoría de reclamo
-    if ( filter.claimSubcategory ) {
-        filter.claimSubcategory = filter.claimSubcategory.split(',');
-        whereClaimSubcategory = {
-            claimSubcategoryId: filter.claimSubcategory
-        };
-    };
-
-    // Si se quiere filtrar por fecha de creación
-    if ( filter.startDate && filter.endDate ) { // Si ingresa una fecha de inicio y una de fin
-        if ( !validator.isDate(filter.startDate) || !validator.isDate(filter.endDate) ) {
-            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
-        };
-        if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
-            throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
-        };
-
-        whereDateTimeRange = {
-            dateTimeCreation: {
-                [Op.between]: [filter.startDate, filter.endDate]
-            }
-        };
-    } else if ( filter.startDate ) { // Si sólo ingresa la fecha de inicio
-        if ( !validator.isDate(filter.startDate) ) {
-            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
-        };
-
-        whereDateTimeRange = {
-            dateTimeCreation: {
-                [Op.gte]: filter.startDate
-            }
-        };
-    } else if ( filter.endDate ) { // Si sólo ingresa la fecha de fin
-        if ( !validator.isDate(filter.endDate) ) {
-            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
-        };
-
-        whereDateTimeRange = {
-            dateTimeCreation: {
-                [Op.lte]: filter.endDate
-            }
-        };
-    };
-
-    return {
-        whereInsecurityFactType,
-        whereClaimType,
-        whereClaimSubcategory,
-        whereDateTimeRange
-    };
-};
-
-
 module.exports = {
-    getReport
+    getReportByInsecurityFactType,
+    getReportByClaimType
 };
