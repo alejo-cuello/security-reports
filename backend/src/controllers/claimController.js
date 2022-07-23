@@ -245,7 +245,6 @@ const setFiltersForClaims = (filter, query) => {
         query = query + ` AND rec.fechaHoraObservacion BETWEEN ? AND ?`;
         replacements.push(filter.startDate, filter.endDate);
     }
-    //Agreué estos dos else if para los casos que ingrese una sola fecha
     else if ( filter.startDate ) {
         if ( !validator.isDate(filter.startDate) ) {
             throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
@@ -295,6 +294,7 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
         if ( new Date(filter.startDate) > new Date(filter.endDate) ) {
             throw ApiError.badRequest('La fecha de inicio debe ser menor a la fecha de fin');
         };
+
         whereClaim = {
             [Op.and]: [
                 {
@@ -309,7 +309,45 @@ const setAndGetFiltersForInsecurityFacts = (filter) => {
                 }
             ]
         };
-    };
+    } else if ( filter.startDate ) {
+        if ( !validator.isDate(filter.startDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        whereClaim = {
+            [Op.and]: [
+                {
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
+                },
+                {
+                    dateTimeCreation: {
+                        [Op.gte]: filter.startDate
+                    }
+                }
+            ]
+        };
+    } else if ( filter.endDate ) {
+        if ( !validator.isDate(filter.endDate) ) {
+            throw ApiError.badRequest('Formato de fecha inválido. Asegurese que coincida con el formato YYYY-MM-DD');
+        };
+
+        whereClaim = {
+            [Op.and]: [
+                {
+                    insecurityFactTypeId: {
+                        [Op.not]: null
+                    }
+                },
+                {
+                    dateTimeCreation: {
+                        [Op.lte]: filter.endDate
+                    }
+                }
+            ]
+        };
+    }
     return {
         whereInsecurityFactType,
         whereClaim
