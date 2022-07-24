@@ -18,7 +18,7 @@ export class FiltersPage extends BasePage {
   claimSubcategories: any[];
   idsTypes: any[];
   selectedCategories: any[] = [];
-  selectedStatuses: any[];
+  selectedStatuses: any[] = [];
   sort: string = '';
   today: any;
   dateFrom: any;
@@ -36,7 +36,7 @@ export class FiltersPage extends BasePage {
 
     this.today = moment().format('YYYY-MM-DD');
 
-    this.getStatuses(true);
+    if(!this.isInsecurityFact) this.getStatuses(true);
 
     if(this.prevFilters.startDate)  this.dateFrom = this.prevFilters.startDate;
     if(this.prevFilters.endDate)  this.dateTo = this.setEndDate(this.prevFilters.endDate, -1);
@@ -80,7 +80,7 @@ export class FiltersPage extends BasePage {
         this.categories = response;
         if(firstTime && this.prevFilters && this.prevFilters.insecurityFactType) {
           this.idsTypes = this.prevFilters.insecurityFactType;
-          this.selectedCategories = this.categories.filter(category => this.idsTypes.includes(category.insecurityFactTypeId));
+          this.selectedCategories = this.prevFilters.insecurityFactType;
         }
       })
       .catch( (error) => {
@@ -94,12 +94,13 @@ export class FiltersPage extends BasePage {
     this.idsTypes = [];
 
     for( let type of this.selectedCategories ) {
-      for( let subcategory of type.claimSubcategory ) {
-        this.claimSubcategories.push(subcategory);
+      if(!this.isInsecurityFact) {
+        for( let subcategory of type.claimSubcategory ) {
+          this.claimSubcategories.push(subcategory);
+        }
       }
-      this.idsTypes.push(type.claimTypeId);
+      this.idsTypes.push(type.claimTypeId || type);
     }
-
     if(this.idsTypes.length === 0)  this.idsTypes = null;
   }
   
@@ -107,15 +108,15 @@ export class FiltersPage extends BasePage {
     this.filters = {
       startDate: this.dateFrom ? this.dateFrom.split('T')[0] : null,
       endDate: this.dateTo ? this.setEndDate(this.dateTo.split('T')[0], 1) : null,
-      status: this.selectedStatuses || null
     }
     if(this.role === 'municipalAgent' && this.sort) {
       this.filters.orderByNumberOfFavorites = this.sort == 'yes' ? 'yes' : null
     }
     if(this.isInsecurityFact) {
-      this.filters.insecurityFactType = this.idsTypes.length > 0 ? this.idsTypes : null;
+      this.filters.insecurityFactType = (this.idsTypes && this.idsTypes.length) > 0 ? this.idsTypes : null;
     }
     else {
+      this.filters.status = this.selectedStatuses || null;
       this.filters.claimType = (this.idsTypes && this.idsTypes.length > 0) ? this.idsTypes : null;
       this.filters.claimSubcategory = (this.selectedSubcategories && this.selectedSubcategories.length > 0) ? this.selectedSubcategories : null;
     }

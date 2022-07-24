@@ -19,7 +19,7 @@
       <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
-  <ion-item>
+  <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Estado</ion-label>
     <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
       <ion-select-option *ngFor="let status of statuses" [value]="status.statusId">{{ status?.STAdescription }}</ion-select-option>
