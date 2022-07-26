@@ -153,7 +153,7 @@ const signup = async (req, res, next) => {
 
         if ( req.body.role === MUNICIPAL_AGENT ) {
             // Envía un correo a un mail predeterminado para notificar el registro de un nuevo agente municipal
-            await sendEmail('agentemunicipal.proyecto@gmail.com', 'Confirme su correo electrónico', emailTemplate);
+            await sendEmail(process.env.EMAIL_MUNICIPAL_AGENT, 'Confirme su correo electrónico', emailTemplate);
         };
 
         await transaction.commit();
