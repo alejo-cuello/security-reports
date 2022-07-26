@@ -121,6 +121,58 @@ const getReportByClaimType = async (req, res, next) => {
 };
 
 
+// Devuelve un json con los datos preparados para hacer un // * GRÁFICO DE BARRAS.
+// Devuelve la cantidad de reclamos tomados por cada agente agrupados por agente.
+// Además se pueden filtrar por un rango de fecha.
+const getReportByMunicipalAgent = async (req, res, next) => {
+    try {
+        // Obtiene la información contenida en el token para poder usar el neighborId
+        const dataFromToken = getDataFromToken(req.headers['authorization']);
+
+        ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
+
+        replacements = [];
+        let query = `SELECT 
+                        am.idAgenteMunicipal AS municipalAgentId,
+                        concat(am.nombre, ' ', am.apellido) AS description,
+                        count(claim.idAgenteMunicipal) AS count
+                    FROM agente_municipal AS am
+                    LEFT JOIN reclamo AS claim
+                        ON am.idAgenteMunicipal = claim.idAgenteMunicipal`;
+        
+        if ( Object.keys(req.query).length ) query = setAndGetFilterByDateRange(req.query, query);
+
+        query = query + ` GROUP BY municipalAgentId`
+                      + ` ORDER BY municipalAgentId ASC`;
+
+        const countTakenClaimsGroupedByMunicipalAgent = await sequelize.query(query, 
+            { 
+                replacements,
+                type: QueryTypes.SELECT 
+            }
+        );
+
+        let series = [];
+        let categories = [];
+        let totalRecords = 0;
+
+        if ( countTakenClaimsGroupedByMunicipalAgent.length ) {
+            series = getSeries(countTakenClaimsGroupedByMunicipalAgent);
+            categories = getLabels(countTakenClaimsGroupedByMunicipalAgent);
+            totalRecords = getTotalRecords(countTakenClaimsGroupedByMunicipalAgent);
+        };
+        
+        return res.status(200).json({
+            series,
+            categories,
+            totalRecords
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 /**
  * Setea el filtro por fecha de creación y retorna la query con el filtro
  * @param {object} filter - Objeto con los filtros
@@ -202,5 +254,6 @@ const getTotalRecords = (data) => {
 
 module.exports = {
     getReportByInsecurityFactType,
-    getReportByClaimType
+    getReportByClaimType,
+    getReportByMunicipalAgent
 };
