@@ -12,16 +12,12 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'change-password',
-    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
-  },
-  {
     path: 'claim',
     loadChildren: () => import('./modules/claim/claim.module').then(m => m.ClaimPageModule)
   },
   {
-    path: 'claims',
-    loadChildren: () => import('./modules/claims/claims.module').then(m => m.ClaimsPageModule)
+    path: 'change-password',
+    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
   },
   {
     path: 'contacts',

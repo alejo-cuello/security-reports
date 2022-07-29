@@ -105,13 +105,9 @@ export class PageService {
     return this.httpService.delete( endPoint, showLoading );
   }
 
-  httpGet( endPoint, showLoading = true ) {
-    return this.httpService.get( endPoint, showLoading );
+  httpGet( endPoint, showLoading = true, fileOptions = null ) {
+    return this.httpService.get( endPoint, showLoading, fileOptions );
   }
-
-  // httpPostFileBase64( file, resolve, reject) {
-  //   return this.httpService.postFileBase64( file, resolve, reject );
-  // }
 
   // (-) Http
 

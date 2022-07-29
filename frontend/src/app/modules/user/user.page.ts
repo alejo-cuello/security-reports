@@ -16,11 +16,10 @@ export class UserPage extends ItemPage implements OnDestroy {
 
   ngOnInit() {
     this.termsAndConditionsAccepted = this.global.get("termsAndConditionsAccepted");
-    this.activatedRoute.queryParams.subscribe( (params) => {
-      this.role = params.role;
-      this.form = this.getFormNew();
-      this.initialize();
-    });
+
+    this.role = this.global.load(this.settings.storage.role);
+    this.form = this.getFormNew();
+    this.initialize();
   }
 
   ngOnDestroy(): void {

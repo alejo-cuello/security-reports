@@ -1,5 +1,5 @@
 ion-card {
-    background-color: var(--ion-color-primary);
+    background-color: var(--ion-color-dark);
     box-shadow: 2px 2px 10px rgb(94, 93, 93);
 }
 
@@ -28,6 +28,16 @@ ion-list {
         border-radius: 5px;
         --ion-color-light: rgb(18, 18, 18);
     }
+}
+
+.favorite {     
+    font-size: 15px;
+    margin: 5px 0px 5px 2px;
+}
+
+.favorite-item {
+    --min-height: 15px;
+    --background: #50c8ff;
 }
 
 .button-right {

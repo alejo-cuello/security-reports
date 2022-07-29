@@ -107,15 +107,23 @@ export class HttpService {
       .finally(() => { if(showLoading) this.global.hideLoading() });
   }
 
-  get(endPoint, showLoading) {
+  get(endPoint, showLoading, fileOptions = null) {
 
     if(showLoading) this.global.showLoading();
 
+    let headers: any = this.getHeaders('json', fileOptions);
+
+    if(fileOptions) {
+      headers.responseType = 'blob';
+    }
+
     const url = environment.serverUrl + endPoint;
-    return this.http.get(url, this.getHeaders())
+
+    return this.http.get(url, headers)
       .toPromise()
       .then( (response:any) => {
-        return response;
+        if(fileOptions) return this.getFile(response, fileOptions.fileExtension)
+        else return response;
       })
       .catch( (error) => {
         return this.handleError(error);
@@ -143,6 +151,11 @@ export class HttpService {
   // (-) Basic
 
 
+  getFile(blob: any, fileExtension: string) {
+    return new File([blob], 'filename.' + fileExtension)
+  }
+
+
   getOptions(offset, query, limit) {
     return {...this.getHeaders(), ...this.getParams(offset, query, limit)};
   }
@@ -157,14 +170,19 @@ export class HttpService {
   }
 
 
-  getHeaders( enctype = 'json' ) {
+  getHeaders( enctype = 'json', fileOptions = null ) {
     if(this.global.getUser() && this.global.get('securityReports.token')) {
-      return {
-        headers: new HttpHeaders({
-          'Authorization': `Bearer ${this.global.get('securityReports.token')}`,
-          'enctype': enctype
-        })
+      let headers: any = {
+        'Authorization': `Bearer ${this.global.get('securityReports.token')}`,
+        'enctype': enctype
       };
+
+      if(fileOptions) headers.Accept = 'application/octet-stream';
+
+      return {
+        headers: new HttpHeaders(headers)
+      };
+
     } else {
       return {};
     }

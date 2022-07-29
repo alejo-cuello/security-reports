@@ -13,6 +13,7 @@ import { PageService } from 'src/app/core/page.service';
 })
 export class ClaimPage extends ItemPage {
 
+  //Query params
   action: string;
   id: string;
   role: string;
@@ -21,11 +22,13 @@ export class ClaimPage extends ItemPage {
   categories: any[];
   enableButton: boolean;
   picture: any;
-  selectedClaimType: any;
-  selectedStatus: any;
+  selectedClaimType: number;
   statuses: any[];
   subcategories: any[];
   today: any;
+
+  currentUrl: string;
+  prevUrl: string;
 
   constructor(
     public formBuilder: FormBuilder,
@@ -36,84 +39,73 @@ export class ClaimPage extends ItemPage {
     public modalController: ModalController
 
   ) {
-    super(formBuilder ,activatedRoute, pageService, changeDetectorRef, router);
+    super(formBuilder, activatedRoute, pageService, changeDetectorRef, router);
+    this.activatedRoute.queryParams.subscribe( (params) => {
+      this.action = params.action;
+      this.type = params.type;
+      if(params.role) this.role = params.role;
+      if(params.id) this.id = params.id;
+    });
+  }
+
+  initializePre() {
+    this.getCategories();
+    this.getStatus();
+    this.enableButton = (this.role === 'municipalAgent') ? false : true;    
   }
 
   ionViewWillEnter() {
-    this.enableButton = (this.role === 'municipalAgent') ? false : true;
-
-    this.getStatus();
-
     this.today = moment().format('YYYY-MM-DD');
-
-    let coordinates = this.global.pop(this.settings.storage.coordinates);
-    let street = this.global.pop(this.settings.storage.street);
-    let streetNumber = this.global.pop(this.settings.storage.streetNumber);
-
-    if(coordinates && street && streetNumber) {
+    if(this.form.value.photo) this.picture = this.pageService.trustResourceUrl(this.form.value.photo);
+    let addressInfo = this.global.pop(this.settings.storage.addressInfo);
+    if(addressInfo) {
       this.form.patchValue({
-        latitude: coordinates[0],
-        longitude: coordinates[1],
-        street,
-        streetNumber
+        latitude: addressInfo.coordinates[0],
+        longitude: addressInfo.coordinates[1],
+        street: addressInfo.street,
+        streetNumber: addressInfo.streetNumber
       });
     }
   }
 
-  savePost(item: any) {
-    this.pageService.navigateRoute('tabs/claims');
+  ionViewDidLeave() {
+    this.picture = null;
   }
+
 
   showMapMessage() {
     if( ( this.action === 'edit' && this.role === 'neighbor' ) || this.creating ) {
       this.pageService.showWarning('Presione el botón localizar para establecer la ubicación en el mapa');
     }
-    else {
-      return;
-    }
-  }
-
-  onChangeClaimType() {
-    this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
-    this.form.patchValue({ category: null });
   }
 
   setCategory() {
-    if(this.type === 'claim') {
-      let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
-      let subcategory = category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId);
-      
-      this.form.patchValue( {
-        selectedClaimType: category,
-      });
-      this.subcategories = this.form.value.selectedClaimType.claimSubcategory;
-
-
-      // FIXME: Ver otra forma de cargar el select
-      setTimeout( () => {
-        this.form.patchValue( {
-          category: subcategory.claimSubcategoryId
-        });
-      }, 500);
-    }
-    else {
-      let category = this.categories.find( category => category.insecurityFactTypeId === this.item.insecurityFactTypeId).insecurityFactTypeId;
-      this.form.patchValue( { category } );
-    }
+    let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
+    this.selectedClaimType = category.claimTypeId;
   }
 
   getButtonName() {
-    if(this.role === 'neighbor') {
-      return this.creating ? 'Crear' : 'Editar';
-    }
-    else {
-      return 'Tomar reclamo';
-    }
+    if(this.role === 'neighbor') return this.creating ? 'Crear' : 'Editar';
+    else return 'Tomar reclamo';
   }
 
   loadItemPost() {
-    if(this.item.photo) this.picture = this.filesUrl + this.item.photo;
-    this.setCategory();
+    if(this.type == 'claim')  this.setCategory();
+    if(this.item.photo) {
+      let fileOptions = {
+        fileName: this.item.photo.split('.')[0],
+        fileExtension: this.item.photo.split('.')[1]
+      }
+
+      const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
+      this.pageService.httpGet(endPoint, false, fileOptions)
+      .then( (res) => {
+        this.picture = this.pageService.trustResourceUrl(res);
+      })
+      .catch( (err) => {
+        this.pageService.showError(err);
+      })
+    }
   }
 
   getParamId() {
@@ -140,16 +132,6 @@ export class ClaimPage extends ItemPage {
     return endPoint;
   }
 
-  initializePre() {
-    this.activatedRoute.queryParams.subscribe( (params) => {
-      this.action = params.action;
-      this.type = params.type;
-      if(params.role) this.role = params.role;
-      if(params.id) this.id = params.id;
-    });
-    this.getCategories();
-  }
-
   getStatus() {
     const endPoint = this.settings.endPoints.status;
 
@@ -158,7 +140,6 @@ export class ClaimPage extends ItemPage {
         this.statuses = res;
       })
       .catch( (err) => {
-        console.log(err);
         this.pageService.showError(err);
       })
   }
@@ -173,7 +154,6 @@ export class ClaimPage extends ItemPage {
         this.categories = response;
       })
       .catch( (error) => {
-        console.log(error);
         this.pageService.showError(error);
       })
   }
@@ -192,34 +172,12 @@ export class ClaimPage extends ItemPage {
         neighborId: [this.user.neighborId, Validators.required],
         municipalAgentId: [null],
         statusId: [1],
-        //El campo category contendrá el tipo o subcategoría, según corresponda
-        category: [null, Validators.required],
-        selectedClaimType: [null]
+        claimSubcategoryId: [null],
+        insecurityFactTypeId: [null],
       });
   }
 
   getFormEdit( item ) {
-    if ( item.statusId === 5 ) {
-      return this.formBuilder.group({
-        claimId: [item.claimId],
-        dateTimeCreation: [item.dateTimeCreation],
-        dateTimeObservation: [item.dateTimeObservation, Validators.required],
-        street: [item.street, Validators.required],
-        streetNumber: [item.streetNumber, Validators.required],
-        latitude: [item.latitude],
-        longitude: [item.longitude],
-        mapAddress: [item.mapAddress],
-        comment: [item.comment],
-        resolutionRating: [item.resolutionRating, [Validators.min(1), Validators.max(10)]],
-        photo: [item.photo],
-        neighborId: [item.neighborId, Validators.required],
-        municipalAgentId: [item.municipalAgentId],
-        statusId: [item.statusId],
-        //El campo category contendrá el tipo o subcategoría, según corresponda
-        category: [null, Validators.required],
-        selectedClaimType: [null]
-      });
-    }
     return this.formBuilder.group({
       claimId: [item.claimId],
       dateTimeCreation: [item.dateTimeCreation],
@@ -230,45 +188,47 @@ export class ClaimPage extends ItemPage {
       longitude: [item.longitude],
       mapAddress: [item.mapAddress],
       comment: [item.comment],
+      resolutionRating: [item.resolutionRating || null, [Validators.min(1), Validators.max(10)]],
       photo: [item.photo],
       neighborId: [item.neighborId, Validators.required],
       municipalAgentId: [item.municipalAgentId],
       statusId: [item.statusId],
-      //El campo category contendrá el tipo o subcategoría, según corresponda
-      category: [null, Validators.required],
-      selectedClaimType: [null]
+      claimSubcategoryId: [item.claimSubcategoryId],
+      insecurityFactTypeId: [item.insecurityFactTypeId]
     });
   }
 
   savePre( item: any ) {
 
     item.bodyType = 'form-data';
-    item.dateTimeObservation = moment(item.dateTimeObservation).format('YYYY-MM-DD HH:mm:ss');
+    item.dateTimeObservation = moment(item.dateTimeObservation).toISOString();
     if(item.municipalAgentId === null)  delete item.municipalAgentId;
+    if(item.resolutionRating === null)  delete item.resolutionRating;
     
-    //Acá se llena el campo correspondiente según el tipo
-    if(this.type == 'claim')  item.claimSubcategoryId = item.category;
-    else  item.insecurityFactTypeId = item.category;
-    
-    delete item.category;
-    if(item.selectedClaimType) delete item.selectedClaimType;
+    let field = this.type !== 'claim' ? 'claimSubcategoryId' : 'insecurityFactTypeId';
+    delete item[field];
 
-    if(this.creating) { 
-      item.dateTimeCreation = moment().toISOString();
-    }
+    if(this.creating) item.dateTimeCreation = moment().toISOString();
+    if(this.role === 'municipalAgent')  item.bodyType = 'json';
+  }
 
-    if(this.role === 'municipalAgent') {
-      item.bodyType = 'json'
-    };
+  savePost(item: any) {
+    this.formReset();
+    this.pageService.navigateRoute('tabs/claims');
   }
 
   onChangeStatus() {
     this.enableButton = (this.form.value.statusId === 1) ? false : true;
   }
 
+  onChangeClaimType() {
+    this.subcategories = this.categories.find(category => category.claimTypeId == this.selectedClaimType).claimSubcategory;
+  }
+
   changePicture() {
     if(this.action === 'watch' || this.role === 'municipalAgent') return;
     if(!this.creating && this.item.statusId !== 1) return;
+    
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {
@@ -277,7 +237,6 @@ export class ClaimPage extends ItemPage {
         }
       })
       .catch( (error) => {
-        console.log(error);
         this.pageService.showError(error);
       })
   }
@@ -288,19 +247,16 @@ export class ClaimPage extends ItemPage {
   }
 
   goToMap() {
-    if(this.form.value.latitude) {
+    if(this.form.value.latitude && this.form.value.longitude && this.form.value.street && this.form.value.streetNumber) {
       let coordinates = [ this.form.value.latitude, this.form.value.longitude ];
-      this.global.save(this.settings.storage.coordinates, coordinates);
-      this.global.save(this.settings.storage.street, this.form.value.street);
-      this.global.save(this.settings.storage.streetNumber, this.form.value.streetNumber);
+      let addressInfo = {
+        coordinates,
+        street: this.form.value.street,
+        streetNumber: this.form.value.streetNumber
+      }
+      this.global.save(this.settings.storage.addressInfo, addressInfo);
     }
 
-    this.global.save(this.settings.storage.hideMenu, true);
-    this.pageService.navigateRoute('/tabs/map');
-  }
-
-  goToHome() {
-    this.pageService.showSuccess('¡Reclamo creado con éxito!');
-    this.pageService.navigateRoute('tabs/claims');
+    this.pageService.navigateRoute('/map', { queryParams: {hideMenu: true} });
   }
 }

@@ -10,6 +10,7 @@ export class Settings {
     claim: 'claim',
     claimTypes: 'claimTypes',
     contacts: 'contacts',
+    files: 'files',
     emergencyTelephones: 'emergencyTelephones',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
@@ -40,19 +41,16 @@ export class Settings {
       changePassword: '/changePassword',
       login: '/login',
       signup: '/signup',
-      update: '/update',
+      editProfileData: '/editProfileData',
     }
   };
 
   // (-) EndPoints
 
   public static storage = {
+    addressInfo: 'securityReports.addressInfo',
     contacts: 'securityReports.contacts',
-    coordinates: 'securityReports.coordinates',
-    hideMenu: 'securityReports.hideMenu',
     role: 'securityReports.role',
-    street: 'securityReports.street',
-    streetNumber: 'securityReports.streetNumber',
     token: 'securityReports.token',
     user: 'securityReports.user'
   };

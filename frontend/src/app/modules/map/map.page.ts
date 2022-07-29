@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { BasePage } from 'src/app/core/base.page';
 import * as L from 'leaflet';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
 import { MapOptionsPage } from '../map-options/map-options.page';
+import { Icon, icon, latLng, marker, tileLayer } from 'leaflet';
+
 
 @Component({
   selector: 'app-map',
@@ -14,6 +16,7 @@ import { MapOptionsPage } from '../map-options/map-options.page';
 export class MapPage extends BasePage {  
 
   coordinates: any;
+  hideMenu: boolean;
   lastOption: string = '';
   marker: any;
   markers: any[] = [];
@@ -23,59 +26,74 @@ export class MapPage extends BasePage {
   street: string;
   streetNumber: string;
 
+  layers: any = [];
+  icon: any;
+
+  options: any = {
+    layers: [
+      tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'})
+    ],
+    zoom: 15,
+    center: latLng(-32.94728264360368, -60.64127184874043)
+  };
+
   constructor(
     public pageService: PageService,
-    public router: Router
+    public activatedRoute: ActivatedRoute
   ) {
     super(pageService);
   }
 
   ionViewWillEnter() {
     this.role = this.global.load(this.settings.storage.role);
-    this.hideMenu = this.pageService.global.load(this.settings.storage.hideMenu);
-    this.map = L.map('map').setView(this.settings.coordinates.rosario, 17);
-
-    this.setInitialValues();
-
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
-    ).addTo(this.map);
-
-    this.map.on("click", (data: any) => {
-      if(!this.handleClickOptions(data)) {
-        if(this.marker) this.marker.removeFrom(this.map);
-        this.marker = new L.Marker([data.latlng.lat, data.latlng.lng]).addTo(this.map);
-  
-        this.coordinates = [data.latlng.lat, data.latlng.lng];
-  
-        const endPoint = this.settings.endPoints.map
-          + this.settings.endPointsMethods.map.getAddress
-          + '/' + data.latlng.lat
-          + '&' + data.latlng.lng;
-  
-        this.pageService.httpGet(endPoint)
-          .then( (response) => {
-            this.street = response.street;
-            this.streetNumber = response.streetNumber;
-          })
-          .catch( (error) => {
-            console.log(error);
-          })
-      }
-    })
+    this.hideMenu = this.pageService.router.url.includes('hideMenu=true');
+    this.icon = icon({
+      iconSize: [25, 41],
+      iconAnchor: [10, 41],
+      popupAnchor: [2, -40],
+      iconUrl: "../../../assets/imgs/marker-icon.png",
+      shadowUrl: "../../../assets/imgs/marker-shadow.png",
+    });
   }
 
-  ionViewWillLeave() {
-    this.pageService.global.remove(this.settings.storage.hideMenu);
-    this.map.off();
-    this.map.remove();
+  onMapReady(map: L.Map) {
+    this.global.showLoading();
+    setTimeout(() => {
+      map.invalidateSize();
+      this.global.hideLoading();
+    }, 1000);
+  }
+
+  onClick(event: any) {
+    if(!this.hideMenu) {
+      this.handleClickOptions(event);
+    }
+    else{
+      this.layers = [
+        marker([event.latlng.lat, event.latlng.lng], {icon: this.icon})
+      ];
+
+      this.coordinates = [event.latlng.lat, event.latlng.lng];
+
+      const endPoint = this.settings.endPoints.map
+        + this.settings.endPointsMethods.map.getAddress
+        + '/' + event.latlng.lat
+        + '&' + event.latlng.lng;
+
+      this.pageService.httpGet(endPoint)
+        .then( (response) => {
+          this.street = response.street;
+          this.streetNumber = response.streetNumber;
+        })
+        .catch( (error) => {
+          this.pageService.showError(error);
+        })
+    }
   }
 
   handleClickOptions(data: any) {
-    //Este return false es para que ponga un marcador donde toque el usuario
-    if(!data.originalEvent.target.alt) return false;
-    else{
+    if(data.originalEvent.target.alt) {
       if(data.originalEvent.target.alt.includes('institution')) {
         // Acá podemos hacer alguna acción cuando se toca una institución
         // this.pageService.showSuccess(data.originalEvent.target.alt.split('.')[1]);
@@ -88,27 +106,34 @@ export class MapPage extends BasePage {
         let id = data.originalEvent.target.alt.split('.')[1];
         this.pageService.navigateRoute( 'claim', { queryParams: { action: 'watch', id, role: this.role, type: 'insecurityFact' } } );
       }
-      return true;
     }
   }
 
   setInitialValues() {
-    this.street = this.global.load(this.settings.storage.street);
-    this.streetNumber = this.global.load(this.settings.storage.streetNumber);
-    this.coordinates = this.global.load(this.settings.storage.coordinates);
 
-    if(this.marker) this.marker.removeFrom(this.map);
+    let addressInfo = this.global.load(this.settings.storage.addressInfo);
+
+    if(addressInfo) {
+      this.street = addressInfo.street;
+      this.streetNumber = addressInfo.streetNumber;
+      this.coordinates = addressInfo.coordinates;
+    }
     
     if(this.coordinates) {
-      this.marker = new L.Marker(this.coordinates).addTo(this.map);
+      this.layers = [
+        marker(this.coordinates, {icon: this.icon})
+      ];
     }
   }
 
   goToClaims() {
     if(this.street && this.streetNumber) {
-      this.global.save(this.settings.storage.street, this.street);
-      this.global.save(this.settings.storage.streetNumber, this.streetNumber);
-      this.global.save(this.settings.storage.coordinates, this.coordinates);
+      let addressInfo = {
+        street: this.street,
+        streetNumber: this.streetNumber,
+        coordinates: this.coordinates
+      }
+      this.global.save(this.settings.storage.addressInfo, addressInfo);
 
       this.pageService.navigateBack();
     }
@@ -141,9 +166,7 @@ export class MapPage extends BasePage {
   }
 
   removeMarkers() {
-    for(let marker of this.markers) {
-      marker.removeFrom(this.map);
-    }
+    this.layers = [];
   }
 
   getInstitutions(institutionsType: string) {
@@ -154,20 +177,21 @@ export class MapPage extends BasePage {
           if(place.geojson) {
             let coordinates = place.geojson.geometry.coordinates;
             let markerCoordinates: any = [ coordinates[1], coordinates[0] ];
-            this.markers.push(
-              new L.Marker(
+            this.layers.push(
+              marker(
                 markerCoordinates,
                 {
                   riseOnHover: true,
                   title: place.name,
-                  alt: 'institution.' + place.contactos
+                  alt: 'institution.' + place.contactos,
+                  icon: this.icon
                 })
-                .addTo(this.map));
+                );
           }
         }
       })
       .catch( (error) => {
-        this.places = [];
+        this.pageService.showError(error);
       })
   }
 
@@ -184,7 +208,7 @@ export class MapPage extends BasePage {
       this.setMarkers('claim');
     })
     .catch( (error) => {
-      this.places = [];
+      this.pageService.showError(error);
     })
   }
 
@@ -201,7 +225,7 @@ export class MapPage extends BasePage {
       this.setMarkers('insecurityFact');
     })
     .catch( (error) => {
-      this.places = [];
+      this.pageService.showError(error);
     })
   }
 
@@ -209,15 +233,16 @@ export class MapPage extends BasePage {
     for(let place of this.places) {
       if(place.longitude && place.latitude) {
         let coordinates: any = [place.latitude, place.longitude];
-        this.markers.push(
-          new L.Marker(
+        this.layers.push(
+          marker(
             coordinates,
             {
               riseOnHover: true,
               title: place.CSCdescription || place.insecurityFactType.IFTdescription,
-              alt: type + '.' + place.claimId
+              alt: type + '.' + place.claimId,
+              icon: this.icon
             })
-            .addTo(this.map));
+            );
       }
     }
   }

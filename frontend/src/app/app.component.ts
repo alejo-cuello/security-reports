@@ -130,7 +130,6 @@ export class AppComponent {
   }
 
   async showLoading(content = 'Procesando...') {
-    console.log('appcomponent show')
     if (this.isLoading) return;
     
     this.isLoading = true;
