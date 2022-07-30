@@ -1,48 +1,38 @@
 ion-content {
     --background: var(--ion-color-light);
-
-    .class-grid {
-        justify-content: center;
-        margin-top: 3vh;
-        // padding: 16px;
-
-        .image-login {
-            width: 145px;
-            object-fit: cover;
-        }
+        
+    .image-login {
+        height: 30vh;
+        object-fit: cover;
     }
 }
 
-div {
+ion-button {
+    width: 100%;
+    --border-radius: 15px;
 
-    ion-grid {
-        // padding-top: 50px;
-        width: 100%;
+    .text-bold {
+        font-weight: 600;
     }
+}
 
-    .register {
-        justify-content: center;
-        width: 100%;
-        ion-text {
-            font-weight: 600;
-            text-align: center;
-        }
-    }
+.form {
+    height: 40vh;
+}
 
-    ion-button {
-        width: 100%;
-        --border-radius: 15px;
-
-        .text-bold {
-            font-weight: 600;
-        }
-    }
+.container-img {
+    height: 45vh;
 }
 
 .center {
     text-align: center;
+    font-size: small;
 }
 
 .row-radio-group {
     margin-top: 30px;
+}
+
+ion-footer {
+    height: 10vh;
 }
