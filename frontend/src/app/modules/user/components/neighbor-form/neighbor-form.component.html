@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <ion-item-group>
-    <ion-item-divider>
+    <ion-item-divider class="ion-margin-top">
       <ion-label>
         Datos personales
       </ion-label>
@@ -30,7 +30,7 @@
       {{getFieldError('dni')}}
     </div>
 
-    <ion-item class="ion-margin-top" expand="block">
+    <ion-item class="ion-margin-top ion-margin-bottom" expand="block">
       <ion-label position="floating">Número de Trámite del DNI*</ion-label>
       <ion-input type="number" formControlName="tramiteNumberDNI" [readonly]="!creating"></ion-input>
     </ion-item>
@@ -38,7 +38,7 @@
       {{getFieldError('tramiteNumberDNI')}}
     </div>
 
-    <ion-item-divider>
+    <ion-item-divider class="ion-margin-top">
       <ion-label>
         Dirección
       </ion-label>
@@ -96,7 +96,7 @@
       {{getFieldError('city')}}
     </div>
 
-    <ion-item class="ion-margin-top">
+    <ion-item class="ion-margin-top ion-margin-bottom">
       <ion-label position="floating">Provincia*</ion-label>
       <ion-input type="text" formControlName="province"></ion-input>
     </ion-item>
@@ -104,7 +104,7 @@
       {{getFieldError('province')}}
     </div>
   
-    <ion-item-divider>
+    <ion-item-divider class="ion-margin-top">
       <ion-label>
         Datos de contacto
       </ion-label>
@@ -119,7 +119,7 @@
       </div>
   
     <ion-item-group *ngIf="creating">
-      <ion-item-divider>
+      <ion-item-divider class="ion-margin-top">
         <ion-label>
           Datos de la cuenta
         </ion-label>
@@ -149,7 +149,7 @@
         {{getFieldError('confirmPassword')}}
       </div>
       
-      <ion-item-divider></ion-item-divider>
+      <ion-item-divider class="ion-margin-top"></ion-item-divider>
     </ion-item-group>
 
   </ion-item-group>

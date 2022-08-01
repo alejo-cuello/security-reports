@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <ion-item-group>
-    <ion-item-divider>
+    <ion-item-divider class="ion-margin-top">
       <ion-label>
         Datos personales
       </ion-label>
@@ -32,7 +32,7 @@
       </div>
 
       <ion-item-group *ngIf="creating">
-        <ion-item-divider>
+        <ion-item-divider class="ion-margin-top">
           <ion-label>
             Datos de la cuenta
           </ion-label>
@@ -63,7 +63,7 @@
           {{getFieldError('confirmPassword')}}
         </div>
   
-        <ion-item-divider></ion-item-divider>
+        <ion-item-divider class="ion-margin-top"></ion-item-divider>
       </ion-item-group>
   </ion-item-group>
 </form>

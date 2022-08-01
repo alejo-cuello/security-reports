@@ -1,6 +1,4 @@
 ion-content {
-    --background: var(--ion-color-light);
-        
     .image-login {
         height: 30vh;
         object-fit: cover;
@@ -35,4 +33,6 @@ ion-button {
 
 ion-footer {
     height: 10vh;
+    display: flex;
+    align-items: center;
 }

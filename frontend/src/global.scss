@@ -58,3 +58,11 @@ form {
     --padding-bottom: 16px;
     --background: var(--ion-color-white) !important;
 }
+
+ion-content {
+    --background: var(--ion-color-light);
+}
+
+ion-header {
+    --background: var(--ion-color-light);
+}

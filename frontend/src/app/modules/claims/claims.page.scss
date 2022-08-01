@@ -9,7 +9,11 @@ ion-card {
 }
 
 .custom-segment {
+    --background: var(--ion-color-header);
+    padding: 2px 16px;
+
     ion-segment-button {
+        --background: var(--ion-color-header);
         ion-icon {
             font-size: 1.7rem;
         }
@@ -40,6 +44,10 @@ ion-list {
     --background: #50c8ff;
 }
 
-.button-right {
-    float: right;
+.filter-button {
+    margin-left: 5px;
+}
+
+.filter-item {
+    --background: var(--ion-color-header);
 }
