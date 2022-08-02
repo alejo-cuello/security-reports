@@ -19,12 +19,6 @@
         <ion-input type="password" formControlName="password" class="ion-no-margin"></ion-input>
       </ion-item>
 
-      <div>
-        <ion-text color="primary" (click)="goToChangePassword()">
-          <p class="center">¿Olvidaste tu contraseña?</p>
-        </ion-text>
-      </div>
-
       <ion-radio-group formControlName="role">
         <ion-row class="row-radio-group">
           <ion-col class="ion-no-padding ion-margin-end">
@@ -50,29 +44,33 @@
       </ion-button>
 
       <div>
+        <ion-text color="primary" (click)="goToChangePassword()">
+          <p class="center">¿Olvidaste tu contraseña?</p>
+        </ion-text>
+      </div>
+
+      <div>
         <ion-text color="primary" class="center" (click)="goToPreRegister()">
           <p>¿No tenés cuenta? Registrate</p>
         </ion-text>
       </div>
     </form>
-</ion-content>
-
-<ion-footer>
-  <ion-grid class="ion-padding-horizontal">
+   
+    <ion-grid class="ion-padding-horizontal">
   
-    <ion-row lines="none">
-      <ion-col size="6">
-        <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
-          <ion-icon class="ion-padding-end" name="logo-google" color="dark"></ion-icon>
-          <ion-text color="dark">Google</ion-text>
-        </ion-button>
-      </ion-col>
-      <ion-col size="6">
-        <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
-          <ion-icon class="ion-padding-end" name="logo-facebook" color="tertiary"></ion-icon>
-          <ion-text color="tertiary">Facebook</ion-text>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-footer>
+      <ion-row lines="none">
+        <ion-col size="6">
+          <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
+            <ion-icon class="ion-padding-end" name="logo-google" color="dark"></ion-icon>
+            <ion-text color="dark">Google</ion-text>
+          </ion-button>
+        </ion-col>
+        <ion-col size="6">
+          <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
+            <ion-icon class="ion-padding-end" name="logo-facebook" color="tertiary"></ion-icon>
+            <ion-text color="tertiary">Facebook</ion-text>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+</ion-content>
