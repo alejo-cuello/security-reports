@@ -4,19 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { MapPage } from './map.page';
-import { MapPageRoutingModule } from './map-routing.module';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { MapOptionsPageRoutingModule } from './map-options-routing.module';
 
+import { MapOptionsPage } from './map-options.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    MapPageRoutingModule,
-    LeafletModule 
+    MapOptionsPageRoutingModule
   ],
-  declarations: [MapPage]
+  declarations: [MapOptionsPage]
 })
-export class MapPageModule {}
+export class MapOptionsPageModule {}

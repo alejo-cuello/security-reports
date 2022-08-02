@@ -1,17 +1,28 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+    <ion-buttons slot="start" *ngIf="hideMenu">
+      <ion-back-button></ion-back-button>
     </ion-buttons>
     <ion-title>Ubicación</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div id="map" class="map-complete" #map></div>
+  <div class="map-complete"
+     leaflet 
+     [leafletOptions]="options"
+     [leafletLayers]="layers"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletClick)="onClick($event)">
+  </div>
+  <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!hideMenu">
+    <ion-fab-button (click)="openMapOptions()">
+      <ion-icon name="information-circle-outline" color="white"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="hideMenu">
     <ion-grid>
       <ion-row>
         <ion-col>

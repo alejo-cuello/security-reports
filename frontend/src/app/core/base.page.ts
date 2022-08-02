@@ -7,7 +7,7 @@ export class BasePage {
 
   global: any;
   settings: any;
-  filesUrl = environment.filesUrl + '/';
+  filesUrl = environment.filesUrl;
   user: any;
 
   constructor(

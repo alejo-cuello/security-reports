@@ -1,4 +1,10 @@
+ion-toolbar {
+    height: 8vh;
+}
+
 ion-content {
+    --background: white;
+
     ion-card {
         border-radius: 10px;
     }
@@ -14,7 +20,13 @@ ion-content {
     .container-img {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
+        height: 32vh;
+
+        img {
+            width: auto;
+            object-fit: cover;
+            height: 100%;
+        }
 
         .delete-button{
             position: absolute;
@@ -22,13 +34,6 @@ ion-content {
             right: calc(50% - 75px);
             font-size: 1.5rem;
         }
-    }
-
-    img {
-        width: 120px;
-        object-fit: cover;
-        height: 120px;
-        border-radius: 50%;
     }
 
     .centering{
@@ -39,5 +44,19 @@ ion-content {
             top: 35%;
             left: 25%;
         }
+    }
+
+    .fields {
+        height: 45vh;
+        margin-top: 2vh;
+    }
+
+    .action-button {
+        height: 5vh;
+    }
+
+    ion-label {
+        color: var(--ion-color-tertiary);
+        font-weight: 500;
     }
 }

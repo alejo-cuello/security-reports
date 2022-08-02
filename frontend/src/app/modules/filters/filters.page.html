@@ -19,7 +19,7 @@
       <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
-  <ion-item>
+  <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Estado</ion-label>
     <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
       <ion-select-option *ngFor="let status of statuses" [value]="status.statusId">{{ status?.STAdescription }}</ion-select-option>
@@ -34,29 +34,31 @@
     <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
   </ion-item>
 
-  <ion-item>
+  <ion-item *ngIf="role === 'municipalAgent'">
     <ion-text color="primary">
       <h4>Ordenar por</h4>
     </ion-text>
   </ion-item>
-  <ion-radio-group [(ngModel)]="sort">
+  <ion-radio-group [(ngModel)]="sort" *ngIf="role === 'municipalAgent'">
     <ion-item>
       <ion-label>Fecha</ion-label>
-      <ion-radio value="rec.fechaHoraCreacion"></ion-radio>
+      <ion-radio value="no"></ion-radio>
     </ion-item>
     <ion-item>
       <ion-label>Cantidad de favoritos</ion-label>
-      <ion-radio value="favorites"></ion-radio>
+      <ion-radio value="yes"></ion-radio>
     </ion-item>
   </ion-radio-group>
-  <ion-button class="ion-margin-top button-right" shape="round" color="warning" (click)="sendFilters()">
+</ion-content>
+<ion-footer>
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="primary" (click)="sendFilters()">
     <ion-text>
       Filtrar
     </ion-text>
   </ion-button>
-  <ion-button class="ion-margin-top button-right" shape="round" color="danger" (click)="cancel()">
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="medium" (click)="cancel()">
     <ion-text>
       Cancelar
     </ion-text>
   </ion-button>
-</ion-content>
+</ion-footer>

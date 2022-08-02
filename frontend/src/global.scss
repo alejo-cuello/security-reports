@@ -25,6 +25,8 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+@import "../node_modules/leaflet/dist/leaflet.css";
+
 form {
     .invalid-input-message {
         color: var(--ion-color-danger);
@@ -55,4 +57,12 @@ form {
     --padding-end: 16px;
     --padding-bottom: 16px;
     --background: var(--ion-color-white) !important;
+}
+
+ion-content {
+    --background: var(--ion-color-light);
+}
+
+ion-header {
+    --background: var(--ion-color-light);
 }

@@ -77,7 +77,11 @@ export abstract class ItemPage extends FormPage {
       if (!item.photo) {
         delete item.photo;
       }
-      this.pageService.httpUpdate( this.getEndPointUpdate(), item, item[this.getFieldId()], item.bodyType || 'json' )
+
+      let id = item[this.getFieldId()];
+      delete ( item[this.getFieldId()] );
+
+      this.pageService.httpUpdate( this.getEndPointUpdate(), item, id, item.bodyType || 'json' )
         .then((response) =>{
           this.updatedItemMessage();
           this.savePost( response );

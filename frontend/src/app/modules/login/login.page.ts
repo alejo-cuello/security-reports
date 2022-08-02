@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, NgForm, Validators } from '@angular/forms';
 import { FormPage } from 'src/app/core/form.page';
 import { PageService } from 'src/app/core/page.service';

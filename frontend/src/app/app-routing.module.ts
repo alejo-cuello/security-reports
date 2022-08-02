@@ -12,16 +12,12 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'change-password',
-    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
-  },
-  {
     path: 'claim',
     loadChildren: () => import('./modules/claim/claim.module').then(m => m.ClaimPageModule)
   },
   {
-    path: 'claims',
-    loadChildren: () => import('./modules/claims/claims.module').then(m => m.ClaimsPageModule)
+    path: 'change-password',
+    loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
   },
   {
     path: 'contacts',
@@ -70,6 +66,10 @@ const routes: Routes = [
   {
     path: 'terms-and-conditions',
     loadChildren: () => import('./modules/terms-and-conditions/terms-and-conditions.module').then( m => m.TermsAndConditionsPageModule)
+  },
+  {
+    path: 'map-options',
+    loadChildren: () => import('./modules/map-options/map-options.module').then( m => m.MapOptionsPageModule)
   },
   {
     path: '**',

@@ -11,12 +11,12 @@
   <ion-grid>
     <ion-row>
       <ion-text class="ion-margin-top">
-        Elija el tipo de usuario que desea crear:
+        <strong>Elija su rol dentro de la aplicación:</strong>
       </ion-text>
     </ion-row>
 
     <form [formGroup]="form">
-      <ion-radio-group formControlName="role">
+      <ion-radio-group formControlName="role" class="ion-margin-top">
         <ion-item class="ion-margin-top">
           <ion-label>Vecino</ion-label>
           <ion-radio item-left value="neighbor"></ion-radio>

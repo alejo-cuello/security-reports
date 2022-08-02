@@ -10,6 +10,7 @@ export class Settings {
     claim: 'claim',
     claimTypes: 'claimTypes',
     contacts: 'contacts',
+    files: 'files',
     emergencyTelephones: 'emergencyTelephones',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
@@ -21,14 +22,17 @@ export class Settings {
   public static endPointsMethods = {
     claim: {
       claimById: '/claimById',
+      claimsForMap: '/claimsForMap',
+      claimTracking: '/claimTracking',
       favorites: '/favorites',
       pending: '/pending',
       takenClaims: '/takenClaims',
-      claimTracking: '/claimTracking',
       updateStatus: '/updateStatus'
     },
     insecurityFact: {
       favorites: '/favorites',
+      insecurityFactsForMapForMunicipalAgent: '/insecurityFactsForMapForMunicipalAgent',
+      insecurityFactsForMapForNeighbor: '/insecurityFactsForMapForNeighbor',
     },
     map: {
       getAddress: '/getAddress'
@@ -36,18 +40,17 @@ export class Settings {
     user: {
       changePassword: '/changePassword',
       login: '/login',
-      signup: '/signup'
+      signup: '/signup',
+      editProfileData: '/editProfileData',
     }
   };
 
   // (-) EndPoints
 
   public static storage = {
+    addressInfo: 'securityReports.addressInfo',
     contacts: 'securityReports.contacts',
-    coordinates: 'securityReports.coordinates',
     role: 'securityReports.role',
-    street: 'securityReports.street',
-    streetNumber: 'securityReports.streetNumber',
     token: 'securityReports.token',
     user: 'securityReports.user'
   };

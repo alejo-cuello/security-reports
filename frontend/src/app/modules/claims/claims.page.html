@@ -11,7 +11,7 @@
 
 <ion-content>
   <ion-toolbar class="custom-toolbar" *ngIf="role === 'neighbor'">
-    <ion-segment class="ion-padding custom-segment" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
+    <ion-segment class="custom-segment ion-no-margin" color="primary" [(ngModel)]="menu" (ionChange)="changeSegment()">
       <ion-segment-button value="claim">
         <ion-icon name="create-outline"></ion-icon>
         <ion-label>Reclamos</ion-label>
@@ -19,21 +19,21 @@
   
       <ion-segment-button value="insecurityFact">
         <ion-icon name="alert-circle-outline"></ion-icon>
-        <ion-label>Hechos de inseguridad</ion-label>
+        <ion-label>Inseguridad</ion-label>
       </ion-segment-button>
     </ion-segment>
 
-    <div class="ion-margin-bottom ion-margin-end">
-      <ion-button class="button-right" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
-          <ion-icon name="close-outline">
-          </ion-icon>
+    <ion-item class="ion-no-margin filter-item">
+      <ion-button slot="end" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
+        <ion-icon name="close-outline">
+        </ion-icon>
       </ion-button>
-      <ion-button class="button-right" shape="round" color="warning" (click)="goToFilters()">
+      <ion-button slot="end" shape="round" color="primary" (click)="goToFilters()" class="filter-button">
         <ion-text>
           Filtrar
         </ion-text>
       </ion-button>
-    </div>
+    </ion-item>
     
   </ion-toolbar>
 
@@ -49,6 +49,19 @@
         <ion-label>Tomados</ion-label>
       </ion-segment-button>
     </ion-segment>
+
+    <div class="ion-margin-bottom ion-margin-end">
+      <ion-button class="button-right" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
+          <ion-icon name="close-outline">
+          </ion-icon>
+      </ion-button>
+      <ion-button class="button-right" shape="round" color="warning" (click)="goToFilters()">
+        <ion-text>
+          Filtrar
+        </ion-text>
+      </ion-button>
+    </div>
+    
   </ion-toolbar>
 
   <ion-grid>
@@ -71,28 +84,32 @@
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
       <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId, claim?.neighborId)">
+        <ion-item class="favorite-item" *ngIf="claim?.neighborId != user.neighborId && role == 'neighbor'">
+          <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
+        </ion-item>
+
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora creación: {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <ion-text color="medium"><strong>Creado: </strong> {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
           <ion-badge class="badge-border" [color]="getColor(claim?.statusId)" slot="end">{{ claim?.STAdescription }}</ion-badge>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora de observación: {{ claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+          <ion-text color="medium"><strong>Observado:</strong> {{ claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección: {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
+          <ion-text color="medium"><strong>Dirección:</strong> {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría: {{ claim?.CTdescription }} + {{ claim?.CSCdescription }}
-          </ion-text>
+            <strong>{{ claim?.CTdescription }}:</strong> {{ claim?.CSCdescription }}
+          </ion-text>        
         </ion-item>
       </ion-card>
     </ng-container>
@@ -103,24 +120,24 @@
       <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin" (click)="openOptions(insecurityFact?.claimId, insecurityFact?.neighborId, true)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora creación: {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <ion-text color="medium"><strong>Creado:</strong> {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
 
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Fecha y hora de observación: {{ insecurityFact?.claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+          <ion-text color="medium"><strong>Observado:</strong> {{ insecurityFact?.claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium">Dirección: {{ insecurityFact?.claim?.street + ' ' + insecurityFact?.claim?.streetNumber }}</ion-text>
+          <ion-text color="medium"><strong>Dirección:</strong> {{ insecurityFact?.claim?.street + ' ' + insecurityFact?.claim?.streetNumber }}</ion-text>
         </ion-item>
   
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
-            Categoría: {{ insecurityFact?.claim?.insecurityFactType?.IFTdescription }}
+            <strong>{{ insecurityFact?.claim?.insecurityFactType?.IFTdescription }}</strong>
           </ion-text>
         </ion-item>
       </ion-card>
