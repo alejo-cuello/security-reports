@@ -66,4 +66,8 @@ export class LoginPage extends FormPage {
     this.pageService.navigateRoute('change-password');
   }
 
+  goToEmergencyNumbers() {
+    this.pageService.navigateRoute('emergency-numbers');
+  }
+
 }

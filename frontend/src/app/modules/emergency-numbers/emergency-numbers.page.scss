@@ -1,11 +1,10 @@
 .card-number {
-    background-color: var(--ion-color-primary);
-    height: 200px;
-    font-size: 3.5em;
+    background-color: var(--ion-color-medium);
+    height: 25vh;
+    font-size: 3em;
     text-align: center;
-    color: white;
-    margin-block-end: 0em;
-
+    padding: 5px;
+    color: var(--ion-color-tertiary);
     display: grid;
     grid-gap: 0px;
     grid-template-rows: 40% 40% 20%;
@@ -16,7 +15,7 @@
 
     .name {
         margin-top: 10px;
-        font-size: 0.45em;
-        color: black;
+        font-size: 0.4em;
+        color: var(--ion-color-tertiary);
     }
 }

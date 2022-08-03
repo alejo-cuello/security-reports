@@ -3,6 +3,6 @@ const router = express.Router();
 const verifyToken = require('../middlewares/verifyToken');
 const emergencyTelephoneController = require('../controllers/emergencyTelephoneController');
 
-router.get('/', verifyToken, emergencyTelephoneController.getEmergencyTelephones);
+router.get('/', emergencyTelephoneController.getEmergencyTelephones);
 
 module.exports = router;

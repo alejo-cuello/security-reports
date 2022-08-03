@@ -15,7 +15,11 @@ ion-button {
 }
 
 .container-img {
-    height: 45vh;
+    height: 44vh;
+}
+
+.inputs-form {
+    height: 47vh;
 }
 
 .center {
@@ -24,5 +28,15 @@ ion-button {
 }
 
 .row-radio-group {
-    margin-top: 30px;
+    margin-top: 15px;
+}
+
+.danger-icon {
+    font-size: 20px;
+    margin: 10px;
+    border-radius: 50%;
+    border-color: var(--ion-color-danger);
+    border-style: groove;
+    border-width: 3px;
+    padding: 5px;
 }
