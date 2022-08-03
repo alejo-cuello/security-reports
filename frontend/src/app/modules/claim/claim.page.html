@@ -1,5 +1,5 @@
 <ion-header>
-    <ion-toolbar color="primary">
+    <ion-toolbar color="tertiary">
       <ion-buttons slot="start">
         <ion-back-button></ion-back-button>
       </ion-buttons>
@@ -70,7 +70,7 @@
           </ion-item>
         </ion-col>
         <ion-col class="centering">
-          <ion-button type="button" color="secondary" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" (click)="goToMap()">
+          <ion-button type="button" color="tertiary" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" (click)="goToMap()">
             Localizar
           </ion-button>
         </ion-col>

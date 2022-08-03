@@ -27,22 +27,4 @@ export class HttpGuard implements CanActivate {
       this.pageService.navigateRoute('login'); // Si no existe el token, redirige al login
     }
   };
-
-  // canActivate(next: ActivatedRouteSnapshot): Promise<boolean> {
-  //   return new Promise(async (resolve) => {
-  //     const user = this.global.getUser();
-  //     if( user ) {
-  //       const userRoles = [...user.roles || []];
-  //       if(!next.data.roles?.some(r => userRoles.includes(r))) {
-  //         resolve( false );
-  //       } else {
-  //         if (next.data.noUser) resolve( false );
-  //         else resolve( true );
-  //       }
-  //     } else {
-  //       if (next.data.noUser) resolve( true );
-  //       else resolve( false );
-  //     }
-  //   });
-  // }
 }

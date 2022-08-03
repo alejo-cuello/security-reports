@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="tertiary">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -50,17 +50,17 @@
       </ion-segment-button>
     </ion-segment>
 
-    <div class="ion-margin-bottom ion-margin-end">
-      <ion-button class="button-right" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
-          <ion-icon name="close-outline">
-          </ion-icon>
+    <ion-item class="ion-no-margin filter-item">
+      <ion-button slot="end" shape="round" color="danger" (click)="deleteFilters()" *ngIf="haveFilters">
+        <ion-icon name="close-outline">
+        </ion-icon>
       </ion-button>
-      <ion-button class="button-right" shape="round" color="warning" (click)="goToFilters()">
+      <ion-button slot="end" shape="round" color="primary" (click)="goToFilters()" class="filter-button">
         <ion-text>
           Filtrar
         </ion-text>
       </ion-button>
-    </div>
+    </ion-item>
     
   </ion-toolbar>
 
@@ -84,9 +84,9 @@
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
       <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId, claim?.neighborId)">
-        <ion-item class="favorite-item" *ngIf="claim?.neighborId != user.neighborId && role == 'neighbor'">
+        <!-- <ion-item class="favorite-item">
           <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
-        </ion-item>
+        </ion-item> -->
 
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>

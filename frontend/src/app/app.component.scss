@@ -21,6 +21,7 @@
 
 ion-menu ion-list-header,
 ion-menu {
+  background: var(--ion-color-header);
   padding-left: 10px;
 }
 
@@ -102,4 +103,8 @@ ion-label.header {
   h2 {
     font-size: 18px;
   }
+}
+
+ion-content,ion-item {
+  --background: var(--ion-color-header);
 }

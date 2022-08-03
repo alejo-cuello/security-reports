@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="tertiary">
     <ion-buttons slot="start">
       <ion-menu-button *ngIf="!creating"></ion-menu-button>
       <ion-back-button *ngIf="creating"></ion-back-button>
@@ -25,13 +25,16 @@
                               *ngIf="role === 'municipalAgent'">
     </app-municipal-agent-form>
       
-    <div class="ion-margin-top">
-      <ion-button class="ion-margin-top" expand="block" color="primary" (click)="onSubmit()">
-        <ion-text color="light" class="text-bold">
-          {{ creating ? 'Registrarse' : 'Guardar cambios' }}
-        </ion-text>
-      </ion-button>
-    </div>
   </ion-grid>
 
 </ion-content>
+
+<ion-footer>
+  <div class="ion-margin-top">
+    <ion-button class="ion-margin-top" expand="block" color="primary" (click)="onSubmit()">
+      <ion-text color="light" class="text-bold">
+        {{ creating ? 'Registrarse' : 'Guardar cambios' }}
+      </ion-text>
+    </ion-button>
+  </div>
+</ion-footer>

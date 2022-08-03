@@ -4,6 +4,7 @@ ion-card {
 }
 
 .custom-toolbar {
+    --background: var(--ion-color-header);
     position: sticky;
     top: 0px;
 }

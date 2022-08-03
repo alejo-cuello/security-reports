@@ -41,7 +41,7 @@ ion-list {
 
 .favorite-item {
     --min-height: 15px;
-    --background: #50c8ff;
+    --background: var(--ion-color-light);
 }
 
 .filter-button {

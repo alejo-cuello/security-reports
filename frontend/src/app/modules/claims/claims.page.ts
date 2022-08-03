@@ -180,6 +180,7 @@ export class ClaimsPage extends BasePage {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
       inputs: this.getNeighborOptions(neighborId, isInsecurityFact),
+      mode: 'ios',
       buttons: [
         {
           text: 'CANCELAR',

@@ -2,17 +2,12 @@
   <ion-split-pane contentId="main-content">
     <ion-menu contentId="main-content" type="overlay" (ionWillOpen)="loadMenuHeader()">
 
-      <ion-header class="ion-no-border">
-        <ion-grid>
-          <ion-text color="primary">
-            <h3 class="ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
-            <h6 class="ion-margin-start text-bold">{{ userEmail }}</h6>
-            <ion-row>
-              <p class="ion-margin-start text-bold">{{ role }}</p>
-            </ion-row>
-          </ion-text>
-        </ion-grid>
-      </ion-header>
+      <ion-item>
+        <ion-text color="tertiary">
+          <h3 class="ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
+          <h6 class="ion-margin-start text-bold">{{ userEmail }}</h6>
+        </ion-text>
+      </ion-item>
 
       <ion-content>        
         <ion-list id="inbox-list" *ngIf="role === 'Vecino'">
@@ -20,7 +15,7 @@
             <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
-                <ion-label>{{ page.title }}</ion-label>
+                <ion-label color="tertiary">{{ page.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ng-container>

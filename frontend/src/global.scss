@@ -36,7 +36,7 @@ form {
     }
 
     .valid-input-message {
-        color: var(--ion-color-tertiary);
+        color: var(--ion-color-medium);
         font-size: 0.8em;
         margin-left: 1em;
         margin-top: .3em;
@@ -65,4 +65,8 @@ ion-content {
 
 ion-header {
     --background: var(--ion-color-light);
+}
+
+ion-footer {
+    background: var(--ion-color-header);
 }
