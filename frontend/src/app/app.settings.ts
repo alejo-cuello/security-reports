@@ -61,8 +61,15 @@ export class Settings {
     user: 'securityReports.user'
   };
 
-  public static roles = {
-    user: 'user'
+  public static types = {
+    claim: {
+      code: 'claim',
+      label: 'Reclamo'
+    },
+    insecurityFact: {
+      code: 'insecurityFact',
+      label: 'Hecho'
+    }
   };
 
   public static coordinates = {
