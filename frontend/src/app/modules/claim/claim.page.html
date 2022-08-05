@@ -11,14 +11,14 @@
 </ion-header>
   
 <ion-content>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <ion-item class="align-items-end" *ngIf="role == 'neighbor' && !creating && !item?.own">
+    <ion-button color="secondary" slot="end" (click)="hanndleFollow()">
+      {{item?.hasFavorite ? 'Dejar de seguir' : 'Seguir'}} <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
+    </ion-button>
+  </ion-item>
 
-    <!-- <ion-item lines="none" *ngIf="role == 'neighbor'">
-      <ion-button color="medium" slot="end" (click)="hanndleFollow()">
-        {{item.hasFavorite ? 'Dejar de seguir' : 'Seguir'}} <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
-      </ion-button>
-    </ion-item> -->
-    
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+   
     <div class="container-img">
       <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'" (click)="changePicture()">
       <ion-icon name="close-circle" class="delete-button" color="danger" (click)="removePicture()" *ngIf="picture && action !== 'watch' && role === 'neighbor'"></ion-icon>
@@ -28,7 +28,7 @@
     <div class="fields">
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select [(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}" (ionChange)="onChangeClaimType()" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5">
+        <ion-select mode="ios"[(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}" (ionChange)="onChangeClaimType()" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5">
           <ion-select-option *ngFor="let category of categories" [value]="category.claimTypeId">
             {{category?.CTdescription}}
           </ion-select-option>
@@ -37,7 +37,7 @@
 
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Subcategoría</ion-label>
-        <ion-select [disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" formControlName="claimSubcategoryId">
+        <ion-select mode="ios"[disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" formControlName="claimSubcategoryId">
           <ion-select-option *ngFor="let subcategory of subcategories"
             [value]="subcategory?.claimSubcategoryId">
             {{subcategory?.CSCdescription}}
@@ -48,7 +48,7 @@
       <!-- Select para hechos de inseguridad -->
       <ion-item *ngIf="type === 'insecurityFact'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select formControlName="insecurityFactTypeId" [disabled]="action === 'watch' || role === 'municipalAgent'">
+        <ion-select mode="ios"formControlName="insecurityFactTypeId" [disabled]="action === 'watch' || role === 'municipalAgent'">
           <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId">
             {{category?.IFTdescription}}
           </ion-select-option>
@@ -59,7 +59,7 @@
       </div>
         
       <ion-row>
-        <ion-col (click)="showMapMessage()">
+        <ion-col (click)="showMapMessage()" class="ion-no-padding">
           <ion-item class="class-input">
             <ion-label position="floating">Calle</ion-label>
             <ion-input type="text" readonly=true formControlName="street" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"> </ion-input>
@@ -113,9 +113,9 @@
         <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" [disabled]="(action === 'watch' || action === 'edit' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
       </ion-item>
       
-      <ion-item *ngIf="!creating && role==='municipalAgent'">
+      <ion-item *ngIf="!creating && role==='municipalAgent' && type == 'claim'">
         <ion-label position="floating">Estado</ion-label>
-        <ion-select formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'">
+        <ion-select mode="ios"formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'">
           <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
         </ion-select>
       </ion-item>

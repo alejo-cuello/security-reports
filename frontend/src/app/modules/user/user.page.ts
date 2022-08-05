@@ -15,7 +15,7 @@ export class UserPage extends ItemPage implements OnDestroy {
   termsAndConditionsAccepted: boolean;
 
   ngOnInit() {
-    this.termsAndConditionsAccepted = this.global.get("termsAndConditionsAccepted");
+    this.termsAndConditionsAccepted = this.global.load(this.settings.storage.termsAndConditionsAccepted);
 
     this.role = this.global.load(this.settings.storage.role);
     this.form = this.getFormNew();
@@ -23,7 +23,7 @@ export class UserPage extends ItemPage implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.global.remove("termsAndConditionsAccepted");
+    this.global.remove(this.settings.storage.termsAndConditionsAccepted);
   }
 
   getParamId() {

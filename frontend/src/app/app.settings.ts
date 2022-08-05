@@ -10,8 +10,9 @@ export class Settings {
     claim: 'claim',
     claimTypes: 'claimTypes',
     contacts: 'contacts',
-    files: 'files',
     emergencyTelephones: 'emergencyTelephones',
+    favorites: 'favorites',
+    files: 'files',
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
@@ -28,6 +29,10 @@ export class Settings {
       pending: '/pending',
       takenClaims: '/takenClaims',
       updateStatus: '/updateStatus'
+    },
+    favorites: {
+      deleteClaimMarkedAsFavorite: '/deleteClaimMarkedAsFavorite',
+      markClaimAsFavorite: '/markClaimAsFavorite'
     },
     insecurityFact: {
       favorites: '/favorites',
@@ -51,6 +56,7 @@ export class Settings {
     addressInfo: 'securityReports.addressInfo',
     contacts: 'securityReports.contacts',
     role: 'securityReports.role',
+    termsAndConditionsAccepted: 'securityReports.termsAndConditionsAccepted',
     token: 'securityReports.token',
     user: 'securityReports.user'
   };

@@ -57,6 +57,10 @@ export class MapPage extends BasePage {
     });
   }
 
+  ionViewWillLeave() {
+    this.lastOption = undefined;
+  }
+
   onMapReady(map: L.Map) {
     this.global.showLoading();
     setTimeout(() => {
@@ -100,7 +104,10 @@ export class MapPage extends BasePage {
       }
       else if(data.originalEvent.target.alt.includes('claim')) {
         let id = data.originalEvent.target.alt.split('.')[1];
-        this.pageService.navigateRoute( 'claim', { queryParams: { action: 'watch', id, role: this.role, type: 'claim' } } );
+        let action = this.role === 'neighbor'
+          ? 'watch'
+          : 'edit';
+        this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role: this.role, type: 'claim' } } );
       }
       else if(data.originalEvent.target.alt.includes('insecurityFact')) {
         let id = data.originalEvent.target.alt.split('.')[1];
@@ -150,7 +157,7 @@ export class MapPage extends BasePage {
     });
 
     modal.onDidDismiss().then( (data) => {
-      if(data.data != this.lastOption) {
+      if(data.data && data.data != this.lastOption) {
         this.removeMarkers();
         
         if(data.data && data.data == 'health')  this.getInstitutions(data.data);

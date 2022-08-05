@@ -259,4 +259,28 @@ export class ClaimPage extends ItemPage {
 
     this.pageService.navigateRoute('/map', { queryParams: {hideMenu: true} });
   }
+
+  hanndleFollow() {
+    let endPoint = this.settings.endPoints.claim + '/';
+    let method;
+
+    if(this.item.hasFavorite) {
+      endPoint += this.settings.endPointsMethods.favorites.deleteClaimMarkedAsFavorite;
+      method = 'httpDelete';
+    }
+    else {
+      endPoint += this.settings.endPointsMethods.favorites.markClaimAsFavorite;
+      method = 'httpPost';
+    }
+
+    endPoint += '/' + this.item.claimId;
+    this.global.showLoading();
+
+    this.pageService[method](endPoint)
+      .then( (res) => {
+        this.item.hasFavorite = !this.item.hasFavorite;
+      })
+      .catch( (err) => this.pageService.showError(err) )
+      .finally( () => this.global.hideLoading() )
+  }
 }

@@ -30,7 +30,7 @@ export class AppComponent {
     this.global.remove('securityReports.token'); // Elimina el token del localStorage
     this.global.remove('securityReports.typeClaim'); // Elimina el menu a seleccionar en el listado de reclamos
     this.global.remove('securityReports.contacts'); // Elimina los contactos del vecino del localStorage
-    this.global.remove('termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
+    this.global.remove('securityReports.termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
 
     this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
   }

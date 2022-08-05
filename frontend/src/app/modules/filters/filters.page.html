@@ -9,19 +9,19 @@
 
   <ion-item>
     <ion-label position="floating">Categoría</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedCategories" (ionChange)="onSelectCategories()">
       <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId || category">{{ category?.CTdescription || category?.IFTdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Subcategoría</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" [disabled]="selectedCategories.length === 0">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedSubcategories" [disabled]="selectedCategories.length === 0">
       <ion-select-option *ngFor="let claimSubcategory of claimSubcategories" [value]="claimSubcategory?.claimSubcategoryId">{{ claimSubcategory?.CSCdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item *ngIf="!isInsecurityFact">
     <ion-label position="floating">Estado</ion-label>
-    <ion-select multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
+    <ion-select mode="ios"multiple="true" cancelText="Cancelar" okText="Aceptar" [(ngModel)]="selectedStatuses">
       <ion-select-option *ngFor="let status of statuses" [value]="status.statusId">{{ status?.STAdescription }}</ion-select-option>
     </ion-select>
   </ion-item>
