@@ -84,7 +84,7 @@
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
       <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId, claim?.neighborId)">
-        <ion-item class="favorite-item" *ngIf="claim.neighborId != user.neighborId">
+        <ion-item class="favorite-item" *ngIf="claim.neighborId != user.neighborId && role === 'neighbor'">
           <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
         </ion-item>
 

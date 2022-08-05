@@ -68,6 +68,14 @@ const routes: Routes = [
     loadChildren: () => import('./modules/map-options/map-options.module').then( m => m.MapOptionsPageModule)
   },
   {
+    path: 'reports',
+    loadChildren: () => import('./modules/reports/reports.module').then( m => m.ReportsPageModule)
+  },
+  {
+    path: 'reports-filters',
+    loadChildren: () => import('./modules/reports-filters/reports-filters.module').then( m => m.ReportsFiltersPageModule)
+  },
+  {
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full'

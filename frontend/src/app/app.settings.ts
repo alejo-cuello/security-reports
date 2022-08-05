@@ -16,6 +16,7 @@ export class Settings {
     insecurityFact: 'insecurityFact',
     insecurityFactTypes: 'insecurityFactTypes',
     map: 'map',
+    reports: 'reports',
     status: 'status',
     user: 'user'
   };
@@ -41,6 +42,11 @@ export class Settings {
     },
     map: {
       getAddress: '/getAddress'
+    },
+    reports: {
+      byClaimType: '/byClaimType',
+      byInsecurityFactType: '/byInsecurityFactType',
+      byMunicipalAgent: '/byMunicipalAgent'
     },
     user: {
       changePassword: '/changePassword',
@@ -71,6 +77,21 @@ export class Settings {
       label: 'Hecho'
     }
   };
+
+  public static reportTypes = {
+    byClaimType: {
+      endPoint: 'byClaimType',
+      label: 'Por tipo de reclamo'
+    },
+    byInsecurityFactType: {
+      endPoint: 'byInsecurityFactType',
+      label: 'Por tipo de hecho'
+    },
+    byMunicipalAgent: {
+      endPoint: 'byMunicipalAgent',
+      label: 'Por agente municipal'
+    }
+  }
 
   public static coordinates = {
     rosario: [-32.94728264360368, -60.64127184874043]

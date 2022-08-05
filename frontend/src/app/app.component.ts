@@ -75,6 +75,11 @@ export class AppComponent {
       icon: 'business-outline'
     },
     {
+      title: 'Reportes',
+      url: '/reports',
+      icon: 'analytics-outline'
+    },
+    {
       title: 'Cerrar sesión',
       url: '/login',
       icon: 'log-out-outline'
