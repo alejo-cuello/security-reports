@@ -98,13 +98,19 @@ export class HttpService {
     }
 
     const url = environment.serverUrl + endPoint;
-    return this.http.post(url, body, this.getHeaders(enctype))
-      .toPromise()
-      .then( (response:any) =>
-        response
-      )
-      .catch(this.handleError.bind(this))
-      .finally(() => { if(showLoading) this.global.hideLoading() });
+    if (endPoint === 'user/loginWithSocialMedia') {
+      return this.http.post(url, body, this.getHeadersForSocialMedia())
+        .toPromise()
+        .then((response:any) => response)
+        .catch(this.handleError.bind(this))
+        .finally(() => { if(showLoading) this.global.hideLoading() });
+    } else {
+      return this.http.post(url, body, this.getHeaders(enctype))
+        .toPromise()
+        .then((response:any) => response)
+        .catch(this.handleError.bind(this))
+        .finally(() => { if(showLoading) this.global.hideLoading() });
+    }
   }
 
   get(endPoint, showLoading, fileOptions = null) {
@@ -183,6 +189,20 @@ export class HttpService {
         headers: new HttpHeaders(headers)
       };
 
+    } else {
+      return {};
+    }
+  }
+
+
+  getHeadersForSocialMedia() {
+    if(this.global.get('securityReports.token')) {
+      let headers: any = {
+        'Authorization': `Bearer ${this.global.get('securityReports.token')}`
+      };
+      return {
+        headers: new HttpHeaders(headers)
+      };
     } else {
       return {};
     }

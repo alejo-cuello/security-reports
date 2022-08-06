@@ -42,6 +42,7 @@ export class Settings {
       login: '/login',
       signup: '/signup',
       editProfileData: '/editProfileData',
+      loginWithSocialMedia: '/loginWithSocialMedia',
     }
   };
 

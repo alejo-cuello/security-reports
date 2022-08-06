@@ -18,11 +18,9 @@ router.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
         failureRedirect: `${process.env.CLIENT_URL}/login`
     }),
-    // TODO: Esto seguro se tiene q pasar a un controlador
-    (req, res) => {
-        // Successful authentication, redirect home.
-        return res.redirect(`${process.env.CLIENT_URL}/pre-login?role=${req.user.role}&token=${req.user.accessToken}`);
-    }
+    userController.preLoginWithSocialMedia
 );
+
+router.post('/loginWithSocialMedia', verifyToken, userController.loginWithSocialMedia);
 
 module.exports = router;

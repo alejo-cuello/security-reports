@@ -1,4 +1,18 @@
 const FacebookStrategy = require("passport-facebook").Strategy;
+const models = require("../models");
+const ApiError = require("../utils/apiError");
+
+
+const searchUser = async (facebookId) => {
+    return await models.Neighbor.findOne({
+        attributes: {
+            exclude: ["password", "facebookId", "emailIsVerified"]
+        },
+        where: {
+            facebookId: facebookId
+        }
+    });
+};
 
 const facebookAuth = (passport) => {
     passport.use(new FacebookStrategy({
@@ -6,17 +20,28 @@ const facebookAuth = (passport) => {
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
         callbackURL: "/user/auth/facebook/callback"
     },
-    (accessToken, refreshToken, profile, done) => {
-        // TODO: Acá debería buscar el usuario en la BD y si no existe, crearlo
-        // User.findOrCreate({ facebookId: profile.id }, (err, user) => {
-        //   return cb(err, user);
-        // });
-
-        done(null, {profile, accessToken, role: "neighbor"});
+    async (accessToken, refreshToken, profile, cb) => {
+        try {
+            const userFromDB = await searchUser(profile.id);
+            if (!userFromDB) {
+                /* TODO:
+                    * Habría q ver si redireccionamos a otra página para q cargue se registre con los datos que faltan (menos nombre, apellido, password).
+                    * El email no lo podemos recuperar del profile, // ? Cómo hacemos?
+                    * Tener en cuenta los términos y condiciones.
+                    * El campo emailIsVerified lo deberíamos poner en true una vez q cargue los datos. No hace falta que confirme el email.
+                    * Cambiar el mesaje de error.
+                */ 
+                throw new ApiError(500, "No encontrado");
+            }
+            cb(null, {profile, accessToken, userFromDB, role: "neighbor"});
+        } catch (error) {
+            cb(error);            
+        }
     }));
 
     passport.serializeUser((user, done) => {
-        done(null, user.profile.id);
+        console.log("serializeUser: ", user);
+        done(null, user.profile);
     });
 
     passport.deserializeUser((user, done) => {

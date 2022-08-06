@@ -60,17 +60,15 @@
   
       <ion-row lines="none">
         <ion-col size="6">
-          <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
-            <a href="http://localhost:3000/user/auth/facebook/" class="btn btn-primary">
-              <ion-icon class="ion-padding-end" name="logo-google" color="dark"></ion-icon>
-              <ion-text color="dark">Google</ion-text>
-            </a>
+          <ion-button color="danger" expand="block" shape="round" class="ion-no-padding">
+            <ion-icon class="ion-padding-end" name="logo-google"></ion-icon>
+            <ion-text color="dark">Google</ion-text>
           </ion-button>
         </ion-col>
         <ion-col size="6">
-          <ion-button color="white" expand="block" shape="round" class="ion-no-padding">
-            <ion-icon class="ion-padding-end" name="logo-facebook" color="tertiary"></ion-icon>
-            <ion-text color="tertiary">Facebook</ion-text>
+          <ion-button color="white" expand="block" shape="round" class="ion-no-padding" (click)="loginWithFacebook()">
+            <ion-icon class="ion-padding-end" name="logo-facebook" color="primary"></ion-icon>
+            <ion-text color="primary">Facebook</ion-text>
           </ion-button>
         </ion-col>
       </ion-row>

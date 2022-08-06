@@ -66,8 +66,8 @@ export class LoginPage extends FormPage {
     this.pageService.navigateRoute('change-password');
   }
 
-  // loginWithFacebook() {
-  //   window.open("http://localhost:3000/user/auth/facebook", "_self");
-  // }
+  loginWithFacebook() {
+    window.open("http://localhost:3000/user/auth/facebook", "_self");
+  }
 
 }
