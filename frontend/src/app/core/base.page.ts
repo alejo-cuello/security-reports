@@ -24,4 +24,12 @@ export class BasePage {
     });
     this.user = this.global.checkUser();
   }
+
+  getQueryString(data: any) {
+    let queryStrings = '?';
+    for (let filter in data) {
+      if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
+    }
+    return queryStrings;
+  }
 }

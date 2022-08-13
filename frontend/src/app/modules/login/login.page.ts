@@ -70,4 +70,8 @@ export class LoginPage extends FormPage {
     this.pageService.navigateRoute('emergency-numbers');
   }
 
+  loginWithFacebook() {
+    window.open("http://localhost:3000/user/auth/facebook", "_self");
+  }
+
 }

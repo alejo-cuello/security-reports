@@ -2,19 +2,41 @@ require('dotenv').config();
 require('./database/db-connection');
 const express = require('express');
 const bodyParser = require('body-parser');
+const passport = require('passport');
+const session = require('express-session');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+// const googleAuth = require('./config/googleAuthConfig');
+const facebookAuth = require('./config/facebookAuthConfig');
+
 
 const PORT = process.env.PORT || 8080;
 
 const app = express();
+
+// Session for Google and Facebook Authentication
+app.use(session({
+    secret: process.env.TOKEN_KEY,
+    resave: false,
+    saveUninitialized: false
+}));
+
 
 // Middleware
 app.use(express.static('../public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+app.use(passport.initialize());
+app.use(passport.session())
+
+
+// Google Authentication
+// googleAuth(passport);
+
+// Facebook Authentication
+facebookAuth(passport);
 
 
 // Routes

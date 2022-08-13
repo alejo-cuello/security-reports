@@ -134,14 +134,6 @@ export class ClaimsPage extends BasePage {
     this.getClaimsByRole();
   }
 
-  getQueryString(data: any) {
-    let queryStrings = '?';
-    for (let filter in data) {
-      if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
-    }
-    return queryStrings;
-  }
-
   getNeighborOptions(neighborId, isInsecurityFact) {
     let isOwnClaim = this.user.neighborId === neighborId;
     let options: AlertInput[] = [

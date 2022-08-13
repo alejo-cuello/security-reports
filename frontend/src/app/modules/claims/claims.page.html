@@ -90,7 +90,7 @@
 
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Creado: </strong> {{ claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <ion-text color="medium"><strong>Creado: </strong> {{ claim?.dateTimeCreation | date: 'dd/MM/yy' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
           <ion-badge class="badge-border ion-no-margin" [color]="getColor(claim?.statusId)" slot="end">{{ claim?.STAdescription }}</ion-badge>
         </ion-item>
@@ -120,7 +120,7 @@
       <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin" (click)="openOptions(insecurityFact?.claimId, insecurityFact?.neighborId, true)">
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Creado:</strong> {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy HH:mm' }}</ion-text>
+          <ion-text color="medium"><strong>Creado:</strong> {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy' }}</ion-text>
 
         </ion-item>
   

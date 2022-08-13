@@ -24,20 +24,17 @@ export class ReportsPage extends BasePage {
     this.reportTypes = Object.values(this.settings.reportTypes);
   }
 
-  getReport(endPointMehod: string) {
-    let endPoint = this.settings.endPoints.reports + this.settings.endPointsMethods.reports[endPointMehod];
-
-    this.pageService.httpGet(endPoint, true)
-      .then( (res) => {
-
-      })
-      .catch( (err) => {
-        this.pageService.showError(err);
-      })
+  goReport(endPointMethod: string, filterDays: any) {
+    this.pageService.navigateRoute('report', {
+      queryParams: {
+        type: endPointMethod,
+        ...filterDays
+      }
+    });
   }
 
   
-  async goToFilters() {
+  async goToFilters(endPointMethod: string) {
     const modal = await this.modalController.create({
       component: ReportsFiltersPage,
       cssClass: 'my-custom-modal-css',
@@ -46,6 +43,7 @@ export class ReportsPage extends BasePage {
     });
 
     modal.onDidDismiss().then( (data) => {
+      if(data.data) this.goReport(endPointMethod, data.data);
     });
 
     await modal.present();
