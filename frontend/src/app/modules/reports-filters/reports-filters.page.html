@@ -9,11 +9,11 @@
 
   <ion-item>
     <ion-label>Fecha desde</ion-label>
-    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
   </ion-item>
   <ion-item>
     <ion-label>Fecha hasta</ion-label>
-    <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
   </ion-item>
 </ion-content>
 

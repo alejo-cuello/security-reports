@@ -12,7 +12,7 @@
   
 <ion-content>
   <ion-item class="align-items-end" *ngIf="role == 'neighbor' && !creating && !item?.own && type == 'claim'">
-    <ion-button color="secondary" slot="end" (click)="hanndleFollow()">
+    <ion-button color="secondary" slot="end" (click)="hanndleFollow()" shape="round">
       {{item?.hasFavorite ? 'Dejar de seguir' : 'Seguir'}} <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
     </ion-button>
   </ion-item>
@@ -70,7 +70,7 @@
           </ion-item>
         </ion-col>
         <ion-col class="centering">
-          <ion-button type="button" color="tertiary" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" (click)="goToMap()">
+          <ion-button type="button" color="tertiary" size="small" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" (click)="goToMap()">
             Localizar
           </ion-button>
         </ion-col>
@@ -90,7 +90,7 @@
       
       <ion-item>
         <ion-label position="floating">Fecha de ocurrencia</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
+        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
           formControlName="dateTimeObservation" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" [max]="today"></ion-datetime>
       </ion-item>
       <div *ngIf="!isFieldValid('dateTimeObservation')" class="invalid-input-message">
@@ -110,7 +110,7 @@
 
       <ion-item *ngIf="!creating">
         <ion-label position="floating">Fecha de creación</ion-label>
-        <ion-datetime displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" [disabled]="(action === 'watch' || action === 'edit' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
+        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" [disabled]="(action === 'watch' || action === 'edit' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
       </ion-item>
       
       <ion-item *ngIf="!creating && role==='municipalAgent' && type == 'claim'">
@@ -122,7 +122,7 @@
     </div>
 
     <div *ngIf="action !== 'watch'" class="action-button">
-      <ion-button expand="block" color="primary" type="submit" [disabled]="!enableButton">
+      <ion-button expand="block" color="primary" type="submit" shape="round" [disabled]="!enableButton">
         <ion-text color="light">
           {{ getButtonName() }}
         </ion-text>

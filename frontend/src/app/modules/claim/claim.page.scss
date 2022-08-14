@@ -34,6 +34,7 @@ ion-content {
 
     .centering{
         position: relative;
+        background-color: #ffffff;
 
         ion-button{
             position: absolute;
@@ -49,5 +50,10 @@ ion-content {
     ion-label {
         color: var(--ion-color-tertiary);
         font-weight: 500;
+    }
+
+    .action-button {
+        margin-left: 16px;
+        margin-right: 16px;
     }
 }
