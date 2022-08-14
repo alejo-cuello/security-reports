@@ -1,9 +1,9 @@
 <ion-content>
-    <ion-grid class="container-img">
+    <ion-grid class="container-img ion-no-padding">
       <ion-row class="ion-justify-content-end">
         <ion-icon name="call" color="danger" class="danger-icon" (click)="goToEmergencyNumbers()"></ion-icon>
       </ion-row>
-      <ion-row class="ion-justify-content-center ion-padding-top">
+      <ion-row class="ion-justify-content-center">
         <ion-col size="10" class="ion-text-center">
           <img src="assets/imgs/logo.png" class="image-login">
         </ion-col>
@@ -16,34 +16,35 @@
           <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
           <ion-label position="stacked">
             Email</ion-label>
-          <ion-input type="email" formControlName="email" class="ion-no-margin"></ion-input>
+          <ion-input type="email" formControlName="email"></ion-input>
         </ion-item>
 
-        <ion-item class="ion-margin-top">
+        <ion-item>
           <ion-icon name="key" slot="start" color="primary"></ion-icon>
           <ion-label position="stacked">Contraseña</ion-label>
-          <ion-input type="password" formControlName="password" class="ion-no-margin"></ion-input>
+          <ion-input type="password" formControlName="password"></ion-input>
         </ion-item>
 
         <ion-radio-group formControlName="role">
           <ion-row class="row-radio-group">
-            <ion-col class="ion-no-padding ion-margin-end">
+            <ion-col class="ion-no-padding">
                 <ion-item>
                     <ion-label><p>Vecino</p></ion-label>
-                    <ion-radio item-left value="neighbor"></ion-radio>
+                    <ion-radio value="neighbor"></ion-radio>
               </ion-item>
             </ion-col>
         
             <ion-col class="ion-no-padding">
                 <ion-item>
                     <ion-label><p>Agente Municipal</p></ion-label>
-                    <ion-radio item-left value="municipalAgent"></ion-radio>
+                    <ion-radio value="municipalAgent"></ion-radio>
               </ion-item>
             </ion-col>
           </ion-row>
         </ion-radio-group>
 
-        <ion-button class="ion-justify-content-center ion-margin-top" expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
+        <ion-button class="ion-justify-content-center ion-margin-top"
+          expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
           <ion-text class="text-bold">
             Ingresar
           </ion-text>
