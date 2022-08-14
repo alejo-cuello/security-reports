@@ -1,19 +1,14 @@
 ion-content {
     ion-grid {
         margin: 5px;
+        margin-top: 15vh;
     }
 }
 
-ion-footer {
-    ion-button {
-        --border-radius: 15px;
-
-        .text-bold {
-            font-weight: 600;
-        }
-    }
+.terms {
+    color: var(--ion-color-medium);
 }
 
-ion-text {
-    text-align: center;
+.title {
+    margin-left: 8px;
 }
