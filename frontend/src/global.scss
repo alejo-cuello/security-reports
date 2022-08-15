@@ -27,6 +27,19 @@
 
 @import "../node_modules/leaflet/dist/leaflet.css";
 
+// (+) Fuentes
+
+@font-face {
+    font-family: 'Roboto-Regular';
+    src: url(../src/assets/fonts/Roboto-Regular.ttf);
+}
+
+* {
+    font-family: 'Roboto-Regular' !important;
+}
+
+// (-) Fuentes
+
 form {
     .invalid-input-message {
         color: var(--ion-color-danger);
