@@ -226,6 +226,7 @@ export class PageService {
 
 
   // (+) Loading
+
   async showLoading(content = 'Procesando...'){
     this.global.showLoading();
   }
@@ -233,14 +234,31 @@ export class PageService {
   async hideLoading(){
     this.global.hideLoading();
   }
+
   // (-) Loading
 
 
-  // (+) Query Param
+  // (+) Query Params
+
   getQueryString() {
     const queryString = window.location.search;
     this.params = new URLSearchParams(queryString);
     return this.params;
   }
-  // (-) Query Param
+
+  // (-) Query Params
+
+  // (+) Logout
+
+  logout() {
+    this.global.removeUser(); // Elimina el usuario del localStorage
+    
+    for(let storage in this.global.settings.storage) {
+      this.global.remove(this.global.settings.storage[storage]);
+    }
+
+    this.navigateRoute('login');
+  }
+  
+  // (-) Logout
 }

@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { GlobalService } from './core/global.service';
 import { PageService } from './core/page.service';
-import { MenuController } from '@ionic/angular';
-import { Observable } from 'rxjs';
+import { MenuController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -11,10 +10,11 @@ import { Observable } from 'rxjs';
 })
 export class AppComponent {
 
+  role: string = "";
+  user: any;
   userFirstName: string = "";
   userLastName: string = "";
   userEmail: string = "";
-  role: string = "";
 
   isLoading = false;
   isLoadingProcessing = false;
@@ -23,16 +23,11 @@ export class AppComponent {
   constructor(
     public pageService: PageService,
     public global: GlobalService,
-    private menuController: MenuController
+    public menuController: MenuController,
+    private platform: Platform
   ){
-    this.global.removeUser(); // Elimina el usuario del localStorage
-    this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
-    this.global.remove('securityReports.token'); // Elimina el token del localStorage
-    this.global.remove('securityReports.typeClaim'); // Elimina el menu a seleccionar en el listado de reclamos
-    this.global.remove('securityReports.contacts'); // Elimina los contactos del vecino del localStorage
-    this.global.remove('securityReports.termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
-
     this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
+    this.initialize();
   }
 
   public appNeighborPages = [
@@ -86,14 +81,25 @@ export class AppComponent {
     }
   ];
 
+  initialize() {
+    this.platform.ready().then(() => {
+      this.user = this.pageService.global.getUser();
+
+      if (!this.user) {
+        this.pageService.navigateRoute('login');
+      }
+      else {
+        this.pageService.navigateRoute('tabs/claims');
+      }
+    });
+  }
+
+  handleAction( url: string ) {
+    if(url === '/login') this.pageService.logout();
+    else this.navigateTo(url);
+  }
+
   navigateTo( url: string ) {
-    if ( url === '/login' ) {
-      this.menuController.enable(false);
-      this.global.removeUser(); // Elimina el usuario del localStorage
-      this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
-      this.global.remove('securityReports.token'); // Elimina el token del localStorage
-      this.global.remove('securityReports.contacts'); // Elimina el token del localStorage
-    }
     this.pageService.navigateRoute( url );
   }
 

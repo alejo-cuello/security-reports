@@ -4,7 +4,7 @@ import * as L from 'leaflet';
 import { ActivatedRoute } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
 import { MapOptionsPage } from '../map-options/map-options.page';
-import { Icon, icon, latLng, marker, tileLayer } from 'leaflet';
+import { icon, latLng, marker, tileLayer } from 'leaflet';
 
 
 @Component({
@@ -180,6 +180,7 @@ export class MapPage extends BasePage {
     this.pageService.httpGetAllWithFilters('institutions/' + institutionsType, 0, '', 100)
       .then( (response) => {
         this.places = response.institutions;
+        if(this.places.length === 0) this.pageService.showError('No se han encontrado instituciones');
         for(let place of this.places) {
           if(place.geojson) {
             let coordinates = place.geojson.geometry.coordinates;
@@ -237,6 +238,10 @@ export class MapPage extends BasePage {
   }
 
   setMarkers(type: string) {
+    if(this.places.length === 0) {
+      const word = type === 'claim' ? 'reclamos' : 'hechos de inseguridad'
+      this.pageService.showError('No se han encontrado ' + word);
+    }
     for(let place of this.places) {
       if(place.longitude && place.latitude) {
         let coordinates: any = [place.latitude, place.longitude];

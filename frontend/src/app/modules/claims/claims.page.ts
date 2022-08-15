@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertInput, ModalController } from '@ionic/angular';
+import { AlertInput } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import { FiltersPage } from '../filters/filters.page';
@@ -29,8 +29,7 @@ export class ClaimsPage extends BasePage {
   selectedStatuses: any[];
 
   constructor(
-    public pageService: PageService,
-    public modalController: ModalController
+    public pageService: PageService
   ) {
     super(pageService);
   }
@@ -110,7 +109,7 @@ export class ClaimsPage extends BasePage {
   }
 
   async goToFilters() {
-    const modal = await this.modalController.create({
+    const modal = await this.pageService.modalCtrl.create({
       component: FiltersPage,
       cssClass: 'my-custom-modal-css',
       componentProps: {

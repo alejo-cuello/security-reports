@@ -4,7 +4,7 @@
 
       <ion-item>
         <ion-text color="light">
-          <h3 class="ion-margin-start ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
+          <h3 class="ion-margin-start text-bold">{{ userFirstName }} {{ userLastName }}</h3>
           <h6 class="ion-margin-start text-bold">{{ userEmail }}</h6>
         </ion-text>
       </ion-item>
@@ -13,7 +13,7 @@
         <ion-list id="inbox-list" *ngIf="role === 'Vecino'">
           <ng-container *ngFor="let page of appNeighborPages">
             <ion-menu-toggle auto-hide="false">
-              <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
+              <ion-item routerDirection="root" lines="none" detail="false" (click)="handleAction(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
                 <ion-label color="light">{{ page.title }}</ion-label>
               </ion-item>
@@ -24,7 +24,7 @@
         <ion-list id="inbox-list" *ngIf="role === 'Agente Municipal'">
           <ng-container *ngFor="let page of appMunicipalAgentPages">
             <ion-menu-toggle auto-hide="false">
-              <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
+              <ion-item routerDirection="root" lines="none" detail="false" (click)="handleAction(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
                 <ion-label color="light">{{ page.title }}</ion-label>
               </ion-item>

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import { ReportsFiltersPage } from '../reports-filters/reports-filters.page';
@@ -14,8 +13,7 @@ export class ReportsPage extends BasePage {
   reportTypes: any[] = [];
 
   constructor(
-    public pageService: PageService,
-    public modalController: ModalController
+    public pageService: PageService
   ) {
     super(pageService);
   }
@@ -35,11 +33,10 @@ export class ReportsPage extends BasePage {
 
   
   async goToFilters(endPointMethod: string) {
-    const modal = await this.modalController.create({
+    const modal = await this.pageService.modalCtrl.create({
       component: ReportsFiltersPage,
       cssClass: 'my-custom-modal-css',
-      componentProps: {
-      }
+      componentProps: {}
     });
 
     modal.onDidDismiss().then( (data) => {
