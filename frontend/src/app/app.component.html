@@ -3,8 +3,8 @@
     <ion-menu contentId="main-content" type="overlay" (ionWillOpen)="loadMenuHeader()">
 
       <ion-item>
-        <ion-text color="tertiary">
-          <h3 class="ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
+        <ion-text color="light">
+          <h3 class="ion-margin-start ion-text-center text-bold">{{ userFirstName }} {{ userLastName }}</h3>
           <h6 class="ion-margin-start text-bold">{{ userEmail }}</h6>
         </ion-text>
       </ion-item>
@@ -15,7 +15,7 @@
             <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
-                <ion-label color="tertiary">{{ page.title }}</ion-label>
+                <ion-label color="light">{{ page.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ng-container>
@@ -26,7 +26,7 @@
             <ion-menu-toggle auto-hide="false">
               <ion-item routerDirection="root" lines="none" detail="false" (click)="navigateTo(page.url)">
                 <ion-icon slot="start" [name]="page.icon" color="primary"></ion-icon>
-                <ion-label>{{ page.title }}</ion-label>
+                <ion-label color="light">{{ page.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ng-container>
