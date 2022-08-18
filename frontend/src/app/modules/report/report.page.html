@@ -8,12 +8,18 @@
 </ion-header>
 
 <ion-content>
-  <div class="graphic-container" id="graphic-container">
+  <div class="no-reports" *ngIf="chartOptions?.series?.length === 0">
     <ion-text color="tertiary">
-      <h1 class="no-reports" *ngIf="chartOptions?.series?.length == 0">No hay reportes disponibles en este rango de fechas</h1>
+      <h1>No hay reportes disponibles en este rango de fechas</h1>
     </ion-text>
-    <apx-chart *ngIf="chartOptions?.series?.length > 0" #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
+  </div>
+
+  <div class="graphic-container" id="graphic-container" *ngIf="chartOptions?.series?.length > 0">
+    <apx-chart #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
       [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle">
     </apx-chart>
+    <ion-button class="ion-margin" expand="block" (click)="downloadReport()" shape="round" type="submit" color="primary">
+      Descargar
+    </ion-button>
   </div>
 </ion-content>

@@ -1,3 +1,11 @@
+ion-content,ion-item {
+    --background: var(--ion-color-light);
+}
+
+ion-footer {
+    background: var(--ion-color-light);
+}
+
 .button-right {
     float: right;
 }

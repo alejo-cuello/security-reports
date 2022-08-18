@@ -283,4 +283,16 @@ export class ClaimPage extends ItemPage {
       .catch( (err) => this.pageService.showError(err) )
       .finally( () => this.global.hideLoading() )
   }
+
+  shareFacebook() {
+    let message = this.item.comment;
+    let picture = this.item.picture || null;
+    this.pageService.socialSharing.shareViaFacebook(message, picture);
+  }
+
+  shareWhatsApp() {
+    let message = this.item.comment;
+    let picture = this.item.picture || null;
+    this.pageService.socialSharing.shareViaWhatsApp(message, picture);
+  }
 }
