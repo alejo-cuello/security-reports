@@ -12,8 +12,14 @@
   
 <ion-content>
   <ion-item class="align-items-end" *ngIf="role == 'neighbor' && !creating && !item?.own && type == 'claim'">
-    <ion-button color="secondary" slot="end" (click)="hanndleFollow()" shape="round">
+    <ion-button color="primary" slot="end" (click)="hanndleFollow()" shape="round">
       {{item?.hasFavorite ? 'Dejar de seguir' : 'Seguir'}} <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
+    </ion-button>
+    <ion-button slot="start" color="tertiary" class="ion-no-padding custom-btn-round" shape="round" (click)="goWhatsApp()">
+      <ion-icon color="light" name="logo-facebook"></ion-icon>
+    </ion-button>
+    <ion-button slot="start" color="success" class="ion-no-padding custom-btn-round" shape="round" (click)="goWhatsApp()">
+      <ion-icon color="light" name="logo-whatsapp"></ion-icon>
     </ion-button>
   </ion-item>
 
