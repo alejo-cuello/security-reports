@@ -8,6 +8,9 @@ import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { File } from '@awesome-cordova-plugins/file/ngx';
+import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
@@ -31,7 +34,10 @@ import { AppComponent } from './app.component';
     Camera,
     SMS,
     InAppBrowser,
-    CallNumber
+    CallNumber,
+    SocialSharing,
+    File,
+    FileOpener
   ],
   bootstrap: [AppComponent],
 })

@@ -86,6 +86,10 @@ export class ReportPage extends BasePage {
     return '';
   }
 
+  downloadReport() {
+    this.pageService.downloadImage('graphic-container', this.settings.reportTypes[this.endPointMethod].label);
+  }
+
   setChartOptions() {
     this.chartOptions = {
       colors: ['#FF9999', '#FFCC99', '#FFFF99', '#CCFF99', '#99FF99', '#99FFFF', '#99CCFF', '#9999FF', '#CC99FF', '#FF99FF', '#FF99CC', '#E0E0E0'],
@@ -93,26 +97,7 @@ export class ReportPage extends BasePage {
         type: "pie",
         height: 700,
         toolbar: {
-          show: true,
-          tools: {
-            download: true,
-            selection: false,
-            zoom: false,
-            zoomin: false,
-            zoomout: false,
-            pan: false,
-            reset: false,
-            customIcons: []
-          },
-          export: {
-            png: {
-              filename: this.endPointLabel
-            },
-            csv: {
-              filename: this.endPointLabel
-            }
-          },
-          // autoSelected: 'zoom' 
+          show: false
         },
       },
       labels: [],

@@ -11,6 +11,10 @@ import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import html2canvas from 'html2canvas';
+import { File } from '@awesome-cordova-plugins/file/ngx';
+import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +45,10 @@ export class PageService {
     public sms: SMS,
     public iab: InAppBrowser,
     public sanitizer: DomSanitizer,
-    public callNumber: CallNumber
+    public callNumber: CallNumber,
+    public socialSharing: SocialSharing,
+    public file: File,
+    public fileOpener: FileOpener
   ) {
   }
 
@@ -220,6 +227,21 @@ export class PageService {
     return this.platform.is('cordova') ?
       this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file)
       : this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file));
+  }
+
+  async downloadImage(elementId: string, title: string) {
+    this.showLoading();
+
+    const canvasElement: any = await html2canvas(document.getElementById(elementId)).catch(error => this.showError(error));
+    
+    canvasElement.toBlob(async (blob) => {
+      const path = this.platform.is('android') ? this.file.dataDirectory : this.file.syncedDataDirectory;
+    
+      await this.file.writeFile(path, title, new Blob([blob]), { replace: true });
+      await this.fileOpener.open(path + '/' + title, 'image/png');
+  
+      this.hideLoading();
+    });
   }
 
   // (-) Image
