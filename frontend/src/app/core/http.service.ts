@@ -221,7 +221,7 @@ export class HttpService {
     let status = 500;
     if(error.status) status = error.status;
 
-    const httpError = {status:status,message:message};
+    const httpError = {status:status, message:message};
 
     return Promise.reject(httpError);
   }
