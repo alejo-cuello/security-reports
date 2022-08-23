@@ -76,7 +76,13 @@ export class ClaimsPage extends BasePage {
         this.claims = response;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
@@ -97,7 +103,13 @@ export class ClaimsPage extends BasePage {
         else  this.insecurityFacts = response;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
