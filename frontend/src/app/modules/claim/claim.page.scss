@@ -17,6 +17,9 @@ ion-content {
         justify-content: center;
         height: 32vh;
         margin-top: 2vh;
+        margin-right: 5vh;
+        margin-left: 5vh;
+        background-color: var(--ion-color-header);
 
         img {
             width: auto;
@@ -27,7 +30,7 @@ ion-content {
         .delete-button{
             position: absolute;
             top: 0px;
-            right: calc(50% - 75px);
+            right: 3vh;
             font-size: 1.5rem;
         }
     }

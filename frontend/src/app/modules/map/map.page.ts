@@ -66,7 +66,7 @@ export class MapPage extends BasePage {
     setTimeout(() => {
       map.invalidateSize();
       this.global.hideLoading();
-    }, 1000);
+    }, 100);
   }
 
   onClick(event: any) {

@@ -3,7 +3,7 @@ import { FormBuilder, NgForm, Validators } from '@angular/forms';
 import { FormPage } from 'src/app/core/form.page';
 import { PageService } from 'src/app/core/page.service';
 import { MenuController } from '@ionic/angular';
-
+import { Keyboard } from '@capacitor/keyboard';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +11,8 @@ import { MenuController } from '@ionic/angular';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage extends FormPage {
+
+  showFooter: boolean = true;
 
   @ViewChild('loginForm') loginForm: NgForm;
   
@@ -22,6 +24,7 @@ export class LoginPage extends FormPage {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
     this.menuController.enable(false);
+    this.addKeyboardEvents();
   }
 
   getFormNew() {
@@ -30,6 +33,21 @@ export class LoginPage extends FormPage {
       password: [null, Validators.required],
       role: [null, Validators.required]
     });
+  }
+
+  addKeyboardEvents() {
+    Keyboard.addListener('keyboardWillShow', info => {
+      this.pageService.zone.run(() => this.showFooter = false);
+    });
+   
+    Keyboard.addListener('keyboardWillHide', () => {
+      this.pageService.zone.run(() => this.showFooter = true);
+    });
+  }
+
+  ionViewWillLeave() {
+    Keyboard.removeAllListeners()
+      .catch((error) => this.pageService.showError(error));
   }
 
   onSubmitPerform(item) {
