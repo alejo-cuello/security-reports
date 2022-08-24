@@ -61,10 +61,19 @@ ion-content {
     }
 
     .align-items-end {
+        ion-button {
+            width: 100px;
+        }
+
         .custom-btn-round {
-            width: 25px;
-            height: 25px;
+            width: 32px;
+            height: 32px;
             margin-right: 4px;
+            margin-left: 5px;
+
+            ion-icon {
+                font-size: 25px;
+            }
         }
     }
 }

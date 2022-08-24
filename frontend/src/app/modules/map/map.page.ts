@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
 import { MapOptionsPage } from '../map-options/map-options.page';
 import { icon, latLng, marker, tileLayer } from 'leaflet';
+import { MenuController } from '@ionic/angular';
 
 
 @Component({
@@ -40,12 +41,14 @@ export class MapPage extends BasePage {
 
   constructor(
     public pageService: PageService,
-    public activatedRoute: ActivatedRoute
+    public activatedRoute: ActivatedRoute,
+    private menuController: MenuController
   ) {
     super(pageService);
   }
 
   ionViewWillEnter() {
+    this.menuController.swipeGesture(false);
     this.role = this.global.load(this.settings.storage.role);
     this.hideMenu = this.pageService.router.url.includes('hideMenu=true');
     this.icon = icon({
@@ -59,6 +62,7 @@ export class MapPage extends BasePage {
 
   ionViewWillLeave() {
     this.lastOption = undefined;
+    this.menuController.swipeGesture(true);
   }
 
   onMapReady(map: L.Map) {

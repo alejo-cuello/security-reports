@@ -112,7 +112,9 @@ export class AppComponent {
     else {
       let message = 'Hola, necesito ayuda!';
       message = message.replace(' ','%20');
-      this.pageService.iab.create('https://wa.me/549' +  contacts[0].phoneNumber + '?text=' + message, "_system");
+      for(let contact of contacts) {
+        this.pageService.iab.create('https://wa.me/549' +  contact.phoneNumber + '?text=' + message, "_system");
+      }
     }
   }
 

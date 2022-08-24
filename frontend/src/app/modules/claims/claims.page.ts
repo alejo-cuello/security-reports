@@ -16,6 +16,7 @@ export class ClaimsPage extends BasePage {
   haveFilters: boolean = false;
   prevFilters: any;
   role: string;
+  showFilterButton: boolean = false;
 
   claims: any[] = [];
   claimTypes: any[] = [];
@@ -74,6 +75,8 @@ export class ClaimsPage extends BasePage {
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.claims = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
         if(error.status === 401)  {
@@ -101,6 +104,8 @@ export class ClaimsPage extends BasePage {
       .then( (response) => {
         if(this.menu === 'claim') this.claims = response;
         else  this.insecurityFacts = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
         if(error.status === 401)  {

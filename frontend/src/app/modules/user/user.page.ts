@@ -168,7 +168,7 @@ export class UserPage extends ItemPage implements OnDestroy {
     else {
       this.pageService.showSuccess('Cambios guardados exitosamente');
       this.global.saveUser(res); // Guarda el usuario actualizado en el localStorage
-      this.pageService.navigateBack();
+      this.pageService.navigateRoute('tabs/claims');
     }
   }
 }
