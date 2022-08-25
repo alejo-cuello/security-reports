@@ -291,8 +291,26 @@ export class ClaimPage extends ItemPage {
   }
 
   shareWhatsApp() {
-    let message = this.item.comment;
+    let type = this.item.insecurityFactTypeId ? 'Hecho' : 'Reclamo';
+    let message = 'Report & Alert \n '
+      + type + ' compartido! \n '
+      + 'Fecha de observacion: ' + this.getDate(this.item.dateTimeObservation) + ' \n '
+      + 'Ubicación: ' + this.item.street + ' ' + this.item.streetNumber + ' \n '
+      + 'Categoría: '
+        + (
+          this.item.CTdescription
+            ? (this.item.CTdescription + ' ' + this.item.CSCdescription)
+            : (this.item.insecurityFactType.IFTdescription)
+        )
+      + ' \n '
+      + (this.item.comment ? ('Descripcion: ' + this.item.comment) : '');
+
     let picture = this.item.picture || null;
     this.pageService.socialSharing.shareViaWhatsApp(message, picture);
+  }
+
+  getDate(date: string) {
+    let onlyDate = date.split('T')[0].split('-');
+    return (onlyDate[2] + '/' + onlyDate[1] + '/' + onlyDate[0]);
   }
 }
