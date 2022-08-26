@@ -157,23 +157,27 @@ export class ClaimsPage extends BasePage {
         type: 'radio',
         label: 'Ver detalle',
         value: 'watch'
-      },
-      { 
+      }
+    ];
+    if(isOwnClaim) {
+      options.push({ 
         type: 'radio',
         label: 'Editar',
         value: 'edit'
-      },
-      { 
-        type: 'radio',
-        label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
-        value: isOwnClaim ? 'delete' : 'deleteFavorite'
-      }
-    ];
-    if(!isInsecurityFact) options.push({
+      });
+    }
+    options.push({ 
       type: 'radio',
-      label: 'Seguimiento de estados',
-      value: 'tracking'
+      label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
+      value: isOwnClaim ? 'delete' : 'deleteFavorite'
     });
+    if(!isInsecurityFact) {
+      options.push({
+        type: 'radio',
+        label: 'Seguimiento de estados',
+        value: 'tracking'
+      });
+    }
     return options;
   }
 
