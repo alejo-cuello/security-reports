@@ -25,12 +25,13 @@ const facebookAuth = (passport) => {
             const userFromDB = await searchUser(profile.id);
             if (!userFromDB) {
                 /* TODO:
-                    * Habría q ver si redireccionamos a otra página para q cargue se registre con los datos que faltan (menos nombre, apellido, password).
+                    * Habría q ver si redireccionamos a otra página para q cargue los datos que faltan (menos nombre, apellido, ¿password?).
                     * El email no lo podemos recuperar del profile, // ? Cómo hacemos?
                     * Tener en cuenta los términos y condiciones.
                     * El campo emailIsVerified lo deberíamos poner en true una vez q cargue los datos. No hace falta que confirme el email.
                     * Cambiar el mesaje de error.
                 */ 
+                console.log("PERO  QUE CARAJO!");
                 throw new ApiError(500, "No encontrado");
             }
             cb(null, {profile, accessToken, userFromDB, role: "neighbor"});
