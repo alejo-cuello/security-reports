@@ -14,10 +14,12 @@
     </ion-text>
   </div>
 
-  <div class="graphic-container" id="graphic-container" *ngIf="chartOptions?.series?.length > 0">
-    <apx-chart #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
-      [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle">
-    </apx-chart>
+  <div class="graphic-container" *ngIf="chartOptions?.series?.length > 0">
+    <div id="graphic-container">
+      <apx-chart #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
+        [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle">
+      </apx-chart>
+    </div>
     <ion-button class="ion-margin" expand="block" (click)="downloadReport()" shape="round" type="submit" color="primary">
       Descargar
     </ion-button>

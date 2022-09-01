@@ -9,6 +9,7 @@ import {
   ApexTitleSubtitle,
   ApexLegend
 } from "ng-apexcharts"; 
+import * as moment from 'moment';
 
 export type ChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -86,8 +87,22 @@ export class ReportPage extends BasePage {
     return '';
   }
 
-  downloadReport() {
-    this.pageService.downloadImage('graphic-container', this.settings.reportTypes[this.endPointMethod].label);
+  async downloadReport() {
+
+    this.pageService.showLoading();
+
+    const titleChart
+      = 'Informe '
+      + this.settings.reportTypes[this.endPointMethod].label.toLowerCase()
+      + ' '
+      + this.pageService.getDate(moment().format());
+    
+    const base64 = await this.chart.dataURI();
+    
+    this.pageService.socialSharing.share(titleChart, 'informe.png', base64.imgURI)
+      .then(res => console.log(res))
+      .catch(err => console.log(err))
+      .finally(() => this.pageService.hideLoading())
   }
 
   setChartOptions() {
