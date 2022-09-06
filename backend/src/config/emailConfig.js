@@ -35,11 +35,10 @@ const getEmailTemplateSignup = (firstName, token) => {
         <h1>Hola ${ firstName }, gracias por registrarse</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="http://localhost:3000/user/signup/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="https://proyecto-final.fly.dev/user/signup/confirmEmail/${ token }">aquí</a>.
         </p>
     </div>
     `
-    // TODO: Llegado el caso de subir el backend a heroku, cambiar la URL del href por el de heroku
 };
 
 
@@ -49,7 +48,7 @@ const getEmailTemplateChangePassword = (firstName, token) => {
         <h1>Hola ${ firstName }, has solicitado cambiar la contraseña</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme el cambio de contraseña haciendo click <a href="http://localhost:3000/user/changePassword/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme el cambio de contraseña haciendo click <a href="https://proyecto-final.fly.dev/user/changePassword/confirmEmail/${ token }">aquí</a>.
         </p>
         <p>
             Si no has solicitado este cambio, ignora este correo.
