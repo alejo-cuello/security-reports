@@ -24,6 +24,9 @@ export class LoginPage extends FormPage {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
     this.menuController.enable(false);
+  }
+
+  ionViewWillEnter() {
     this.addKeyboardEvents();
   }
 

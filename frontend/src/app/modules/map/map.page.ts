@@ -187,7 +187,7 @@ export class MapPage extends BasePage {
         if(this.places.length === 0) this.pageService.showError('No se han encontrado instituciones');
         for(let place of this.places) {
           if(place.geojson) {
-            let coordinates = place.geojson.geometry.coordinates;
+            let coordinates = JSON.parse(place.geojson).geometry.coordinates;
             let markerCoordinates: any = [ coordinates[1], coordinates[0] ];
             this.layers.push(
               marker(
