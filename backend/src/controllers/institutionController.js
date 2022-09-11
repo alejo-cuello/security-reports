@@ -12,11 +12,6 @@ const getSecurityInstitutions = async (req, res, next) => {
         let institutions = response.data.result.records;
         const total = response.data.result.total;
         
-        // Agrego este for para poder obtener las coordenadas en el front
-        for(let institution of institutions) {
-            if(institution.geojson) institution.geojson = JSON.parse(institution.geojson);
-        }
-
         return res.status(200).json({
             institutions,
             total
@@ -38,11 +33,6 @@ const getHealthInstitutions = async (req, res, next) => {
 
         const institutions = response.data.result.records;
         const total = response.data.result.total;
-
-        // Agrego este for para poder obtener las coordenadas en el front
-        for(let institution of institutions) {
-            if(institution.geojson) institution.geojson = JSON.parse(institution.geojson);
-        }
 
         return res.status(200).json({
             institutions,
