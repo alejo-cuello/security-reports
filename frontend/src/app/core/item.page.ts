@@ -124,10 +124,13 @@ export abstract class ItemPage extends FormPage {
   }
 
   initializePre(item?) {
+    return new Promise( (resolve, reject) => {
+      resolve(true);
+    });
   }
 
-  initialize() {
-    this.initializePre();
+  async initialize() {
+    await this.initializePre().catch((err) => this.pageService.showError(err));
     this.processing = true;
     const paramId = this.getParamId();
     if(!paramId) {

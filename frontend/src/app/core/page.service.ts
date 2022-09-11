@@ -12,9 +12,7 @@ import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
-import html2canvas from 'html2canvas';
 import { File } from '@awesome-cordova-plugins/file/ngx';
-import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -47,8 +45,7 @@ export class PageService {
     public sanitizer: DomSanitizer,
     public callNumber: CallNumber,
     public socialSharing: SocialSharing,
-    public file: File,
-    public fileOpener: FileOpener
+    public file: File
   ) {
   }
 
@@ -213,6 +210,8 @@ export class PageService {
         mediaType: this.camera.MediaType.PICTURE,
         sourceType: source == 'gallery' ? this.camera.PictureSourceType.PHOTOLIBRARY : this.camera.PictureSourceType.CAMERA,
         correctOrientation: true,
+        targetHeight: 750,
+        targetWidth: 750
         // allowEdit: true
       };
       this.camera.getPicture(cameraOptions).then((file) => {
@@ -224,24 +223,13 @@ export class PageService {
   }
 
   trustResourceUrl(file){
-    return this.platform.is('cordova') ?
-      this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file)
-      : this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file));
-  }
-
-  async downloadImage(elementId: string, title: string) {
-    this.showLoading();
-
-    const canvasElement: any = await html2canvas(document.getElementById(elementId)).catch(error => this.showError(error));
-    
-    canvasElement.toBlob(async (blob) => {
-      const path = this.platform.is('android') ? this.file.dataDirectory : this.file.syncedDataDirectory;
-    
-      await this.file.writeFile(path, title, new Blob([blob]), { replace: true });
-      await this.fileOpener.open(path + '/' + title, 'image/png');
-  
-      this.hideLoading();
-    });
+    if(this.platform.is('cordova')) {
+      if(file.name) return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file.name[0]));
+      else return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
+    }
+    else {
+      return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
+    }
   }
 
   // (-) Image
@@ -283,4 +271,9 @@ export class PageService {
   }
   
   // (-) Logout
+
+  getDate(date: string) {
+    let onlyDate = date.split('T')[0].split('-');
+    return (onlyDate[2] + '/' + onlyDate[1] + '/' + onlyDate[0]);
+  }
 }

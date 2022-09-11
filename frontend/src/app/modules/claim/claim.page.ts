@@ -19,6 +19,7 @@ export class ClaimPage extends ItemPage {
   role: string;
   type: string;
 
+  base64File: any;
   categories: any[];
   enableButton: boolean;
   picture: any;
@@ -48,15 +49,16 @@ export class ClaimPage extends ItemPage {
     });
   }
 
-  initializePre() {
-    this.getCategories();
-    this.getStatus();
+  async initializePre() {
     this.enableButton = (this.role === 'municipalAgent') ? false : true;    
+    await this.getCategories().catch(error => this.pageService.showError(error));
+    await this.getStatus().catch(error => this.pageService.showError(error));
   }
 
   ionViewWillEnter() {
     this.today = moment().format('YYYY-MM-DD');
-    if(this.form.value.photo) this.picture = this.pageService.trustResourceUrl(this.form.value.photo);
+    if(this.creating && this.form.value.photo) this.picture = this.pageService.trustResourceUrl(this.form.value.photo);
+    
     let addressInfo = this.global.pop(this.settings.storage.addressInfo);
     if(addressInfo) {
       this.form.patchValue({
@@ -67,11 +69,6 @@ export class ClaimPage extends ItemPage {
       });
     }
   }
-
-  ionViewDidLeave() {
-    this.picture = null;
-  }
-
 
   showMapMessage() {
     if( ( this.action === 'edit' && this.role === 'neighbor' ) || this.creating ) {
@@ -99,12 +96,13 @@ export class ClaimPage extends ItemPage {
 
       const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
       this.pageService.httpGet(endPoint, false, fileOptions)
-      .then( (res) => {
-        this.picture = this.pageService.trustResourceUrl(res);
-      })
-      .catch( (err) => {
-        this.pageService.showError(err);
-      })
+        .then( (res) => {
+          this.picture = this.pageService.trustResourceUrl(res);
+          this.base64File = res;
+        })
+        .catch( (err) => {
+          this.pageService.showError(err);
+        })
     }
   }
 
@@ -135,13 +133,16 @@ export class ClaimPage extends ItemPage {
   getStatus() {
     const endPoint = this.settings.endPoints.status;
 
-    this.pageService.httpGetAll(endPoint)
-      .then( (res) => {
-        this.statuses = res;
-      })
-      .catch( (err) => {
-        this.pageService.showError(err);
-      })
+    return new Promise((resolve, reject) => 
+      this.pageService.httpGetAll(endPoint)
+        .then( (res) => {
+          this.statuses = res;
+          resolve(true);
+        })
+        .catch( (err) => {
+          reject(err);
+        })
+    );
   }
 
   getCategories() {
@@ -149,13 +150,16 @@ export class ClaimPage extends ItemPage {
       this.settings.endPoints.claimTypes
       : this.settings.endPoints.insecurityFactTypes;
 
-    this.pageService.httpGetAll(endPoint)
-      .then( (response) => {
-        this.categories = response;
-      })
-      .catch( (error) => {
-        this.pageService.showError(error);
-      })
+    return new Promise((resolve, reject) => 
+      this.pageService.httpGetAll(endPoint)
+        .then( (response) => {
+          this.categories = response;
+          resolve(true);
+        })
+        .catch( (error) => {
+          reject(error);
+        })
+    );
   }
 
   getFormNew() {
@@ -287,14 +291,20 @@ export class ClaimPage extends ItemPage {
   shareFacebook() {
     let message = this.item.comment;
     let picture = this.item.picture || null;
-    this.pageService.socialSharing.shareViaFacebook(message, picture);
+    this.pageService.socialSharing.shareViaFacebookWithPasteMessageHint(message, picture)
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
-  shareWhatsApp() {
+  async shareWhatsApp() {
     let type = this.item.insecurityFactTypeId ? 'Hecho' : 'Reclamo';
     let message = 'Report & Alert \n '
       + type + ' compartido! \n '
-      + 'Fecha de observacion: ' + this.getDate(this.item.dateTimeObservation) + ' \n '
+      + 'Fecha de observación: ' + this.pageService.getDate(this.item.dateTimeObservation) + ' \n '
       + 'Ubicación: ' + this.item.street + ' ' + this.item.streetNumber + ' \n '
       + 'Categoría: '
         + (
@@ -303,14 +313,17 @@ export class ClaimPage extends ItemPage {
             : (this.item.insecurityFactType.IFTdescription)
         )
       + ' \n '
-      + (this.item.comment ? ('Descripcion: ' + this.item.comment) : '');
+      + (this.item.comment ? ('Descripción: ' + this.item.comment) : '');
 
-    let picture = this.item.picture || null;
-    this.pageService.socialSharing.shareViaWhatsApp(message, picture);
+      const image = this.base64File
+        ? "data:image/jpg;base64," + this.base64File
+        : null
+
+    this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
   }
 
-  getDate(date: string) {
-    let onlyDate = date.split('T')[0].split('-');
-    return (onlyDate[2] + '/' + onlyDate[1] + '/' + onlyDate[0]);
-  }
 }

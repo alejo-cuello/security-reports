@@ -11,14 +11,14 @@
 </ion-header>
   
 <ion-content>
-  <ion-item class="align-items-end" *ngIf="role == 'neighbor' && !creating && !item?.own && type == 'claim'">
+  <ion-item class="align-items-end" *ngIf="role == 'neighbor' && action === 'watch' && !item?.own && type == 'claim'">
     <ion-button color="primary" slot="end" (click)="hanndleFollow()" shape="round">
       {{item?.hasFavorite ? 'Dejar de seguir' : 'Seguir'}}
       <ion-icon color="warning" name="star" slot="end"  class="favorite" *ngIf="!item?.hasFavorite"></ion-icon>
     </ion-button>
   </ion-item>
 
-  <ion-item class="align-items-end" *ngIf="role == 'neighbor' && !creating && item?.own && type == 'claim'">
+  <ion-item class="align-items-end" *ngIf="role == 'neighbor' && action === 'watch' && item?.own && type == 'claim'">
     <ion-button slot="end" color="tertiary" class="ion-no-padding custom-btn-round" shape="round" (click)="shareFacebook()">
       <ion-icon color="light" name="logo-facebook"></ion-icon>
     </ion-button>

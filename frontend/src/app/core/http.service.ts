@@ -120,7 +120,7 @@ export class HttpService {
     let headers: any = this.getHeaders('json', fileOptions);
 
     if(fileOptions) {
-      headers.responseType = 'blob';
+      headers.responseType = 'text';
     }
 
     const url = environment.serverUrl + endPoint;
@@ -128,8 +128,7 @@ export class HttpService {
     return this.http.get(url, headers)
       .toPromise()
       .then( (response:any) => {
-        if(fileOptions) return this.getFile(response, fileOptions.fileExtension)
-        else return response;
+        return response;
       })
       .catch( (error) => {
         return this.handleError(error);
