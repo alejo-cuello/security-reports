@@ -212,7 +212,6 @@ export class PageService {
         correctOrientation: true,
         targetHeight: 750,
         targetWidth: 750
-        // allowEdit: true
       };
       this.camera.getPicture(cameraOptions).then((file) => {
         resolve(file);
@@ -222,7 +221,7 @@ export class PageService {
     }
   }
 
-  trustResourceUrl(file){
+  trustResourceUrl(file) {
     if(this.platform.is('cordova')) {
       if(file.name) return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file.name[0]));
       else return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
@@ -230,6 +229,26 @@ export class PageService {
     else {
       return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
     }
+  }
+
+  base64toBlob(data, contentType: string = 'image/jpg', sliceSize: number = 512) {
+    const byteCharacters = atob(data);
+    const byteArrays = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+  
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+  
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
   }
 
   // (-) Image

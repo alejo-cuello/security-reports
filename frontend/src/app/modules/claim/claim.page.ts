@@ -22,6 +22,7 @@ export class ClaimPage extends ItemPage {
   base64File: any;
   categories: any[];
   enableButton: boolean;
+  newPhoto: boolean = false;
   picture: any;
   selectedClaimType: number;
   statuses: any[];
@@ -214,6 +215,8 @@ export class ClaimPage extends ItemPage {
 
     if(this.creating) item.dateTimeCreation = moment().toISOString();
     if(this.role === 'municipalAgent')  item.bodyType = 'json';
+
+    if(this.newPhoto) item.newPhoto = this.newPhoto;
   }
 
   savePost(item: any) {
@@ -236,6 +239,7 @@ export class ClaimPage extends ItemPage {
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {
+          this.newPhoto = true;
           this.form.patchValue( { photo: response } );
           this.picture = this.pageService.trustResourceUrl(response);
         }

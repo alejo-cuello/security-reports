@@ -156,9 +156,6 @@ export class HttpService {
   // (-) Basic
 
 
-  getFile(blob: any, fileExtension: string) {
-    return new File([blob], 'filename.' + fileExtension)
-  }
 
 
   getOptions(offset, query, limit) {
