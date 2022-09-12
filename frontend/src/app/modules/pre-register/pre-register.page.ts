@@ -29,6 +29,7 @@ export class PreRegisterPage extends FormPage {
   };
 
   goToRegister() {
+    this.formSubmitAttempt = true;
     if ( this.form.valid ) {
       this.global.save(this.settings.storage.termsAndConditionsAccepted, this.form.value.termsAndConditionsAccepted);
       this.global.save(this.settings.storage.role, this.form.value.role);
