@@ -72,6 +72,10 @@ form {
     --background: var(--ion-color-white) !important;
 }
 
+.validate-row-radio-group {
+    border-bottom: 2px var(--ion-color-danger) solid;
+}
+
 ion-content {
     --background: var(--ion-color-light);
 }

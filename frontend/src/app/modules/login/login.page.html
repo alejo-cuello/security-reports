@@ -27,7 +27,7 @@
         </ion-item>
 
         <ion-radio-group formControlName="role">
-          <ion-row class="row-radio-group">
+          <ion-row class="row-radio-group" [ngClass]="(formSubmitAttempt && !form.value.role) ? 'validate-row-radio-group' : ''">
             <ion-col class="ion-no-padding">
                 <ion-item>
                     <ion-label><p>Vecino</p></ion-label>
@@ -44,8 +44,7 @@
           </ion-row>
         </ion-radio-group>
 
-        <ion-button class="ion-justify-content-center ion-margin-top"
-          expand="block" shape="round" type="submit" [disabled]="!this.loginForm.valid">
+        <ion-button class="ion-justify-content-center ion-margin-top" expand="block" shape="round" type="submit">
           <ion-text class="text-bold">
             Ingresar
           </ion-text>

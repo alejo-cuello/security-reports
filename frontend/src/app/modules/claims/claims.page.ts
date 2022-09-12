@@ -203,6 +203,7 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
+            if(!action) return;
             if(action === 'delete') {
               let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
               endPoint += '/' + id;

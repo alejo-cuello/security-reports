@@ -9,7 +9,7 @@
 
 <ion-content>
   <ion-grid>
-    <ion-row>
+    <ion-row [ngClass]="(formSubmitAttempt && !form.value.role) ? 'validate-row-radio-group' : ''">
       <ion-text class="ion-margin-top title">
         <p><strong>Elija su rol dentro de la aplicación:</strong></p>
       </ion-text>
@@ -28,8 +28,11 @@
         </ion-item>
       </ion-radio-group>
 
-      <ion-item class="ion-margin-top">
-        <p class="terms">Para crear tu cuenta tenés que aceptar los <a [routerLink]="['/terms-and-conditions']">Términos y Condiciones</a></p>
+      <ion-item class="ion-margin-top terms" [ngClass]="(formSubmitAttempt && !form.value.termsAndConditionsAccepted) ? 'validate-row-radio-group' : ''">
+        <p>
+          Para crear tu cuenta tenés que aceptar los
+          <a [routerLink]="['/terms-and-conditions']">Términos y Condiciones</a>
+        </p>
         <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
         </ion-checkbox>
       </ion-item>
@@ -38,7 +41,7 @@
       </div>
     </form>
 
-    <ion-button class="ion-margin-top" expand="block" shape="round" color="primary" (click)="goToRegister()" [disabled]="!this.form.valid">
+    <ion-button class="ion-margin-top" expand="block" shape="round" color="primary" (click)="goToRegister()">
       <ion-text color="light" class="text-bold">Siguiente</ion-text>
     </ion-button>
   </ion-grid>

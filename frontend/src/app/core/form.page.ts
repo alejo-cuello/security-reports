@@ -45,7 +45,7 @@ export abstract class FormPage extends BasePage {
     if (this.formValidated()) {
       this.onSubmitPerform(this.form.value);
     } else {
-      this.validateAllFormFields(this.form); //{7}
+      this.validateAllFormFields(this.form);
     }
   }
 

@@ -6,7 +6,9 @@ ion-content {
 }
 
 .terms {
-    color: var(--ion-color-medium);
+    color: dark;
+    font-size: 15px;
+    --background: transparent;
 }
 
 .title {
