@@ -2,6 +2,13 @@ ion-content,ion-item {
     --background: var(--ion-color-light);
 }
 
+ion-header {
+    background: var(--ion-color-primary);
+    .item-header {
+        --background: transparent;
+    }
+}
+
 ion-footer {
     background: var(--ion-color-light);
 }

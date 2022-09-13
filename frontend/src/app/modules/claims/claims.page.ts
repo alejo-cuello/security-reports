@@ -193,6 +193,7 @@ export class ClaimsPage extends BasePage {
       header: 'Opciones',
       inputs: this.getNeighborOptions(neighborId, isInsecurityFact),
       mode: 'ios',
+      backdropDismiss: false,
       buttons: [
         {
           text: 'CANCELAR',

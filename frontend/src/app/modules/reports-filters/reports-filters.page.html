@@ -1,12 +1,12 @@
-<ion-content>
-  <div>
-    <ion-item>
-      <ion-text color="primary">
-        <h4>Filtros de reporte</h4>
-      </ion-text>
-    </ion-item>
-  </div>
+<ion-header>
+  <ion-item class="item-header">
+    <ion-text color="light">
+      <h4>Filtros de reporte</h4>
+    </ion-text>
+  </ion-item>
+</ion-header>
 
+<ion-content>
   <ion-item>
     <ion-label>Fecha desde</ion-label>
     <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
