@@ -18,6 +18,7 @@ export class MapPage extends BasePage {
 
   coordinates: any;
   hideMenu: boolean;
+  formSubmitAttempt: boolean = false;
   lastOption: string = '';
   marker: any;
   markers: any[] = [];
@@ -149,6 +150,7 @@ export class MapPage extends BasePage {
       this.pageService.navigateBack();
     }
     else {
+      this.formSubmitAttempt = true;
       this.pageService.showError('Por favor marque la posición en el mapa y complete los campos');
     }
   }

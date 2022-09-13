@@ -29,13 +29,13 @@
         <ion-col>
           <ion-item>
             <ion-label position="floating">Calle</ion-label>
-            <ion-input [(ngModel)]="street"></ion-input>
+            <ion-input [(ngModel)]="street" [ngClass]="(formSubmitAttempt && !street) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col>
           <ion-item>
             <ion-label position="floating">Número</ion-label>
-            <ion-input [(ngModel)]="streetNumber"></ion-input>
+            <ion-input [(ngModel)]="streetNumber" [ngClass]="(formSubmitAttempt && !streetNumber) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
