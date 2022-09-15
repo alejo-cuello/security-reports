@@ -4,21 +4,28 @@ import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import {
   ChartComponent,
-  ApexNonAxisChartSeries,
   ApexChart,
   ApexTitleSubtitle,
-  ApexLegend
+  ApexLegend,
+  ApexXAxis,
+  ApexDataLabels,
+  ApexAxisChartSeries,
+  ApexYAxis,
 } from "ng-apexcharts"; 
+
 import * as moment from 'moment';
 
 export type ChartOptions = {
-  series: ApexNonAxisChartSeries;
+  series: ApexAxisChartSeries;
   chart: ApexChart;
   title: ApexTitleSubtitle;
   labels: string[];
   colors: string[];
   legend: ApexLegend;
   subtitle: ApexTitleSubtitle;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  dataLabels: ApexDataLabels;
 };
 
 @Component({
@@ -52,6 +59,7 @@ export class ReportPage extends BasePage {
       this.getReport();
     })
   }
+
   getReport() {
     let endPoint = this.settings.endPoints.reports + this.settings.endPointsMethods.reports[this.endPointMethod]
     endPoint += this.getQueryString(this.filterDate);
@@ -66,17 +74,40 @@ export class ReportPage extends BasePage {
   }
 
   cleanEmptyValues(response: any) {
-    let labels = [];
-    let series = [];
+    let categories: any = [];
+    let labels: any = [];
+    let series: any = [];
 
-    for(let index in response.series) {
-      if(response.series[index] > 0) {
-        labels.push(response.categories ? response.categories[index] : response.labels[index]);
-        series.push(response.series[index]);
+    if(("/" + this.endPointMethod) == this.settings.endPointsMethods.reports.byInsecurityFactType) {
+      for(let index in response.series) {
+        if(response.series[index] > 0) {
+          labels.push(response.labels[index]);
+          series.push(response.series[index]);
+        }
+      }
+    }
+    else {
+      series = [];
+
+      for(let index in response.series) {
+        if(response.series[index] > 0) {
+          let data = [];
+          for(let p = 0; p < parseInt(index); p++) {
+            data.push(0);
+          }
+          data.push(response.series[index]);
+          series.push({
+            name: response.categories[index],
+            data
+          });
+          }
       }
     }
 
-    this.chartOptions.labels = labels;
+    if(("/" + this.endPointMethod) == this.settings.endPointsMethods.reports.byInsecurityFactType) {
+      this.chartOptions.labels = labels;
+    }
+
     this.chartOptions.series = series;
   }
 
@@ -109,11 +140,12 @@ export class ReportPage extends BasePage {
     this.chartOptions = {
       colors: ['#FF9999', '#FFCC99', '#FFFF99', '#CCFF99', '#99FF99', '#99FFFF', '#99CCFF', '#9999FF', '#CC99FF', '#FF99FF', '#FF99CC', '#E0E0E0'],
       chart: {
-        type: "pie",
-        height: 700,
+        type: ("/" + this.endPointMethod) == this.settings.endPointsMethods.reports.byInsecurityFactType ? "pie" : "bar",
+        height: 450,
         toolbar: {
           show: false
         },
+        stacked: true,
       },
       labels: [],
       legend: {
@@ -144,7 +176,15 @@ export class ReportPage extends BasePage {
           color: '#777777'
         }
       },
-      series: null
+      series: null,
+      xaxis: {
+        labels: {
+          show: false
+        }
+      },
+      yaxis: {
+        tickAmount: 1
+      }
     }
   }
 }

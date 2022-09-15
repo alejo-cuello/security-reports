@@ -17,7 +17,8 @@
   <div class="graphic-container" *ngIf="chartOptions?.series?.length > 0">
     <div id="graphic-container">
       <apx-chart #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
-        [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle">
+        [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle"
+        [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis">
       </apx-chart>
     </div>
     <ion-button class="ion-margin" expand="block" (click)="downloadReport()" shape="round" type="submit" color="primary">
