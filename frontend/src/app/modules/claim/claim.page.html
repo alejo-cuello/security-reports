@@ -100,8 +100,8 @@
       
       <ion-item>
         <ion-label position="floating">Fecha de ocurrencia</ion-label>
-        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
-          formControlName="dateTimeObservation" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" [max]="today"></ion-datetime>
+        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"  min="2021-01-01T00:00:00" [max]="today"
+          formControlName="dateTimeObservation" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
       </ion-item>
       <div *ngIf="!isFieldValid('dateTimeObservation')" class="invalid-input-message">
         {{getFieldError('dateTimeObservation')}}

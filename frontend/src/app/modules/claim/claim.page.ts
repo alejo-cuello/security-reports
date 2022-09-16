@@ -229,7 +229,12 @@ export class ClaimPage extends ItemPage {
   }
 
   onChangeClaimType() {
-    this.subcategories = this.categories.find(category => category.claimTypeId == this.selectedClaimType).claimSubcategory;
+    this.pageService.zone.run(() => {
+      this.subcategories = this.categories.find(category => category.claimTypeId == this.selectedClaimType).claimSubcategory;
+      if(!this.subcategories.find(subcategory => subcategory.claimSubcategoryId == this.form.value.claimSubcategoryId)) {
+        this.form.patchValue({ claimSubcategoryId: null });
+      }
+    });
   }
 
   changePicture() {
@@ -327,7 +332,7 @@ export class ClaimPage extends ItemPage {
       .then((res) => {
         console.log(res);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => this.pageService.showError(err));
   }
 
 }

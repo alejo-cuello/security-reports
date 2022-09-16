@@ -32,7 +32,6 @@ export class StatusTrackingPage extends BasePage {
         this.statuses = res.status_claim;
       })
       .catch( (err) => {
-        console.log(err);
         this.pageService.showError(err);
       })
   }
