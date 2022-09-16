@@ -74,7 +74,6 @@ export class ReportPage extends BasePage {
   }
 
   cleanEmptyValues(response: any) {
-    let categories: any = [];
     let labels: any = [];
     let series: any = [];
 
@@ -92,7 +91,7 @@ export class ReportPage extends BasePage {
       for(let index in response.series) {
         if(response.series[index] > 0) {
           let data = [];
-          for(let p = 0; p < parseInt(index); p++) {
+          for(let p = 0; p < series.length; p++) {
             data.push(0);
           }
           data.push(response.series[index]);
@@ -115,7 +114,7 @@ export class ReportPage extends BasePage {
     if(this.filterDate.startDate && this.filterDate.endDate)  return 'Entre el ' + this.filterDate.startDate + ' y el ' + this.filterDate.endDate;
     if(this.filterDate.startDate)  return 'Desde el ' + this.filterDate.startDate;
     if(this.filterDate.endDate)  return 'Hasta el ' + this.filterDate.endDate;
-    return '';
+    return 'Sin rango de fechas';
   }
 
   async downloadReport() {
@@ -132,7 +131,7 @@ export class ReportPage extends BasePage {
     
     this.pageService.socialSharing.share(titleChart, 'informe.png', base64.imgURI)
       .then(res => console.log(res))
-      .catch(err => console.log(err))
+      .catch(err => this.pageService.showError(err))
       .finally(() => this.pageService.hideLoading())
   }
 
