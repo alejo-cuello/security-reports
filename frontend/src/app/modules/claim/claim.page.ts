@@ -326,7 +326,7 @@ export class ClaimPage extends ItemPage {
 
       const image = this.base64File
         ? "data:image/jpg;base64," + this.base64File
-        : null
+        : null;
 
     this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
       .then((res) => {
