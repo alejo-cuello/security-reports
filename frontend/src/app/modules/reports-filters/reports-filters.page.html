@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-item class="item-header">
+    <ion-text color="light">
+      <h4>Filtros de reporte</h4>
+    </ion-text>
+  </ion-item>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label>Fecha desde</ion-label>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
+  </ion-item>
+  <ion-item>
+    <ion-label>Fecha hasta</ion-label>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [min]="dateFrom" [max]="today" [(ngModel)]="dateTo"></ion-datetime>
+  </ion-item>
+</ion-content>
+
+<ion-footer>
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="primary" (click)="sendFilters()">
+    <ion-text>
+      Continuar
+    </ion-text>
+  </ion-button>
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="medium" (click)="cancel()">
+    <ion-text>
+      Cancelar
+    </ion-text>
+  </ion-button>
+</ion-footer>

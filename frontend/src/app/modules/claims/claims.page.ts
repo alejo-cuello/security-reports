@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertInput, ModalController } from '@ionic/angular';
+import { AlertInput } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import { FiltersPage } from '../filters/filters.page';
@@ -16,6 +16,7 @@ export class ClaimsPage extends BasePage {
   haveFilters: boolean = false;
   prevFilters: any;
   role: string;
+  showFilterButton: boolean = false;
 
   claims: any[] = [];
   claimTypes: any[] = [];
@@ -29,38 +30,23 @@ export class ClaimsPage extends BasePage {
   selectedStatuses: any[];
 
   constructor(
-    public pageService: PageService,
-    public modalController: ModalController
+    public pageService: PageService
   ) {
     super(pageService);
   }
 
   ionViewWillEnter() {
     this.role = this.global.load(this.settings.storage.role);
-
-    this.global.remove(this.settings.storage.coordinates);
-    this.global.remove(this.settings.storage.street);
-    this.global.remove(this.settings.storage.streetNumber);
-
-    if(this.role === 'neighbor') {
-      this.menu = 'claim';
-      this.getClaims();
-    }
-    else {
-      this.menu = 'pendingClaims';
-      this.getPendingClaims();
-    }
+    this.global.remove(this.settings.storage.addressInfo);
+    this.getClaimsByRole();
+    
+    if(!this.menu)  this.menu = this.role === 'neighbor' ? 'claim' : 'pendingClaims';
   }
 
   changeSegment() {
     this.prevFilters = null;
-    if(this.role === 'neighbor') {
-      this.getClaims();
-    }
-    else {
-      if(this.menu === 'pendingClaims') this.getPendingClaims();
-      else this.getTakenClaims();
-    }
+    this.haveFilters = false;
+    this.getClaimsByRole();
   }
 
   getColor( statusId: number ) {
@@ -70,45 +56,47 @@ export class ClaimsPage extends BasePage {
     else if(statusId <= 7)  return 'danger';
   }
 
-  getPendingClaims() {
-    const endPoint = this.settings.endPoints.claim
-      + this.settings.endPointsMethods.claim.pending;
+  getClaimsByRole() {
+    if(this.role === 'neighbor') this.getClaims();
+    else  this.getPendingClaims();
+  }
+
+  getPendingClaims( filters?: any ) {
+    let endPoint = this.settings.endPoints.claim;
+    endPoint += this.menu === 'pendingClaims'
+      ? this.settings.endPointsMethods.claim.pending
+      : this.settings.endPointsMethods.claim.takenClaims;
+    
+    if(this.prevFilters) {
+      endPoint += this.getQueryString(this.prevFilters);
+      if(filters != '?')  this.haveFilters = true;
+    }
 
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.claims = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
-  getTakenClaims() {
-    const endPoint = this.settings.endPoints.claim
-      + this.settings.endPointsMethods.claim.takenClaims;
-
-    this.pageService.httpGetAll(endPoint)
-      .then( (response) => {
-        this.claims = response;
-      })
-      .catch( (error) => {
-        this.claims = [];
-        // this.pageService.showError(error);
-      })
-  }
-
-  getClaims( type?: string[], subcategory?: string[], filters?: any ) {
-    let endPoint = (this.menu === 'claim') ? 
-      this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
+  getClaims( filters?: any ) {
+    let endPoint = (this.menu === 'claim')
+      ? this.settings.endPoints.claim + this.settings.endPointsMethods.claim.favorites
       : this.settings.endPoints.insecurityFact;
 
-    if(subcategory) endPoint += '?claimSubcategory=' + subcategory;
-    else if(type) {
-      if( this.menu === 'claim' ) endPoint += '?claimType=' + type;
-      else endPoint += '?insecurityFactType=' + type;
-    }
-    else if(filters) {
-      endPoint += filters;
+    // Query filters
+    if(this.prevFilters) {
+      endPoint += this.getQueryString(this.prevFilters);
       if(filters != '?')  this.haveFilters = true;
     }
 
@@ -116,19 +104,29 @@ export class ClaimsPage extends BasePage {
       .then( (response) => {
         if(this.menu === 'claim') this.claims = response;
         else  this.insecurityFacts = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        console.log(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
-  goToClaim( action?: string, id?: string) {
+  goToClaim(action?: string, id?: string) {
     const role = this.global.load(this.settings.storage.role);
-    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: this.getType() } } );
+    const type = this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
+
+    this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: type } } );
   }
 
   async goToFilters() {
-    const modal = await this.modalController.create({
+    const modal = await this.pageService.modalCtrl.create({
       component: FiltersPage,
       cssClass: 'my-custom-modal-css',
       componentProps: {
@@ -140,7 +138,7 @@ export class ClaimsPage extends BasePage {
 
     modal.onDidDismiss().then( (data) => {
       if(data.data) this.prevFilters = data.data;
-      this.getClaims(null, null, this.getQueryString(this.prevFilters));
+      this.getClaimsByRole();
     });
 
     await modal.present();
@@ -149,19 +147,7 @@ export class ClaimsPage extends BasePage {
   deleteFilters() {
     this.haveFilters = false;
     this.prevFilters = null;
-    this.getClaims();
-  }
-
-  getType() {
-    return this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
-  }
-
-  getQueryString(data: any) {
-    let queryStrings = '?'
-    for (let filter in data) {
-      if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
-    }
-    return queryStrings;
+    this.getClaimsByRole();
   }
 
   getNeighborOptions(neighborId, isInsecurityFact) {
@@ -171,23 +157,27 @@ export class ClaimsPage extends BasePage {
         type: 'radio',
         label: 'Ver detalle',
         value: 'watch'
-      },
-      { 
+      }
+    ];
+    if(isOwnClaim) {
+      options.push({ 
         type: 'radio',
         label: 'Editar',
         value: 'edit'
-      },
-      { 
-        type: 'radio',
-        label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
-        value: isOwnClaim ? 'delete' : 'deleteFavorite'
-      }
-    ];
-    if(!isInsecurityFact) options.push({
+      });
+    }
+    options.push({ 
       type: 'radio',
-      label: 'Seguimiento de estados',
-      value: 'tracking'
+      label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
+      value: isOwnClaim ? 'delete' : 'deleteFavorite'
     });
+    if(!isInsecurityFact) {
+      options.push({
+        type: 'radio',
+        label: 'Seguimiento de estados',
+        value: 'tracking'
+      });
+    }
     return options;
   }
 
@@ -202,6 +192,8 @@ export class ClaimsPage extends BasePage {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
       inputs: this.getNeighborOptions(neighborId, isInsecurityFact),
+      mode: 'ios',
+      backdropDismiss: false,
       buttons: [
         {
           text: 'CANCELAR',
@@ -212,6 +204,7 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
+            if(!action) return;
             if(action === 'delete') {
               let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
               endPoint += '/' + id;

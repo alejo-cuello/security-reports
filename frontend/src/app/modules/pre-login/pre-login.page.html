@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Inicio de sesión</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-row class="ion-justify-content-center ion-padding-top">
+    <ion-text>
+      <h3>Has iniciado sesión con {{socialMedia}}</h3>
+    </ion-text>
+  </ion-row>
+
+  <form class="form" #loginWithSocialMediaForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-row class="ion-justify-content-center ion-padding-top">
+      <ion-col class="ion-text-center">
+        <ion-button type="submit" expand="block" shape="round">
+          <ion-icon name="log-in-outline" class="ion-padding-end"></ion-icon>
+          <ion-text class="text-bold">
+            Ingresar
+          </ion-text>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
+
+  <ion-row class="ion-justify-content-center ion-padding-top">
+    <ion-col class="ion-text-center">
+      <ion-button color="white" expand="block" shape="round" (click)="goToLogin()">
+        <ion-icon name="arrow-back-outline" class="ion-padding-end"></ion-icon>
+        <ion-text class="text-bold">
+          Volver
+        </ion-text>
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

@@ -1,36 +1,48 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="tertiary">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-back-button *ngIf="hideMenu"></ion-back-button>
+      <ion-menu-button *ngIf="!hideMenu"></ion-menu-button>
     </ion-buttons>
     <ion-title>Ubicación</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div id="map" class="map-complete" #map></div>
+  <div class="map-complete"
+     leaflet 
+     [leafletOptions]="options"
+     [leafletLayers]="layers"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletClick)="onClick($event)">
+  </div>
+  <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!hideMenu">
+    <ion-fab-button (click)="openMapOptions()">
+      <ion-icon name="information-circle-outline" color="white"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="hideMenu">
     <ion-grid>
       <ion-row>
         <ion-col>
           <ion-item>
             <ion-label position="floating">Calle</ion-label>
-            <ion-input [(ngModel)]="street"></ion-input>
+            <ion-input [(ngModel)]="street" [ngClass]="(formSubmitAttempt && !street) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col>
           <ion-item>
             <ion-label position="floating">Número</ion-label>
-            <ion-input [(ngModel)]="streetNumber"></ion-input>
+            <ion-input [(ngModel)]="streetNumber" [ngClass]="(formSubmitAttempt && !streetNumber) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
   
   <div class="btn-container">
-    <ion-button expand="block" type="button" (click)="goToClaims()">
+    <ion-button expand="block" type="button" (click)="goToClaims()" shape="round">
       <ion-text color="light">
         Continuar
       </ion-text>

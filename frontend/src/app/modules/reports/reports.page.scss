@@ -1,0 +1,24 @@
+ion-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+ion-grid {
+    margin: 5px;
+    margin-top: 15vh;
+}
+
+.card-custom {
+    background-color: var(--ion-color-secondary);
+    height: 10vh;
+    width: 80%;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 3vh;
+    text-align: center;
+    padding: 5px;
+    color: var(--ion-color-tertiary);
+}

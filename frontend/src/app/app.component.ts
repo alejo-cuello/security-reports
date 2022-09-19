@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { GlobalService } from './core/global.service';
 import { PageService } from './core/page.service';
-import { MenuController } from '@ionic/angular';
-import { Observable } from 'rxjs';
+import { MenuController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -11,21 +10,24 @@ import { Observable } from 'rxjs';
 })
 export class AppComponent {
 
+  role: string = "";
+  user: any;
   userFirstName: string = "";
   userLastName: string = "";
   userEmail: string = "";
-  role: string = "";
+
+  isLoading = false;
+  isLoadingProcessing = false;
+  loading: any;
 
   constructor(
     public pageService: PageService,
     public global: GlobalService,
-    private menuController: MenuController
+    public menuController: MenuController,
+    private platform: Platform
   ){
-    this.global.removeUser(); // Elimina el usuario del localStorage
-    this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
-    this.global.remove('securityReports.token'); // Elimina el token del localStorage
-    this.global.remove('securityReports.contacts'); // Elimina los contactos del vecino del localStorage
-    this.global.remove('termsAndConditionsAccepted'); // Elimina bandera de términos y condiciones del localStorage
+    this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
+    this.initialize();
   }
 
   public appNeighborPages = [
@@ -68,20 +70,36 @@ export class AppComponent {
       icon: 'business-outline'
     },
     {
+      title: 'Reportes',
+      url: '/reports',
+      icon: 'analytics-outline'
+    },
+    {
       title: 'Cerrar sesión',
       url: '/login',
       icon: 'log-out-outline'
     }
   ];
 
+  initialize() {
+    this.platform.ready().then(() => {
+      this.user = this.pageService.global.getUser();
+
+      if (!this.user) {
+        this.pageService.navigateRoute('login');
+      }
+      else {
+        this.pageService.navigateRoute('tabs/claims');
+      }
+    });
+  }
+
+  handleAction( url: string ) {
+    if(url === '/login') this.pageService.logout();
+    else this.navigateTo(url);
+  }
+
   navigateTo( url: string ) {
-    if ( url === '/login' ) {
-      this.menuController.enable(false);
-      this.global.removeUser(); // Elimina el usuario del localStorage
-      this.global.remove('securityReports.role'); // Elimina el rol del usuario del localStorage
-      this.global.remove('securityReports.token'); // Elimina el token del localStorage
-      this.global.remove('securityReports.contacts'); // Elimina el token del localStorage
-    }
     this.pageService.navigateRoute( url );
   }
 
@@ -94,7 +112,9 @@ export class AppComponent {
     else {
       let message = 'Hola, necesito ayuda!';
       message = message.replace(' ','%20');
-      this.pageService.iab.create('https://wa.me/549' +  contacts[0].phoneNumber + '?text=' + message, "_system");
+      for(let contact of contacts) {
+        this.pageService.iab.create('https://wa.me/549' +  contact.phoneNumber + '?text=' + message, "_system");
+      }
     }
   }
 
@@ -120,5 +140,22 @@ export class AppComponent {
 
   loadMenuHeader() {
     this.setUserData();
+  }
+
+  async showLoading(content = 'Procesando...') {
+    if (this.isLoading) return;
+    
+    this.isLoading = true;
+    this.isLoadingProcessing = true;
+    
+    this.loading = await this.pageService.loadingController.create({ message: content });
+    await this.loading.present();
+    this.isLoadingProcessing = false;
+  }
+
+  hideLoading() {
+    if (this.isLoadingProcessing) return setTimeout(() => this.hideLoading(), 100);
+    if (this.loading) this.loading.dismiss();
+    this.isLoading = false;
   }
 }

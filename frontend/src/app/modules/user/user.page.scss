@@ -6,4 +6,13 @@ ion-content {
             font-weight: 600;
         }
     }
+
+    ion-item {
+        color: var(--ion-color-primary);
+    }
+}
+
+.submit-button {
+    margin-right: 16px;
+    margin-left: 16px;
 }

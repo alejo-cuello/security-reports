@@ -1,7 +1,6 @@
 import { FormPage } from 'src/app/core/form.page';
-import { Component, ViewChild } from '@angular/core';
-import { ItemPage } from 'src/app/core/item.page';
-import { FormBuilder, NgForm, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { PageService } from 'src/app/core/page.service';
 
 @Component({
@@ -17,7 +16,7 @@ export class PreRegisterPage extends FormPage {
   ) {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
-    this.global.remove('termsAndConditionsAccepted');
+    this.global.remove(this.settings.storage.termsAndConditionsAccepted);
   }
 
   onSubmitPerform() {}
@@ -30,9 +29,11 @@ export class PreRegisterPage extends FormPage {
   };
 
   goToRegister() {
+    this.formSubmitAttempt = true;
     if ( this.form.valid ) {
-      this.global.save('termsAndConditionsAccepted', this.form.value.termsAndConditionsAccepted);
-      this.pageService.navigateRoute( '/register', { queryParams: { role: this.form.value.role } } );
+      this.global.save(this.settings.storage.termsAndConditionsAccepted, this.form.value.termsAndConditionsAccepted);
+      this.global.save(this.settings.storage.role, this.form.value.role);
+      this.pageService.navigateRoute('/register');
     };
   };
 

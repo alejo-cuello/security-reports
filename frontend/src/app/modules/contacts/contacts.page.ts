@@ -25,7 +25,6 @@ export class ContactsPage extends BasePage {
       })
       .catch( (error) => {
         this.pageService.showError(error);
-        console.log(error);
       })
   }
 
@@ -41,11 +40,10 @@ export class ContactsPage extends BasePage {
       .then( (response) => {
         this.contacts = [];
         this.getContacts();
-        this.pageService.showSuccess('Contacto borrado correctamente');
+        this.pageService.showSuccess('Contacto borrado exitosamente');
       })
       .catch( (error) => {
         this.pageService.showError(error);
-        console.log(error);
       })
   }
 

@@ -1,6 +1,6 @@
 <form [formGroup]="form">
   <ion-item-group>
-    <ion-item-divider>
+    <ion-item-divider class="ion-margin-top">
       <ion-label>
         Datos personales
       </ion-label>
@@ -8,7 +8,7 @@
     
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Nombre*</ion-label>
-        <ion-input type="text" formControlName="firstName" [readonly]="!creating"></ion-input>
+        <ion-input type="text" formControlName="firstName"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('firstName')" class="invalid-input-message">
         {{getFieldError('firstName')}}
@@ -17,7 +17,7 @@
       
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Apellido*</ion-label>
-        <ion-input type="text" formControlName="lastName" [readonly]="!creating"></ion-input>
+        <ion-input type="text" formControlName="lastName"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('lastName')" class="invalid-input-message">
         {{getFieldError('lastName')}}
@@ -32,7 +32,7 @@
       </div>
 
       <ion-item-group *ngIf="creating">
-        <ion-item-divider>
+        <ion-item-divider class="ion-margin-top">
           <ion-label>
             Datos de la cuenta
           </ion-label>
@@ -63,7 +63,6 @@
           {{getFieldError('confirmPassword')}}
         </div>
   
-        <ion-item-divider></ion-item-divider>
       </ion-item-group>
   </ion-item-group>
 </form>

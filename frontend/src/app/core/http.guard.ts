@@ -16,7 +16,7 @@ export class HttpGuard implements CanActivate {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const token = this.global.get('securityReports.token'); // Trae el token guardado en el LocalStorage
+    const token = this.global.load(this.global.settings.storage.token);
     if ( state.url === '/register?role=neighbor' || state.url === '/register?role=municipalAgent' ) {
       // Con este if permitimos el acceso a la página de registro
       return true;
@@ -27,22 +27,4 @@ export class HttpGuard implements CanActivate {
       this.pageService.navigateRoute('login'); // Si no existe el token, redirige al login
     }
   };
-
-  // canActivate(next: ActivatedRouteSnapshot): Promise<boolean> {
-  //   return new Promise(async (resolve) => {
-  //     const user = this.global.getUser();
-  //     if( user ) {
-  //       const userRoles = [...user.roles || []];
-  //       if(!next.data.roles?.some(r => userRoles.includes(r))) {
-  //         resolve( false );
-  //       } else {
-  //         if (next.data.noUser) resolve( false );
-  //         else resolve( true );
-  //       }
-  //     } else {
-  //       if (next.data.noUser) resolve( true );
-  //       else resolve( false );
-  //     }
-  //   });
-  // }
 }
