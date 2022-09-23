@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertInput, ModalController } from '@ionic/angular';
+import { AlertInput } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 import { PageService } from 'src/app/core/page.service';
 import { FiltersPage } from '../filters/filters.page';
@@ -16,6 +16,7 @@ export class ClaimsPage extends BasePage {
   haveFilters: boolean = false;
   prevFilters: any;
   role: string;
+  showFilterButton: boolean = false;
 
   claims: any[] = [];
   claimTypes: any[] = [];
@@ -29,8 +30,7 @@ export class ClaimsPage extends BasePage {
   selectedStatuses: any[];
 
   constructor(
-    public pageService: PageService,
-    public modalController: ModalController
+    public pageService: PageService
   ) {
     super(pageService);
   }
@@ -75,9 +75,17 @@ export class ClaimsPage extends BasePage {
     this.pageService.httpGetAll(endPoint)
       .then( (response) => {
         this.claims = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
@@ -96,9 +104,17 @@ export class ClaimsPage extends BasePage {
       .then( (response) => {
         if(this.menu === 'claim') this.claims = response;
         else  this.insecurityFacts = response;
+
+        this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        if(error.status === 401)  {
+          this.pageService.logout();
+          this.pageService.showError(error);
+        }
+        else {
+          this.pageService.showError(error);
+        }
       })
   }
 
@@ -110,7 +126,7 @@ export class ClaimsPage extends BasePage {
   }
 
   async goToFilters() {
-    const modal = await this.modalController.create({
+    const modal = await this.pageService.modalCtrl.create({
       component: FiltersPage,
       cssClass: 'my-custom-modal-css',
       componentProps: {
@@ -134,14 +150,6 @@ export class ClaimsPage extends BasePage {
     this.getClaimsByRole();
   }
 
-  getQueryString(data: any) {
-    let queryStrings = '?';
-    for (let filter in data) {
-      if(data[filter]) queryStrings = queryStrings + (filter + '=' + data[filter] + '&');
-    }
-    return queryStrings;
-  }
-
   getNeighborOptions(neighborId, isInsecurityFact) {
     let isOwnClaim = this.user.neighborId === neighborId;
     let options: AlertInput[] = [
@@ -149,23 +157,27 @@ export class ClaimsPage extends BasePage {
         type: 'radio',
         label: 'Ver detalle',
         value: 'watch'
-      },
-      { 
+      }
+    ];
+    if(isOwnClaim) {
+      options.push({ 
         type: 'radio',
         label: 'Editar',
         value: 'edit'
-      },
-      { 
-        type: 'radio',
-        label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
-        value: isOwnClaim ? 'delete' : 'deleteFavorite'
-      }
-    ];
-    if(!isInsecurityFact) options.push({
+      });
+    }
+    options.push({ 
       type: 'radio',
-      label: 'Seguimiento de estados',
-      value: 'tracking'
+      label: isOwnClaim ? 'Eliminar' : 'Eliminar favorito',
+      value: isOwnClaim ? 'delete' : 'deleteFavorite'
     });
+    if(!isInsecurityFact) {
+      options.push({
+        type: 'radio',
+        label: 'Seguimiento de estados',
+        value: 'tracking'
+      });
+    }
     return options;
   }
 
@@ -180,6 +192,8 @@ export class ClaimsPage extends BasePage {
     const alert = await this.pageService.alertCtrl.create({
       header: 'Opciones',
       inputs: this.getNeighborOptions(neighborId, isInsecurityFact),
+      mode: 'ios',
+      backdropDismiss: false,
       buttons: [
         {
           text: 'CANCELAR',
@@ -190,6 +204,7 @@ export class ClaimsPage extends BasePage {
         }, {
           text: 'OK',
           handler: (action) => {
+            if(!action) return;
             if(action === 'delete') {
               let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
               endPoint += '/' + id;

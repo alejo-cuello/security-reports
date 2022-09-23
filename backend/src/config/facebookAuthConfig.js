@@ -31,7 +31,6 @@ const facebookAuth = (passport) => {
                     * El campo emailIsVerified lo deberíamos poner en true una vez q cargue los datos. No hace falta que confirme el email.
                     * Cambiar el mesaje de error.
                 */ 
-                console.log("PERO  QUE CARAJO!");
                 throw new ApiError(500, "No encontrado");
             }
             cb(null, {profile, accessToken, userFromDB, role: "neighbor"});

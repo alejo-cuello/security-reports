@@ -37,7 +37,6 @@ export class AddContactPage extends ItemPage {
       })
       .catch( (error) => {
         this.pageService.showError(error);
-        console.log(error);
       })
     }
 

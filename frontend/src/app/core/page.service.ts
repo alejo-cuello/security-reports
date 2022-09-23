@@ -11,6 +11,8 @@ import { SMS } from '@awesome-cordova-plugins/sms/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
+import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
+import { File } from '@awesome-cordova-plugins/file/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +43,9 @@ export class PageService {
     public sms: SMS,
     public iab: InAppBrowser,
     public sanitizer: DomSanitizer,
-    public callNumber: CallNumber
+    public callNumber: CallNumber,
+    public socialSharing: SocialSharing,
+    public file: File
   ) {
   }
 
@@ -206,7 +210,8 @@ export class PageService {
         mediaType: this.camera.MediaType.PICTURE,
         sourceType: source == 'gallery' ? this.camera.PictureSourceType.PHOTOLIBRARY : this.camera.PictureSourceType.CAMERA,
         correctOrientation: true,
-        // allowEdit: true
+        targetHeight: 750,
+        targetWidth: 750
       };
       this.camera.getPicture(cameraOptions).then((file) => {
         resolve(file);
@@ -216,16 +221,41 @@ export class PageService {
     }
   }
 
-  trustResourceUrl(file){
-    return this.platform.is('cordova') ?
-      this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file)
-      : this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file));
+  trustResourceUrl(file) {
+    if(this.platform.is('cordova')) {
+      if(file.name) return this.sanitizer.bypassSecurityTrustResourceUrl(URL.createObjectURL(file.name[0]));
+      else return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
+    }
+    else {
+      return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + file);
+    }
+  }
+
+  base64toBlob(data, contentType: string = 'image/jpg', sliceSize: number = 512) {
+    const byteCharacters = atob(data);
+    const byteArrays = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+  
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+  
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
   }
 
   // (-) Image
 
 
   // (+) Loading
+
   async showLoading(content = 'Procesando...'){
     this.global.showLoading();
   }
@@ -233,14 +263,36 @@ export class PageService {
   async hideLoading(){
     this.global.hideLoading();
   }
+
   // (-) Loading
 
 
-  // (+) Query Param
+  // (+) Query Params
+
   getQueryString() {
     const queryString = window.location.search;
     this.params = new URLSearchParams(queryString);
     return this.params;
   }
-  // (-) Query Param
+
+  // (-) Query Params
+
+  // (+) Logout
+
+  logout() {
+    this.global.removeUser(); // Elimina el usuario del localStorage
+    
+    for(let storage in this.global.settings.storage) {
+      this.global.remove(this.global.settings.storage[storage]);
+    }
+
+    this.navigateRoute('login');
+  }
+  
+  // (-) Logout
+
+  getDate(date: string) {
+    let onlyDate = date.split('T')[0].split('-');
+    return (onlyDate[2] + '/' + onlyDate[1] + '/' + onlyDate[0]);
+  }
 }

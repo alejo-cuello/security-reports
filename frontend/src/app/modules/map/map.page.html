@@ -1,7 +1,8 @@
 <ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start" *ngIf="hideMenu">
-      <ion-back-button></ion-back-button>
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-back-button *ngIf="hideMenu"></ion-back-button>
+      <ion-menu-button *ngIf="!hideMenu"></ion-menu-button>
     </ion-buttons>
     <ion-title>Ubicación</ion-title>
   </ion-toolbar>
@@ -28,20 +29,20 @@
         <ion-col>
           <ion-item>
             <ion-label position="floating">Calle</ion-label>
-            <ion-input [(ngModel)]="street"></ion-input>
+            <ion-input [(ngModel)]="street" [ngClass]="(formSubmitAttempt && !street) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col>
           <ion-item>
             <ion-label position="floating">Número</ion-label>
-            <ion-input [(ngModel)]="streetNumber"></ion-input>
+            <ion-input [(ngModel)]="streetNumber" [ngClass]="(formSubmitAttempt && !streetNumber) ? 'validate-row-radio-group' : ''"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
   
   <div class="btn-container">
-    <ion-button expand="block" type="button" (click)="goToClaims()">
+    <ion-button expand="block" type="button" (click)="goToClaims()" shape="round">
       <ion-text color="light">
         Continuar
       </ion-text>

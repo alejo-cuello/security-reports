@@ -353,6 +353,7 @@ const loginWithSocialMedia = async (req, res, next) => {
     try {
         let token = req.headers['authorization'].split(' ')[1];
         const tokenData = await getTokenData(token);
+        console.log("req.body", req.body);
         if ( req.body.role !== 'neighbor' ) {
             throw ApiError.forbidden('No tienes permisos para iniciar sesión');
         };

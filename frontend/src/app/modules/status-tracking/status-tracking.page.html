@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar color="tertiary">
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
@@ -12,8 +12,11 @@
     <ion-list class="ion-margin-bottom">
       <ion-item lines="none" class="ion-align-items-start" *ngFor="let status of statuses; index as i">
         <img slot="start" [src]="getCheckImage(i)" alt="">
-        <ion-label class="ion-no-margin">{{status?.status?.STAdescription}}</ion-label>
-        <ion-label class="ion-no-margin">{{status?.dateTimeStatusStart | date: 'dd/MM/yy HH:mm'}}</ion-label>
+        <ion-label class="ion-no-margin">
+          <strong>{{status?.status?.STAdescription}}</strong>
+          <br>
+          <p><strong>{{status?.dateTimeStatusStart | date: 'dd/MM/yy'}}</strong></p>
+        </ion-label>
       </ion-item>
     </ion-list>
   </div>

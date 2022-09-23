@@ -19,8 +19,10 @@ export class ClaimPage extends ItemPage {
   role: string;
   type: string;
 
+  base64File: any;
   categories: any[];
   enableButton: boolean;
+  newPhoto: boolean = false;
   picture: any;
   selectedClaimType: number;
   statuses: any[];
@@ -48,15 +50,16 @@ export class ClaimPage extends ItemPage {
     });
   }
 
-  initializePre() {
-    this.getCategories();
-    this.getStatus();
+  async initializePre() {
     this.enableButton = (this.role === 'municipalAgent') ? false : true;    
+    await this.getCategories().catch(error => this.pageService.showError(error));
+    await this.getStatus().catch(error => this.pageService.showError(error));
   }
 
   ionViewWillEnter() {
     this.today = moment().format('YYYY-MM-DD');
-    if(this.form.value.photo) this.picture = this.pageService.trustResourceUrl(this.form.value.photo);
+    if(this.creating && this.form.value.photo) this.picture = this.pageService.trustResourceUrl(this.form.value.photo);
+    
     let addressInfo = this.global.pop(this.settings.storage.addressInfo);
     if(addressInfo) {
       this.form.patchValue({
@@ -67,11 +70,6 @@ export class ClaimPage extends ItemPage {
       });
     }
   }
-
-  ionViewDidLeave() {
-    this.picture = null;
-  }
-
 
   showMapMessage() {
     if( ( this.action === 'edit' && this.role === 'neighbor' ) || this.creating ) {
@@ -99,12 +97,13 @@ export class ClaimPage extends ItemPage {
 
       const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
       this.pageService.httpGet(endPoint, false, fileOptions)
-      .then( (res) => {
-        this.picture = this.pageService.trustResourceUrl(res);
-      })
-      .catch( (err) => {
-        this.pageService.showError(err);
-      })
+        .then( (res) => {
+          this.picture = this.pageService.trustResourceUrl(res);
+          this.base64File = res;
+        })
+        .catch( (err) => {
+          this.pageService.showError(err);
+        })
     }
   }
 
@@ -135,13 +134,16 @@ export class ClaimPage extends ItemPage {
   getStatus() {
     const endPoint = this.settings.endPoints.status;
 
-    this.pageService.httpGetAll(endPoint)
-      .then( (res) => {
-        this.statuses = res;
-      })
-      .catch( (err) => {
-        this.pageService.showError(err);
-      })
+    return new Promise((resolve, reject) => 
+      this.pageService.httpGetAll(endPoint)
+        .then( (res) => {
+          this.statuses = res;
+          resolve(true);
+        })
+        .catch( (err) => {
+          reject(err);
+        })
+    );
   }
 
   getCategories() {
@@ -149,13 +151,16 @@ export class ClaimPage extends ItemPage {
       this.settings.endPoints.claimTypes
       : this.settings.endPoints.insecurityFactTypes;
 
-    this.pageService.httpGetAll(endPoint)
-      .then( (response) => {
-        this.categories = response;
-      })
-      .catch( (error) => {
-        this.pageService.showError(error);
-      })
+    return new Promise((resolve, reject) => 
+      this.pageService.httpGetAll(endPoint)
+        .then( (response) => {
+          this.categories = response;
+          resolve(true);
+        })
+        .catch( (error) => {
+          reject(error);
+        })
+    );
   }
 
   getFormNew() {
@@ -210,6 +215,8 @@ export class ClaimPage extends ItemPage {
 
     if(this.creating) item.dateTimeCreation = moment().toISOString();
     if(this.role === 'municipalAgent')  item.bodyType = 'json';
+
+    if(this.newPhoto) item.newPhoto = this.newPhoto;
   }
 
   savePost(item: any) {
@@ -222,7 +229,12 @@ export class ClaimPage extends ItemPage {
   }
 
   onChangeClaimType() {
-    this.subcategories = this.categories.find(category => category.claimTypeId == this.selectedClaimType).claimSubcategory;
+    this.pageService.zone.run(() => {
+      this.subcategories = this.categories.find(category => category.claimTypeId == this.selectedClaimType).claimSubcategory;
+      if(!this.subcategories.find(subcategory => subcategory.claimSubcategoryId == this.form.value.claimSubcategoryId)) {
+        this.form.patchValue({ claimSubcategoryId: null });
+      }
+    });
   }
 
   changePicture() {
@@ -232,6 +244,7 @@ export class ClaimPage extends ItemPage {
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {
+          this.newPhoto = true;
           this.form.patchValue( { photo: response } );
           this.picture = this.pageService.trustResourceUrl(response);
         }
@@ -259,4 +272,67 @@ export class ClaimPage extends ItemPage {
 
     this.pageService.navigateRoute('/map', { queryParams: {hideMenu: true} });
   }
+
+  hanndleFollow() {
+    let endPoint = this.settings.endPoints.claim + '/';
+    let method;
+
+    if(this.item.hasFavorite) {
+      endPoint += this.settings.endPointsMethods.favorites.deleteClaimMarkedAsFavorite;
+      method = 'httpDelete';
+    }
+    else {
+      endPoint += this.settings.endPointsMethods.favorites.markClaimAsFavorite;
+      method = 'httpPost';
+    }
+
+    endPoint += '/' + this.item.claimId;
+    this.global.showLoading();
+
+    this.pageService[method](endPoint)
+      .then( (res) => {
+        this.item.hasFavorite = !this.item.hasFavorite;
+      })
+      .catch( (err) => this.pageService.showError(err) )
+      .finally( () => this.global.hideLoading() )
+  }
+
+  shareFacebook() {
+    let message = this.item.comment;
+    let picture = this.item.picture || null;
+    this.pageService.socialSharing.shareViaFacebookWithPasteMessageHint(message, picture)
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
+  async shareWhatsApp() {
+    let type = this.item.insecurityFactTypeId ? 'Hecho' : 'Reclamo';
+    let message = 'Report & Alert \n '
+      + type + ' compartido! \n '
+      + 'Fecha de observación: ' + this.pageService.getDate(this.item.dateTimeObservation) + ' \n '
+      + 'Ubicación: ' + this.item.street + ' ' + this.item.streetNumber + ' \n '
+      + 'Categoría: '
+        + (
+          this.item.CTdescription
+            ? (this.item.CTdescription + ' ' + this.item.CSCdescription)
+            : (this.item.insecurityFactType.IFTdescription)
+        )
+      + ' \n '
+      + (this.item.comment ? ('Descripción: ' + this.item.comment) : '');
+
+      const image = this.base64File
+        ? "data:image/jpg;base64," + this.base64File
+        : null;
+
+    this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => this.pageService.showError(err));
+  }
+
 }

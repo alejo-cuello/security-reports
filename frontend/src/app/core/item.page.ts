@@ -77,6 +77,11 @@ export abstract class ItemPage extends FormPage {
       if (!item.photo) {
         delete item.photo;
       }
+      if (item.newPhoto) {
+        const blob = this.pageService.base64toBlob(item.photo);
+        item.photo = blob;
+        delete item.newPhoto;
+      }
 
       let id = item[this.getFieldId()];
       delete ( item[this.getFieldId()] );
@@ -124,10 +129,13 @@ export abstract class ItemPage extends FormPage {
   }
 
   initializePre(item?) {
+    return new Promise( (resolve, reject) => {
+      resolve(true);
+    });
   }
 
-  initialize() {
-    this.initializePre();
+  async initialize() {
+    await this.initializePre().catch((err) => this.pageService.showError(err));
     this.processing = true;
     const paramId = this.getParamId();
     if(!paramId) {

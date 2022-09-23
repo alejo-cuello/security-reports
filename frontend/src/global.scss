@@ -27,16 +27,30 @@
 
 @import "../node_modules/leaflet/dist/leaflet.css";
 
+// (+) Fuentes
+
+@font-face {
+    font-family: 'Roboto-Regular';
+    src: url(../src/assets/fonts/Roboto-Regular.ttf);
+}
+
+* {
+    font-family: 'Roboto-Regular' !important;
+}
+
+// (-) Fuentes
+
 form {
     .invalid-input-message {
         color: var(--ion-color-danger);
         font-size: 0.8em;
         margin-left: 1em;
         margin-top: .3em;
+        margin-bottom: .2em;
     }
 
     .valid-input-message {
-        color: var(--ion-color-tertiary);
+        color: var(--ion-color-medium);
         font-size: 0.8em;
         margin-left: 1em;
         margin-top: .3em;
@@ -44,10 +58,7 @@ form {
 }
 
 .my-custom-modal-css {
-    height: 90%;
-    top: 10%;
-    border: 1px solid gray;
-    border-radius: 40px 40px 0 0 !important;
+    height: 100%;
 }
 
 .modal-background {
@@ -59,10 +70,18 @@ form {
     --background: var(--ion-color-white) !important;
 }
 
+.validate-row-radio-group {
+    border-bottom: 2px var(--ion-color-danger) solid;
+}
+
 ion-content {
     --background: var(--ion-color-light);
 }
 
 ion-header {
     --background: var(--ion-color-light);
+}
+
+ion-footer {
+    background: var(--ion-color-header);
 }

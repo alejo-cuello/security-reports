@@ -4,7 +4,8 @@ import * as L from 'leaflet';
 import { ActivatedRoute } from '@angular/router';
 import { PageService } from 'src/app/core/page.service';
 import { MapOptionsPage } from '../map-options/map-options.page';
-import { Icon, icon, latLng, marker, tileLayer } from 'leaflet';
+import { icon, latLng, marker, tileLayer } from 'leaflet';
+import { MenuController } from '@ionic/angular';
 
 
 @Component({
@@ -17,6 +18,7 @@ export class MapPage extends BasePage {
 
   coordinates: any;
   hideMenu: boolean;
+  formSubmitAttempt: boolean = false;
   lastOption: string = '';
   marker: any;
   markers: any[] = [];
@@ -40,12 +42,14 @@ export class MapPage extends BasePage {
 
   constructor(
     public pageService: PageService,
-    public activatedRoute: ActivatedRoute
+    public activatedRoute: ActivatedRoute,
+    private menuController: MenuController
   ) {
     super(pageService);
   }
 
   ionViewWillEnter() {
+    this.menuController.swipeGesture(false);
     this.role = this.global.load(this.settings.storage.role);
     this.hideMenu = this.pageService.router.url.includes('hideMenu=true');
     this.icon = icon({
@@ -57,12 +61,17 @@ export class MapPage extends BasePage {
     });
   }
 
+  ionViewWillLeave() {
+    this.lastOption = undefined;
+    this.menuController.swipeGesture(true);
+  }
+
   onMapReady(map: L.Map) {
     this.global.showLoading();
     setTimeout(() => {
       map.invalidateSize();
       this.global.hideLoading();
-    }, 1000);
+    }, 100);
   }
 
   onClick(event: any) {
@@ -100,7 +109,10 @@ export class MapPage extends BasePage {
       }
       else if(data.originalEvent.target.alt.includes('claim')) {
         let id = data.originalEvent.target.alt.split('.')[1];
-        this.pageService.navigateRoute( 'claim', { queryParams: { action: 'watch', id, role: this.role, type: 'claim' } } );
+        let action = this.role === 'neighbor'
+          ? 'watch'
+          : 'edit';
+        this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role: this.role, type: 'claim' } } );
       }
       else if(data.originalEvent.target.alt.includes('insecurityFact')) {
         let id = data.originalEvent.target.alt.split('.')[1];
@@ -138,6 +150,7 @@ export class MapPage extends BasePage {
       this.pageService.navigateBack();
     }
     else {
+      this.formSubmitAttempt = true;
       this.pageService.showError('Por favor marque la posición en el mapa y complete los campos');
     }
   }
@@ -150,7 +163,7 @@ export class MapPage extends BasePage {
     });
 
     modal.onDidDismiss().then( (data) => {
-      if(data.data != this.lastOption) {
+      if(data.data && data.data != this.lastOption) {
         this.removeMarkers();
         
         if(data.data && data.data == 'health')  this.getInstitutions(data.data);
@@ -173,9 +186,10 @@ export class MapPage extends BasePage {
     this.pageService.httpGetAllWithFilters('institutions/' + institutionsType, 0, '', 100)
       .then( (response) => {
         this.places = response.institutions;
+        if(this.places.length === 0) this.pageService.showError('No se han encontrado instituciones');
         for(let place of this.places) {
           if(place.geojson) {
-            let coordinates = place.geojson.geometry.coordinates;
+            let coordinates = JSON.parse(place.geojson).geometry.coordinates;
             let markerCoordinates: any = [ coordinates[1], coordinates[0] ];
             this.layers.push(
               marker(
@@ -230,6 +244,10 @@ export class MapPage extends BasePage {
   }
 
   setMarkers(type: string) {
+    if(this.places.length === 0) {
+      const word = type === 'claim' ? 'reclamos' : 'hechos de inseguridad'
+      this.pageService.showError('No se han encontrado ' + word);
+    }
     for(let place of this.places) {
       if(place.longitude && place.latitude) {
         let coordinates: any = [place.latitude, place.longitude];

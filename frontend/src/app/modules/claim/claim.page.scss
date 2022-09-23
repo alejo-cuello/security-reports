@@ -1,9 +1,4 @@
-ion-toolbar {
-    height: 8vh;
-}
-
 ion-content {
-    --background: white;
 
     ion-card {
         border-radius: 10px;
@@ -21,6 +16,10 @@ ion-content {
         display: flex;
         justify-content: center;
         height: 32vh;
+        margin-top: 2vh;
+        margin-right: 5vh;
+        margin-left: 5vh;
+        background-color: var(--ion-color-header);
 
         img {
             width: auto;
@@ -31,13 +30,14 @@ ion-content {
         .delete-button{
             position: absolute;
             top: 0px;
-            right: calc(50% - 75px);
+            right: 3vh;
             font-size: 1.5rem;
         }
     }
 
     .centering{
         position: relative;
+        background-color: #ffffff;
 
         ion-button{
             position: absolute;
@@ -47,16 +47,33 @@ ion-content {
     }
 
     .fields {
-        height: 45vh;
         margin-top: 2vh;
-    }
-
-    .action-button {
-        height: 5vh;
     }
 
     ion-label {
         color: var(--ion-color-tertiary);
         font-weight: 500;
+    }
+
+    .action-button {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .align-items-end {
+        ion-button {
+            width: 120px;
+        }
+
+        .custom-btn-round {
+            width: 32px;
+            height: 32px;
+            margin-right: 4px;
+            margin-left: 5px;
+
+            ion-icon {
+                font-size: 25px;
+            }
+        }
     }
 }

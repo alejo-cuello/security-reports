@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="reports"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reporte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="no-reports" *ngIf="chartOptions?.series?.length === 0">
+    <ion-text color="tertiary">
+      <h1>No hay reportes disponibles en este rango de fechas</h1>
+    </ion-text>
+  </div>
+
+  <div class="graphic-container" *ngIf="chartOptions?.series?.length > 0">
+    <div id="graphic-container">
+      <apx-chart #chart [title]="chartOptions.title" [chart]="chartOptions.chart" [legend]="chartOptions.legend"
+        [series]="chartOptions.series" [labels]="chartOptions.labels" [colors]="chartOptions.colors" [subtitle]="chartOptions.subtitle"
+        [xaxis]="chartOptions.xaxis" [yaxis]="chartOptions.yaxis">
+      </apx-chart>
+    </div>
+    <ion-button class="ion-margin" expand="block" (click)="downloadReport()" shape="round" type="submit" color="primary">
+      Descargar
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,9 +1,11 @@
-<ion-content class="modal-background">
-  <ion-item>
-    <ion-text color="primary">
+<ion-header>
+  <ion-item class="item-header">
+    <ion-text color="light">
       <h4>Mostrar</h4>
     </ion-text>
   </ion-item>
+</ion-header>
+<ion-content>
   <ion-radio-group [(ngModel)]="selectedOption">
     <ion-item>
       <ion-label>Instituciones Policiales</ion-label>
@@ -24,12 +26,12 @@
   </ion-radio-group>
 </ion-content>
 <ion-footer>
-  <ion-button class="ion-margin-bottom button-right" shape="round" color="warning" (click)="closeModal(true)">
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="primary" (click)="closeModal(true)">
     <ion-text>
       Aceptar
     </ion-text>
   </ion-button>
-  <ion-button class="ion-margin-bottom button-right" shape="round" color="danger" (click)="closeModal()">
+  <ion-button class="ion-margin-bottom button-right" shape="round" color="medium" (click)="closeModal()">
     <ion-text>
       Cancelar
     </ion-text>
