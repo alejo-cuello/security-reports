@@ -33,7 +33,7 @@ const routes: Routes = [
   },
   {
     path: 'pre-login',
-    loadChildren: () => import('./modules/pre-login/pre-login.module').then( m => m.PreLoginPageModule)
+    loadChildren: () => import('./modules/pre-login/pre-login.module').then(m => m.PreLoginPageModule)
   },
   {
     path: 'login',

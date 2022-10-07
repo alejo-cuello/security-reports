@@ -333,7 +333,19 @@ const editProfileData = async (req, res, next) => {
 const preLoginWithSocialMedia = async (req, res, next) => {
     try {
         const user = req.user.userFromDB;
+        const profile = req.user.profile._json;
+
+        if (!user) {
+            // Usuario no encontrado.
+            // Devuelve los datos del profile para precargar los datos del registro. 
+            return res.status(404).json({
+                message: "Usuario no encontrado",
+                profile
+            });
+        }
+
         const token = await generateAndGetToken({ user, neighborId: user.neighborId, role: req.user.role });
+
         let socialMedia;
         if ( req.user.profile.provider === 'facebook' ) {
             socialMedia = 'facebook';
@@ -341,8 +353,11 @@ const preLoginWithSocialMedia = async (req, res, next) => {
             socialMedia = 'google';
         }
 
-        // Successful authentication, redirect home.
-        return res.redirect(`${process.env.CLIENT_URL}/pre-login?token=${token}&socialMedia=${socialMedia}`);
+        // Successful authentication.
+        return res.status(200).json({
+            token,
+            socialMedia
+        });
     } catch (error) {
         next(error);
     }
@@ -353,7 +368,6 @@ const loginWithSocialMedia = async (req, res, next) => {
     try {
         let token = req.headers['authorization'].split(' ')[1];
         const tokenData = await getTokenData(token);
-        console.log("req.body", req.body);
         if ( req.body.role !== 'neighbor' ) {
             throw ApiError.forbidden('No tienes permisos para iniciar sesión');
         };
