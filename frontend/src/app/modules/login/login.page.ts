@@ -92,7 +92,8 @@ export class LoginPage extends FormPage {
   }
 
   loginWithFacebook() {
-    window.open("http://localhost:3000/user/auth/facebook", "_self");
+    // window.open("http://localhost:3000/user/auth/facebook", "_self");
+    window.open("https://proyecto-final.fly.dev/user/auth/facebook", "_self");
   }
 
 }
