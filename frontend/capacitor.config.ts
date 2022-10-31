@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'Report&Alert',
+  appId: 'report.and.alert',
+  appName: 'ReportAndAlert',
   webDir: 'www',
   bundledWebRuntime: false
 };
