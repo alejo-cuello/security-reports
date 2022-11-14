@@ -4,6 +4,7 @@ import { FormPage } from 'src/app/core/form.page';
 import { PageService } from 'src/app/core/page.service';
 import { MenuController } from '@ionic/angular';
 import { Keyboard } from '@capacitor/keyboard';
+import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
 
 @Component({
   selector: 'app-login',
@@ -93,7 +94,33 @@ export class LoginPage extends FormPage {
 
   loginWithFacebook() {
     // window.open("http://localhost:3000/user/auth/facebook", "_self");
-    window.open("https://proyecto-final.fly.dev/user/auth/facebook", "_self");
+    // this.pageService.iab.create("https://proyecto-final.fly.dev/user/auth/facebook", "_system");
+
+    const FACEBOOK_PERMISSIONS = [
+      'email'
+    ];
+    
+    FacebookLogin.login({ permissions: FACEBOOK_PERMISSIONS })
+      .then((res: FacebookLoginResponse) => {
+        console.log(res);
+        // this.getUserWithFacebook(res.accessToken.token);
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  getUserWithFacebook(accessToken: any) {
+    const endPoint = this.settings.endPoints.user.loginWithFacebook;
+
+    this.pageService.httpPost(endPoint, {accessToken}, 'json', true)
+      .then((res) => {
+        //if(res.user)  this.continueLogin(res);
+        //else  this.pageService.navigateRoute('pre-register');
+      })
+      .catch((err) => {
+        this.pageService.showError(err);
+      })
   }
 
 }
