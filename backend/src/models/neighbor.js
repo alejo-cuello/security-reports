@@ -80,6 +80,11 @@ const Neighbor = sequelize.define('vecino', {
             allowNull: true,
             field: 'idFacebook'
         },
+        googleId: {
+            type: DataTypes.STRING(45),
+            allowNull: true,
+            field: 'idGoogle'
+        },
         emailIsVerified: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

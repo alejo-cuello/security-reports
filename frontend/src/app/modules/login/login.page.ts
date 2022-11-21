@@ -103,17 +103,25 @@ export class LoginPage extends FormPage {
     FacebookLogin.login({ permissions: FACEBOOK_PERMISSIONS })
       .then((res: FacebookLoginResponse) => {
         console.log(res);
-        // this.getUserWithFacebook(res.accessToken.token);
+
+        // FIXME: Ver si podemos recuperar el email tmb así en el back buscamos por facebookId y por email. Asi no hay 2 usuarios con el mismo facebookId y email.
+
+        // Para Google podemos hacer lo mismo, pero enviándole el googleId que devuelve google.
+        // Ya subí el back actualizado al servidor en la nube.
+
+        // FIXME: Dsp borrar todos estos comentarios 🙂
+
+        // this.getUserWithFacebook(res.accessToken.userId, res.accessToken.email);
       })
       .catch((err) => {
         console.log(err)
       })
   }
 
-  getUserWithFacebook(accessToken: any) {
+  getUserWithFacebook(facebookId: string, email: string) {
     const endPoint = this.settings.endPoints.user.loginWithFacebook;
 
-    this.pageService.httpPost(endPoint, {accessToken}, 'json', true)
+    this.pageService.httpPost(endPoint, {facebookId, email}, 'json', true)
       .then((res) => {
         //if(res.user)  this.continueLogin(res);
         //else  this.pageService.navigateRoute('pre-register');
