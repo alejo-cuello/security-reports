@@ -5,6 +5,7 @@ import { PageService } from 'src/app/core/page.service';
 import { MenuController } from '@ionic/angular';
 import { Keyboard } from '@capacitor/keyboard';
 import { FacebookLogin, FacebookLoginResponse } from '@capacitor-community/facebook-login';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 @Component({
   selector: 'app-login',
@@ -29,6 +30,12 @@ export class LoginPage extends FormPage {
 
   ionViewWillEnter() {
     this.addKeyboardEvents();
+
+    GoogleAuth.initialize({
+      clientId: '535184365642-t11qghb7passebgfniich7mlb20lbrrg.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
+      grantOfflineAccess: false,
+    });
   }
 
   getFormNew() {
@@ -93,8 +100,6 @@ export class LoginPage extends FormPage {
   }
 
   loginWithFacebook() {
-    // window.open("http://localhost:3000/user/auth/facebook", "_self");
-    // this.pageService.iab.create("https://proyecto-final.fly.dev/user/auth/facebook", "_system");
 
     const FACEBOOK_PERMISSIONS = [
       'email'
@@ -121,6 +126,12 @@ export class LoginPage extends FormPage {
       .catch((err) => {
         this.pageService.showError(err);
       })
+  }
+
+  loginWithGoogle() {
+    GoogleAuth.signIn()
+      .then(res => console.log('res',res))
+      .catch(err => console.log(err));
   }
 
 }
