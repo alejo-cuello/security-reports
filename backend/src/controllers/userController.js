@@ -330,63 +330,88 @@ const editProfileData = async (req, res, next) => {
 };
 
 
-const preLoginWithSocialMedia = async (req, res, next) => {
+const loginWithFacebook = async (req, res, next) => {
+    req.body.role = NEIGHBOR;
+    
     try {
-        const user = req.user.userFromDB;
-        const profile = req.user.profile._json;
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'facebookId']);
+        if ( missingAttributes.length > 0 ) {
+            throw ApiError.badRequest('Faltan el email o el facebookId');
+        };
 
-        if (!user) {
-            // Usuario no encontrado.
-            // Devuelve los datos del profile para precargar los datos del registro. 
-            return res.status(404).json({
-                message: "Usuario no encontrado",
-                profile
-            });
-        }
+        const response = await loginWithSocialMedia(req.body);
 
-        const token = await generateAndGetToken({ user, neighborId: user.neighborId, role: req.user.role });
-
-        let socialMedia;
-        if ( req.user.profile.provider === 'facebook' ) {
-            socialMedia = 'facebook';
-        } else {
-            socialMedia = 'google';
-        }
-
-        // Successful authentication.
-        return res.status(200).json({
-            token,
-            socialMedia
-        });
+        return res.status(200).json(response);
     } catch (error) {
         next(error);
     }
 };
 
 
-const loginWithSocialMedia = async (req, res, next) => {
+const loginWithGoogle = async (req, res, next) => {
+    req.body.role = NEIGHBOR;
+
     try {
-        let token = req.headers['authorization'].split(' ')[1];
-        const tokenData = await getTokenData(token);
-        if ( req.body.role !== 'neighbor' ) {
-            throw ApiError.forbidden('No tienes permisos para iniciar sesión');
+        const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'googleId']);
+        if ( missingAttributes.length > 0 ) {
+            throw ApiError.badRequest('Faltan el email o el googleId');
         };
-        const user = tokenData.user;
-        let neighborContacts = [];
-        if (user.neighborId) {
-            neighborContacts = await models.Contact.findAll({
-                where: {
-                    neighborId: user.neighborId
-                }
-            });
-        }
-        return res.status(200).json({
-            token,
-            user,
-            neighborContacts
-        });
+
+        const response = await loginWithSocialMedia(req.body);
+
+        return res.status(200).json(response);
     } catch (error) {
         next(error);
+    }
+};
+
+
+const loginWithSocialMedia = async (data) => {
+    const email = data.email;
+
+    try {
+        if ( !validator.isEmail(email) ) {
+            throw ApiError.badRequest('El formato del email es inválido');
+        };
+
+        if ( ! await isEmailVerified(data) ) {
+            throw ApiError.badRequest('El email no está verificado. Por favor verifique su casilla de correo electrónico');
+        };
+
+        let user;
+        if (data.facebookId) {
+            user = await searchUserByFacebookId(data.facebookId, email)
+        } else if (data.googleId) {
+            user = await searchUserByGoogleId(data.googleId, email)
+        }
+
+        if (!user) {
+            return {
+                user: null
+            };
+        };
+
+        // Genera y devuelve el token
+        const token = await generateAndGetToken(data);
+
+        const responseUser = userWithoutPassword(user);
+
+        let neighborContacts = [];
+        if (responseUser.neighborId) {
+            neighborContacts = await models.Contact.findAll({
+                where: {
+                    neighborId: responseUser.neighborId
+                }
+            });
+        };
+
+        return {
+            token,
+            user: responseUser,
+            neighborContacts
+        };
+    } catch (error) {
+        throw error;
     }
 };
 
@@ -678,6 +703,42 @@ const encryptAndGetPassword = (password) => {
 };
 
 
+/**
+ * Search a neighbor by its Facebook ID.
+ * @param {string} facebookId 
+ * @param {string} email 
+ */
+const searchUserByFacebookId = async (facebookId, email) => {
+    return await models.Neighbor.findOne({
+        attributes: {
+            exclude: ["password", "facebookId", "emailIsVerified"]
+        },
+        where: {
+            facebookId: facebookId,
+            email: email
+        }
+    });
+};
+
+
+/**
+ * Search a neighbor by its Google ID.
+ * @param {string} googleId 
+ * @param {string} email 
+ */
+const searchUserByGoogleId = async (googleId, email) => {
+    return await models.Neighbor.findOne({
+        attributes: {
+            exclude: ["password", "googleId", "emailIsVerified"]
+        },
+        where: {
+            googleId: googleId,
+            email: email
+        }
+    });
+};
+
+
 module.exports = {
     login,
     signup,
@@ -685,6 +746,6 @@ module.exports = {
     confirmEmailSignup,
     confirmEmailChangePassword,
     editProfileData,
-    preLoginWithSocialMedia,
-    loginWithSocialMedia
+    loginWithFacebook,
+    loginWithGoogle
 }
