@@ -9,7 +9,7 @@
 <ion-content>
   <ion-item>
     <ion-label>Fecha desde</ion-label>
-    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="today" [(ngModel)]="dateFrom"></ion-datetime>
+    <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" [max]="dateTo ? dateTo : today" [(ngModel)]="dateFrom"></ion-datetime>
   </ion-item>
   <ion-item>
     <ion-label>Fecha hasta</ion-label>

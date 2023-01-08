@@ -38,7 +38,7 @@
     <div class="fields">
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select mode="ios"[(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}" (ionChange)="onChangeClaimType()" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5">
+        <ion-select mode="ios"[(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}" (ionChange)="onChangeClaimType()" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" cancelText="Cancelar">
           <ion-select-option *ngFor="let category of categories" [value]="category.claimTypeId">
             {{category?.CTdescription}}
           </ion-select-option>
@@ -47,7 +47,7 @@
 
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Subcategoría</ion-label>
-        <ion-select mode="ios"[disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" formControlName="claimSubcategoryId">
+        <ion-select mode="ios"[disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" formControlName="claimSubcategoryId" cancelText="Cancelar">
           <ion-select-option *ngFor="let subcategory of subcategories"
             [value]="subcategory?.claimSubcategoryId">
             {{subcategory?.CSCdescription}}
@@ -58,7 +58,7 @@
       <!-- Select para hechos de inseguridad -->
       <ion-item *ngIf="type === 'insecurityFact'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select mode="ios"formControlName="insecurityFactTypeId" [disabled]="action === 'watch' || role === 'municipalAgent'">
+        <ion-select mode="ios"formControlName="insecurityFactTypeId" [disabled]="action === 'watch' || role === 'municipalAgent'" cancelText="Cancelar">
           <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId">
             {{category?.IFTdescription}}
           </ion-select-option>
@@ -125,7 +125,7 @@
       
       <ion-item *ngIf="!creating && role==='municipalAgent' && type == 'claim'">
         <ion-label position="floating">Estado</ion-label>
-        <ion-select mode="ios"formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'">
+        <ion-select mode="ios"formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'" cancelText="Cancelar">
           <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
         </ion-select>
       </ion-item>
