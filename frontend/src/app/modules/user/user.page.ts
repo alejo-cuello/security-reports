@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ItemPage } from 'src/app/core/item.page';
 
@@ -8,22 +8,20 @@ import { ItemPage } from 'src/app/core/item.page';
   styleUrls: ['./user.page.scss'],
 })
 
-export class UserPage extends ItemPage implements OnDestroy {
+export class UserPage extends ItemPage {
 
   creating: boolean = true;
   role: string;
-  termsAndConditionsAccepted: boolean;
 
   ngOnInit() {
-    this.termsAndConditionsAccepted = this.global.load(this.settings.storage.termsAndConditionsAccepted);
-
     this.role = this.global.load(this.settings.storage.role);
     this.form = this.getFormNew();
     this.initialize();
   }
 
-  ngOnDestroy(): void {
-    this.global.remove(this.settings.storage.termsAndConditionsAccepted);
+  getNewPost() {
+    const socialMediaValues = this.global.pop(this.settings.storage.preRegister)
+    if(socialMediaValues) this.form.patchValue(socialMediaValues);
   }
 
   getParamId() {
@@ -72,7 +70,9 @@ export class UserPage extends ItemPage implements OnDestroy {
         email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [this.termsAndConditionsAccepted, Validators.requiredTrue]
+        termsAndConditionsAccepted: [null, Validators.requiredTrue],
+        facebookId: [null],
+        googleId: [null]
       });
     }
 
@@ -84,7 +84,7 @@ export class UserPage extends ItemPage implements OnDestroy {
         email: [null, Validators.compose([Validators.required, Validators.email])],
         password: [null, Validators.required],
         confirmPassword: [null, Validators.required],
-        termsAndConditionsAccepted: [this.termsAndConditionsAccepted, Validators.requiredTrue]
+        termsAndConditionsAccepted: [null, Validators.requiredTrue]
       });
     };
   }
@@ -151,6 +151,7 @@ export class UserPage extends ItemPage implements OnDestroy {
       item.dni = item.dni.toString();
       item.tramiteNumberDNI = item.tramiteNumberDNI.toString();
       if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
+      if(item.googleId || item.facebookId)  item.emailIsVerified = true;
     }
   }
 
@@ -159,7 +160,9 @@ export class UserPage extends ItemPage implements OnDestroy {
       let message = '¡Registro exitoso! ';
 
       message += ( this.role === 'neighbor' ) ?
-        'Confirme su email para poder ingresar'
+        (this.form.value.facebookId || this.form.value.googleId) ?
+          ''
+          : 'Confirme su email para poder ingresar'
         : 'Espere la confirmación del municipio';
 
       this.pageService.showSuccess(message);

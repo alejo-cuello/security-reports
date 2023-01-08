@@ -146,6 +146,7 @@ export abstract class ItemPage extends FormPage {
             this.checkLoadingsAndloadItem(params.id);
         } else {
           this.processing = false;
+          this.getNewPost();
         }
       });
     } else {
@@ -153,8 +154,13 @@ export abstract class ItemPage extends FormPage {
         this.loadItem(paramId);
       } else {
         this.processing = false;
+        this.getNewPost();
       }
     }
+  }
+
+  getNewPost() {
+    // Método reescrito en user.page.ts
   }
 
   getPopulates() {

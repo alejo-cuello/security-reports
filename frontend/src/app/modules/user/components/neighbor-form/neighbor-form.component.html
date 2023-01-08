@@ -69,21 +69,21 @@
     <ion-row class="ion-margin-top">
       <ion-col class="ion-no-padding ion-margin-end">
         <ion-item>
-          <ion-label position="floating">Depto.</ion-label>
-          <ion-input type="text" formControlName="apartment"></ion-input>
-        </ion-item>
-        <div *ngIf="!isFieldValid('apartment')" class="invalid-input-message">
-          {{getFieldError('apartment')}}
-        </div>
-      </ion-col>
-
-      <ion-col class="ion-no-padding">
-        <ion-item>
           <ion-label position="floating">Piso</ion-label>
           <ion-input type="text" formControlName="floor"></ion-input>
         </ion-item>
         <div *ngIf="!isFieldValid('floor')" class="invalid-input-message">
           {{getFieldError('floor')}}
+        </div>
+      </ion-col>
+
+      <ion-col class="ion-no-padding">
+        <ion-item>
+          <ion-label position="floating">Depto.</ion-label>
+          <ion-input type="text" formControlName="apartment"></ion-input>
+        </ion-item>
+        <div *ngIf="!isFieldValid('apartment')" class="invalid-input-message">
+          {{getFieldError('apartment')}}
         </div>
       </ion-col>
     </ion-row>
@@ -127,7 +127,7 @@
       
       <ion-item class="ion-margin-top">
         <ion-label position="floating">Email*</ion-label>
-        <ion-input type="text" formControlName="email"></ion-input>
+        <ion-input type="text" formControlName="email" [disabled]="form.value.facebookId || form.value.googleId"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('email')" class="invalid-input-message">
         {{getFieldError('email')}}
@@ -149,6 +149,24 @@
         {{getFieldError('confirmPassword')}}
       </div>
       
+      <ion-item-divider class="ion-margin-top">
+        <ion-label>
+          Términos y condiciones
+        </ion-label>
+      </ion-item-divider>
+
+      <ion-item class="ion-margin-top terms"  [ngClass]="formSubmitAttempt && !isFieldValid('termsAndConditionsAccepted') ? 'validate-row-radio-group' : ''">
+        <p>
+          Para crear tu cuenta tenés que aceptar los
+          <a [routerLink]="['/terms-and-conditions']">Términos y Condiciones</a>
+        </p>
+        <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
+        </ion-checkbox>
+      </ion-item>
+      <div *ngIf="!isFieldValid('termsAndConditionsAccepted')" class="invalid-input-message">
+        {{getFieldError('termsAndConditionsAccepted')}}
+      </div>
+
     </ion-item-group>
 
   </ion-item-group>

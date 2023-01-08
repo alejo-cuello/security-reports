@@ -374,15 +374,16 @@ const loginWithSocialMedia = async (data) => {
             throw ApiError.badRequest('El formato del email es inválido');
         };
 
-        if ( ! await isEmailVerified(data) ) {
-            throw ApiError.badRequest('El email no está verificado. Por favor verifique su casilla de correo electrónico');
-        };
+        // Esta validación no creo que sea necesaria si ya estás logueado en la red social
+        // if ( ! await isEmailVerified(data) ) {
+        //     throw ApiError.badRequest('El email no está verificado. Por favor verifique su casilla de correo electrónico');
+        // };
 
         let user;
         if (data.facebookId) {
-            user = await searchUserByFacebookId(data.facebookId, email)
+            user = await searchUserByFacebookId(data.facebookId, email);
         } else if (data.googleId) {
-            user = await searchUserByGoogleId(data.googleId, email)
+            user = await searchUserByGoogleId(data.googleId, email);
         }
 
         if (!user) {

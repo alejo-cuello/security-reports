@@ -62,6 +62,24 @@
         <div *ngIf="!isFieldValid('confirmPassword')" class="invalid-input-message">
           {{getFieldError('confirmPassword')}}
         </div>
+
+        <ion-item-divider class="ion-margin-top">
+          <ion-label>
+            Términos y condiciones
+          </ion-label>
+        </ion-item-divider>
+
+        <ion-item class="ion-margin-top terms"  [ngClass]="formSubmitAttempt && !isFieldValid('termsAndConditionsAccepted') ? 'validate-row-radio-group' : ''">
+          <p>
+            Para crear tu cuenta tenés que aceptar los
+            <a [routerLink]="['/terms-and-conditions']">Términos y Condiciones</a>
+          </p>
+          <ion-checkbox color="primary" formControlName="termsAndConditionsAccepted" slot="end">
+          </ion-checkbox>
+        </ion-item>
+        <div *ngIf="!isFieldValid('termsAndConditionsAccepted')" class="invalid-input-message">
+          {{getFieldError('termsAndConditionsAccepted')}}
+        </div>
   
       </ion-item-group>
   </ion-item-group>

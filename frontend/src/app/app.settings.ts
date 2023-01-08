@@ -63,8 +63,8 @@ export class Settings {
   public static storage = {
     addressInfo: 'securityReports.addressInfo',
     contacts: 'securityReports.contacts',
+    preRegister: 'securityReports.preRegister',
     role: 'securityReports.role',
-    termsAndConditionsAccepted: 'securityReports.termsAndConditionsAccepted',
     token: 'securityReports.token',
     user: 'securityReports.user'
   };

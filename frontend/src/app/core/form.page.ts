@@ -46,7 +46,12 @@ export abstract class FormPage extends BasePage {
       this.onSubmitPerform(this.form.value);
     } else {
       this.validateAllFormFields(this.form);
+      this.showError();
     }
+  }
+
+  showError() {
+    //Método reescrito en login.page.ts
   }
 
   abstract onSubmitPerform( item );
