@@ -10,6 +10,7 @@ const { sendEmail, getEmailTemplateSignup, getEmailTemplateChangePassword } = re
 const getDataFromToken = require('../utils/getDataFromToken');
 const ValidateAuthorization = require('../utils/validateAuthorization');
 const checkNonEditableAttributes = require('../utils/checkNonEditableAttributes');
+const { Op } = require("sequelize");
 
 const NEIGHBOR = 'neighbor';
 const MUNICIPAL_AGENT = 'municipalAgent';
@@ -45,9 +46,9 @@ const login = async (req, res, next) => {
         };
 
         // Encripta la contraseña y la devuelve hasheada
-        const hashedPassword = await encryptAndGetPassword(req.body.password);
+        // const hashedPassword = await encryptAndGetPassword(req.body.password);
 
-        req.body.password = hashedPassword;
+        // req.body.password = hashedPassword;
 
         // Genera y devuelve el token
         const token = await generateAndGetToken(req.body);
@@ -146,7 +147,7 @@ const signup = async (req, res, next) => {
         // Obtener el template para el email
         const emailTemplate = getEmailTemplateSignup(req.body.firstName, token);
 
-        if ( req.body.role === NEIGHBOR ) {
+        if ( req.body.role === NEIGHBOR && !req.body.facebookId && !req.body.googleId ) {
             // Envía un correo al nuevo usuario para confirmar el email
             await sendEmail(req.body.email, 'Confirme su correo electrónico', emailTemplate);
         };
@@ -331,7 +332,6 @@ const editProfileData = async (req, res, next) => {
 
 
 const loginWithFacebook = async (req, res, next) => {
-    req.body.role = NEIGHBOR;
     
     try {
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'facebookId']);
@@ -349,7 +349,6 @@ const loginWithFacebook = async (req, res, next) => {
 
 
 const loginWithGoogle = async (req, res, next) => {
-    req.body.role = NEIGHBOR;
 
     try {
         const missingAttributes = checkMissingRequiredAttributes(req.body, ['email', 'googleId']);
@@ -374,16 +373,19 @@ const loginWithSocialMedia = async (data) => {
             throw ApiError.badRequest('El formato del email es inválido');
         };
 
-        // Esta validación no creo que sea necesaria si ya estás logueado en la red social
-        // if ( ! await isEmailVerified(data) ) {
-        //     throw ApiError.badRequest('El email no está verificado. Por favor verifique su casilla de correo electrónico');
-        // };
-
         let user;
+        let otherUser;
+
         if (data.facebookId) {
             user = await searchUserByFacebookId(data.facebookId, email);
+            otherUser = await validateDuplicateEmailFacebook(data.googleId, email);
         } else if (data.googleId) {
             user = await searchUserByGoogleId(data.googleId, email);
+            otherUser = await validateDuplicateEmailGoogle(data.googleId, email);
+        }
+
+        if (otherUser) {
+            throw ApiError.badRequest('Este email ya ha sido utilizado');
         }
 
         if (!user) {
@@ -393,6 +395,7 @@ const loginWithSocialMedia = async (data) => {
         };
 
         // Genera y devuelve el token
+        data.neighborId = user.neighborId;
         const token = await generateAndGetToken(data);
 
         const responseUser = userWithoutPassword(user);
@@ -723,6 +726,32 @@ const searchUserByFacebookId = async (facebookId, email) => {
 
 
 /**
+ * Search a neighbor by its email and different Facebook ID.
+ * @param {string} facebookId 
+ * @param {string} email 
+ */
+const validateDuplicateEmailFacebook = async (facebookId, email) => {
+    return await models.Neighbor.findOne({
+        attributes: {
+            exclude: ["password", "facebookId", "emailIsVerified"]
+        },
+        where: {
+            [Op.and]: [
+                { email: email },
+                {
+                    [Op.or]: [
+                        { facebookId: { [Op.is]: null } },
+                        { facebookId: { [Op.notLike]: facebookId } }
+                    ]
+                }
+
+            ]
+        }
+    });
+};
+
+
+/**
  * Search a neighbor by its Google ID.
  * @param {string} googleId 
  * @param {string} email 
@@ -735,6 +764,32 @@ const searchUserByGoogleId = async (googleId, email) => {
         where: {
             googleId: googleId,
             email: email
+        }
+    });
+};
+
+
+/**
+ * Search a neighbor by its email and different Google ID.
+ * @param {string} googleId 
+ * @param {string} email 
+ */
+const validateDuplicateEmailGoogle = async (googleId, email) => {
+    return await models.Neighbor.findOne({
+        attributes: {
+            exclude: ["password", "googleId", "emailIsVerified"]
+        },
+        where: {
+            [Op.and]: [
+                { email: email },
+                {
+                    [Op.or]: [
+                        { googleId: { [Op.is]: null } },
+                        { googleId: { [Op.notLike]: googleId } }
+                    ]
+                }
+
+            ]
         }
     });
 };
