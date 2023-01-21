@@ -159,8 +159,28 @@ const signup = async (req, res, next) => {
 
         await transaction.commit();
 
+        // Cuando te registras con redes sociales, te loguea automáticamente
+        let registerWithSocialMedia = null;
+        if( req.body.role === NEIGHBOR && ( req.body.facebookId || req.body.googleId ) ) {
+            
+            let body = {
+                email: req.body.email,
+                role: req.body.role
+            }
+
+            if(req.body.facebookId) {
+                body.facebookId = req.body.facebookId;
+            }
+            else if(req.body.googleId) {
+                body.googleId = req.body.googleId;
+            }
+
+            registerWithSocialMedia = await loginWithSocialMedia(body);
+        }
+
         return res.status(201).json({
-            message: 'Cuenta creada correctamente. Por favor, verifique su casilla de correo electrónico'
+            message: 'Cuenta creada correctamente. Por favor, verifique su casilla de correo electrónico',
+            registerWithSocialMedia
         });
     } catch (error) {
         await transaction.rollback();
@@ -488,6 +508,8 @@ const userWithoutPassword = (user) => {
         newUser.city = user.city;
         newUser.province = user.province;
         newUser.phoneNumber = user.phoneNumber;
+        newUser.facebookId = user.facebookId;
+        newUser.googleId = user.googleId;
     };
 
     if ( user.municipalAgentId ) {
@@ -715,7 +737,7 @@ const encryptAndGetPassword = (password) => {
 const searchUserByFacebookId = async (facebookId, email) => {
     return await models.Neighbor.findOne({
         attributes: {
-            exclude: ["password", "facebookId", "emailIsVerified"]
+            exclude: ["password", "emailIsVerified"]
         },
         where: {
             facebookId: facebookId,
@@ -733,7 +755,7 @@ const searchUserByFacebookId = async (facebookId, email) => {
 const validateDuplicateEmailFacebook = async (facebookId, email) => {
     return await models.Neighbor.findOne({
         attributes: {
-            exclude: ["password", "facebookId", "emailIsVerified"]
+            exclude: ["password", "emailIsVerified"]
         },
         where: {
             [Op.and]: [
@@ -759,7 +781,7 @@ const validateDuplicateEmailFacebook = async (facebookId, email) => {
 const searchUserByGoogleId = async (googleId, email) => {
     return await models.Neighbor.findOne({
         attributes: {
-            exclude: ["password", "googleId", "emailIsVerified"]
+            exclude: ["password", "emailIsVerified"]
         },
         where: {
             googleId: googleId,
@@ -777,7 +799,7 @@ const searchUserByGoogleId = async (googleId, email) => {
 const validateDuplicateEmailGoogle = async (googleId, email) => {
     return await models.Neighbor.findOne({
         attributes: {
-            exclude: ["password", "googleId", "emailIsVerified"]
+            exclude: ["password", "emailIsVerified"]
         },
         where: {
             [Op.and]: [
