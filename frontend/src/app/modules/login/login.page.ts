@@ -29,11 +29,12 @@ export class LoginPage extends FormPage {
   }
 
   ionViewWillEnter() {
+    this.initializeForm();
     this.addKeyboardEvents();
   }
 
   showError() {
-    this.pageService.showError('Por favor complete todos los campos e indique su rol');
+    this.pageService.showError('Complete todos los campos e indique su rol');
   }
 
   getFormNew() {
@@ -63,22 +64,11 @@ export class LoginPage extends FormPage {
     const endPoint = this.settings.endPoints.user + this.settings.endPointsMethods.user.login;
     
     this.pageService.httpPost(endPoint, item).then( (res) => {
-      this.continueLogin(res);
+      this.pageService.continueLogin(res, this.form.value.role);
     })
     .catch( (reason) => {
       this.pageService.showError(reason.message);
     });
-  }
-
-  continueLogin(res: any) {
-    this.global.saveUser(res.user); // Guarda el usuario en el localStorage
-    this.global.save(this.settings.storage.role, this.form.value.role ); // Guarda el rol del usuario en el localStorage
-    this.global.save(this.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
-    this.global.save(this.settings.storage.contacts, res.neighborContacts );
-    this.pageService.showSuccess('Bienvenido!');
-    this.menuController.enable(true);
-    this.pageService.navigateRoute('tabs/claims');
-    this.initializeForm();
   }
 
   submit() {
@@ -121,7 +111,7 @@ export class LoginPage extends FormPage {
     
             this.pageService.httpPost(endPoint, body, 'json', true)
                 .then((res) => {
-                  if(res.user)  this.continueLogin(res);
+                  if(res.user)  this.pageService.continueLogin(res);
                   else {
                     this.global.save(this.settings.storage.preRegister, {
                       email: body.email,
@@ -160,7 +150,7 @@ export class LoginPage extends FormPage {
 
         this.pageService.httpPost(endPoint, body, 'json', true)
             .then((res) => {
-              if(res.user)  this.continueLogin(res);
+              if(res.user)  this.pageService.continueLogin(res);
               else {
                 this.global.save(this.settings.storage.preRegister, {
                   email: body.email,

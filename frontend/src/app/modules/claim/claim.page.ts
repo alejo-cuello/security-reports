@@ -219,6 +219,18 @@ export class ClaimPage extends ItemPage {
     if(this.newPhoto) item.newPhoto = this.newPhoto;
   }
 
+  savePreCheck( item ) {
+    if(this.type == 'claim' && !item.claimSubcategoryId) {
+      this.pageService.showError('Seleccione un tipo y una subcategoría de reclamo');
+      return false;
+    }
+    else if(this.type !== 'claim' && !item.insecurityFactTypeId) {
+      this.pageService.showError('Seleccione un tipo de hecho');
+      return false;
+    }
+    return true;
+  }
+
   savePost(item: any) {
     this.formReset();
     this.pageService.navigateRoute('tabs/claims');

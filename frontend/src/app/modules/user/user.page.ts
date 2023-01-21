@@ -56,20 +56,20 @@ export class UserPage extends ItemPage {
 
     if ( this.role === 'neighbor' ) {
       return this.formBuilder.group({
-        firstName: [null, Validators.required],
-        lastName: [null, Validators.required],
-        dni: [null, Validators.required],
-        tramiteNumberDNI: [null, Validators.required],
-        street: [null, Validators.required],
-        streetNumber: [null, Validators.required],
-        apartment: [null],
-        floor: [null],
-        city: [null, Validators.required],
-        province: [null, Validators.required],
+        firstName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        lastName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        dni: [null, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
+        tramiteNumberDNI: [null, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
+        street: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        streetNumber: [null, Validators.compose([Validators.required, Validators.maxLength(10)])],
+        apartment: [null, Validators.maxLength(3)],
+        floor: [null, Validators.maxLength(3)],
+        city: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        province: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         phoneNumber: [null, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.minLength(10), Validators.maxLength(10)])],
         email: [null, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.required],
-        confirmPassword: [null, Validators.required],
+        password: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
+        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
         termsAndConditionsAccepted: [null, Validators.requiredTrue],
         facebookId: [null],
         googleId: [null]
@@ -78,12 +78,12 @@ export class UserPage extends ItemPage {
 
     else {
       return this.formBuilder.group({
-        firstName: [null, Validators.required],
-        lastName: [null, Validators.required],
-        registrationNumber: [null, Validators.required],
+        firstName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        lastName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        registrationNumber: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         email: [null, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.required],
-        confirmPassword: [null, Validators.required],
+        password: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
+        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
         termsAndConditionsAccepted: [null, Validators.requiredTrue]
       });
     };
@@ -93,27 +93,27 @@ export class UserPage extends ItemPage {
     if ( this.role === 'neighbor' ) {
       return this.formBuilder.group({
         neighborId: [user.neighborId, Validators.required],
-        firstName: [user.firstName, Validators.required],
-        lastName: [user.lastName, Validators.required],
-        dni: [user.dni, Validators.required],
-        tramiteNumberDNI: [user.tramiteNumberDNI, Validators.required],
-        street: [user.street, Validators.required],
-        streetNumber: [user.streetNumber, Validators.required],
-        apartment: [user.apartment],
-        floor: [user.floor],
-        city: [user.city, Validators.required],
-        province: [user.province, Validators.required],
-        phoneNumber: [user.phoneNumber, Validators.compose([Validators.minLength(10), Validators.maxLength(10)])],
-        email: [user.email, Validators.compose([Validators.required, Validators.email])]
+        firstName: [user.firstName, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        lastName: [user.lastName, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        dni: [user.dni, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
+        tramiteNumberDNI: [user.tramiteNumberDNI, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
+        street: [user.street, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        streetNumber: [user.streetNumber, Validators.compose([Validators.required, Validators.maxLength(10)])],
+        apartment: [user.apartment, Validators.maxLength(3)],
+        floor: [user.floor, Validators.maxLength(3)],
+        city: [user.city, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        province: [user.province, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        phoneNumber: [user.phoneNumber, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.minLength(10), Validators.maxLength(10)])],
+        email: [user.email, Validators.compose([Validators.required, Validators.email])],
       });
     }
 
     else {
       return this.formBuilder.group({
         municipalAgentId: [user.municipalAgentId, Validators.required],
-        firstName: [user.firstName, Validators.required],
-        lastName: [user.lastName, Validators.required],
-        registrationNumber: [user.registrationNumber, Validators.required]
+        firstName: [user.firstName, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        lastName: [user.lastName, Validators.compose([Validators.required, Validators.maxLength(30)])],
+        registrationNumber: [user.registrationNumber, Validators.compose([Validators.required, Validators.maxLength(30)])]
       });
     };
   }
@@ -166,7 +166,13 @@ export class UserPage extends ItemPage {
         : 'Espere la confirmación del municipio';
 
       this.pageService.showSuccess(message);
-      this.pageService.navigateRoute('login');
+
+      if(!res.registerWithSocialMedia) {
+        this.pageService.navigateRoute('login');
+      }
+      else {
+        this.pageService.continueLogin(res.registerWithSocialMedia);
+      }
     }
     else {
       this.pageService.showSuccess('Cambios guardados exitosamente');

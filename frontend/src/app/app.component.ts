@@ -85,12 +85,12 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.user = this.pageService.global.getUser();
 
-      // if (!this.user) {
-      //   this.pageService.navigateRoute('login');
-      // }
-      // else {
-      //   this.pageService.navigateRoute('tabs/claims');
-      // }
+      if (!this.user) {
+        this.pageService.navigateRoute('login');
+      }
+      else {
+        this.pageService.navigateRoute('tabs/claims');
+      }
     });
   }
 

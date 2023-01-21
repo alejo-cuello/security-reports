@@ -13,6 +13,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { CallNumber } from '@awesome-cordova-plugins/call-number/ngx';
 import { SocialSharing } from '@awesome-cordova-plugins/social-sharing/ngx';
 import { File } from '@awesome-cordova-plugins/file/ngx';
+import { FacebookLogin } from '@capacitor-community/facebook-login';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { MenuController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +48,8 @@ export class PageService {
     public sanitizer: DomSanitizer,
     public callNumber: CallNumber,
     public socialSharing: SocialSharing,
-    public file: File
+    public file: File,
+    public menuController: MenuController
   ) {
   }
 
@@ -277,9 +281,32 @@ export class PageService {
 
   // (-) Query Params
 
-  // (+) Logout
+  // (+) Login y logout
+
+  continueLogin(res: any, role: string = 'neighbor') {
+    this.global.saveUser(res.user); // Guarda el usuario en el localStorage
+    this.global.save(this.global.settings.storage.role, role); // Guarda el rol del usuario en el localStorage
+    this.global.save(this.global.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
+    this.global.save(this.global.settings.storage.contacts, res.neighborContacts );
+    this.showSuccess('Bienvenido!');
+    this.menuController.enable(true);
+    this.navigateRoute('tabs/claims');
+  }
 
   logout() {
+    const user = this.global.getUser();
+
+    if(user.facebookId) {
+      FacebookLogin.logout()
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }
+    else if(user.googleId) {
+      GoogleAuth.signOut()
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }
+    
     this.global.removeUser(); // Elimina el usuario del localStorage
     
     for(let storage in this.global.settings.storage) {
@@ -289,7 +316,7 @@ export class PageService {
     this.navigateRoute('login');
   }
   
-  // (-) Logout
+  // (-) Login y logout
 
   getDate(date: string) {
     let onlyDate = date.split('T')[0].split('-');

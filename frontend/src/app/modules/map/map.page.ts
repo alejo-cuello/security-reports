@@ -62,6 +62,7 @@ export class MapPage extends BasePage {
   }
 
   ionViewWillLeave() {
+    this.removeMarkers();
     this.lastOption = undefined;
     this.menuController.swipeGesture(true);
   }

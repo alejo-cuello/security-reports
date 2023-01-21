@@ -85,3 +85,13 @@ ion-header {
 ion-footer {
     background: var(--ion-color-header);
 }
+
+.alert-radio-label.sc-ion-alert-md,
+.alert-radio-label.sc-ion-alert-ios {
+  white-space: normal !important;
+}
+
+.alert-checkbox-label.sc-ion-alert-md,
+.alert-checkbox-label.sc-ion-alert-ios {
+  white-space: normal !important;
+}

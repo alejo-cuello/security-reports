@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { IonInfiniteScroll } from '@ionic/angular';
+import { IonContent, IonInfiniteScroll } from '@ionic/angular';
 import { BasePage } from 'src/app/core/base.page';
 
 @Component({
@@ -9,6 +9,8 @@ import { BasePage } from 'src/app/core/base.page';
 })
 export class InstitutionsPage extends BasePage implements OnInit {
   
+  @ViewChild(IonContent, { static: false }) content: IonContent;
+
   securityInstitutions: any[] = [];
   healthInstitutions: any[] = [];
 
@@ -34,6 +36,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
   }
 
   segmentChanged() {
+    this.content.scrollToTop(0);
     if ( this.menu === 'security' ) {
       this.querySecurityInstitutions = '';
       this.getSecurityInstitutions();
@@ -108,6 +111,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
 
 
   onSearchChange(event) {
+    this.content.scrollToTop(0);
     let value = event.detail.value;
     this.offsetSecurityInstitutions = 0;
     this.offsetHealthInstitutions = 0;
