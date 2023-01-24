@@ -24,7 +24,7 @@
     
     <ion-item class="ion-margin-top">
       <ion-label position="floating">DNI*</ion-label>
-      <ion-input type="number" formControlName="dni" [disabled]="!creating"></ion-input>
+      <ion-input type="number" formControlName="dni" [disabled]="!creating" (ionBlur)="pageService.validateNumber($event)"></ion-input>
     </ion-item>
     <div *ngIf="!isFieldValid('dni')" class="invalid-input-message">
       {{getFieldError('dni')}}
@@ -32,7 +32,7 @@
 
     <ion-item class="ion-margin-top ion-margin-bottom" expand="block">
       <ion-label position="floating">Número de Trámite del DNI*</ion-label>
-      <ion-input type="number" formControlName="tramiteNumberDNI" [disabled]="!creating"></ion-input>
+      <ion-input type="number" formControlName="tramiteNumberDNI" [disabled]="!creating" (ionBlur)="pageService.validateNumber($event)"></ion-input>
     </ion-item>
     <div *ngIf="!isFieldValid('tramiteNumberDNI')" class="invalid-input-message">
       {{getFieldError('tramiteNumberDNI')}}

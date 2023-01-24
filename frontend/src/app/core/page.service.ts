@@ -322,4 +322,8 @@ export class PageService {
     let onlyDate = date.split('T')[0].split('-');
     return (onlyDate[2] + '/' + onlyDate[1] + '/' + onlyDate[0]);
   }
+
+  validateNumber(event:any) {
+    event.target.value = event.target.value.replaceAll(',','').replaceAll('.','').replaceAll('-','').replaceAll('e','');
+  }
 }

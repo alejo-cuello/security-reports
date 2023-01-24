@@ -17,9 +17,8 @@ export class HttpGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const token = this.global.load(this.global.settings.storage.token);
-    if ( state.url === '/register?role=neighbor' || state.url === '/register?role=municipalAgent' ) {
-      // Con este if permitimos el acceso a la página de registro
-      return true;
+    if ( state.url === '/register?role=neighbor' || state.url === '/register?role=municipalAgent' || state.url === 'login' ) {
+      this.pageService.navigateRoute('tabs/claim'); // Si no existe el token, redirige a la pantalla principal
     }
     if (token) { // Si existe el token, deja entrar a la ruta
       return true;

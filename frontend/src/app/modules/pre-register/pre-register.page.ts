@@ -31,7 +31,10 @@ export class PreRegisterPage extends FormPage {
     if ( this.form.valid ) {
       this.global.save(this.settings.storage.role, this.form.value.role);
       this.pageService.navigateRoute('/register');
-    };
+    }
+    else {
+      this.pageService.showError('Seleccione un rol');
+    }
   };
 
 }
