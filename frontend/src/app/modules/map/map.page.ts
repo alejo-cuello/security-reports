@@ -22,7 +22,6 @@ export class MapPage extends BasePage {
   lastOption: string = '';
   marker: any;
   markers: any[] = [];
-  map: any;
   places: any = [];
   role: string;
   street: string;
@@ -73,6 +72,10 @@ export class MapPage extends BasePage {
       map.invalidateSize();
       this.global.hideLoading();
     }, 100);
+  }
+
+  refreshMap(event) {
+    event.target.invalidateSize();
   }
 
   onClick(event: any) {

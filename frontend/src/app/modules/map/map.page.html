@@ -14,7 +14,9 @@
      [leafletOptions]="options"
      [leafletLayers]="layers"
      (leafletMapReady)="onMapReady($event)"
-     (leafletClick)="onClick($event)">
+     (leafletClick)="onClick($event)"
+     (leafletMapMoveEnd)="refreshMap($event)"
+     (leafletMapZoomEnd)="refreshMap($event)">
   </div>
   <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!hideMenu">
     <ion-fab-button (click)="openMapOptions()">
