@@ -130,13 +130,14 @@
         </ion-select>
       </ion-item>
     </div>
-
-    <div *ngIf="action !== 'watch'" class="action-button">
-      <ion-button expand="block" color="primary" type="submit" shape="round" [disabled]="!enableButton">
-        <ion-text color="light">
-          {{ getButtonName() }}
-        </ion-text>
-      </ion-button>
-    </div>
   </form>
 </ion-content>
+<ion-footer>
+  <div *ngIf="action !== 'watch'" class="submit-button">
+    <ion-button expand="block" color="primary" shape="round" [disabled]="!enableButton" (click)="onSubmit()">
+      <ion-text color="light">
+        {{ getButtonName() }}
+      </ion-text>
+    </ion-button>
+  </div>
+</ion-footer>

@@ -22,7 +22,6 @@ export class ClaimPage extends ItemPage {
   base64File: any;
   categories: any[];
   enableButton: boolean;
-  newPhoto: boolean = false;
   picture: any;
   selectedClaimType: number;
   statuses: any[];
@@ -173,7 +172,7 @@ export class ClaimPage extends ItemPage {
         longitude: [null, Validators.required],
         mapAddress: [null],
         comment: [''],
-        photo: [null],
+        photo: [''],
         neighborId: [this.user.neighborId, Validators.required],
         municipalAgentId: [null],
         statusId: [1],
@@ -215,8 +214,6 @@ export class ClaimPage extends ItemPage {
 
     if(this.creating) item.dateTimeCreation = moment().toISOString();
     if(this.role === 'municipalAgent')  item.bodyType = 'json';
-
-    if(this.newPhoto) item.newPhoto = this.newPhoto;
   }
 
   savePreCheck( item ) {
@@ -256,18 +253,17 @@ export class ClaimPage extends ItemPage {
     this.pageService.showImageUpload()
       .then( (response) => {
         if(response) {
-          this.newPhoto = true;
           this.form.patchValue( { photo: response } );
           this.picture = this.pageService.trustResourceUrl(response);
         }
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        console.log(error);
       })
   }
 
   removePicture() {
-    this.form.patchValue( { photo: null } );
+    this.form.patchValue( { photo: '' } );
     this.picture = null;
   }
 

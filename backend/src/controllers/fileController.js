@@ -1,14 +1,10 @@
-const fs = require('fs')
+const fs = require('fs/promises');
 const path = './public/uploadedImages/';
 
 const getByFilename = async (req, res, next) => {
     try {
-        fs.readFile(path + req.params.fileName , {encoding: 'base64'} , (error, data) => {
-            if (error) {
-                res.send(error)
-            }
-            res.send(data);
-          })
+        const response = await fs.readFile(path + req.params.fileName , {encoding: 'base64'});
+        res.send(response);
     } catch (error) {
         next(error);
     }

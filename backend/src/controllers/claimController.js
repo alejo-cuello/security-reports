@@ -389,6 +389,23 @@ const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'D
 };
 
 
+const saveImage = async (file) => {
+    try {
+        const destination = './public/uploadedImages/';
+        const newFileName = Date.now() + '.jpg';
+
+        await fs.writeFile(destination + newFileName, file, 'base64').catch((error) => {
+            throw error;
+        });
+
+        return newFileName;
+    }
+    catch(error) {
+        throw error;
+    }
+}
+
+
 // Listar todos los reclamos favoritos del vecino
 const getFavoriteClaims = async (req, res, next) => {
     try {
@@ -666,15 +683,11 @@ const createClaim = async (req, res, next) => {
             };
         };
 
-        let fileUrl = null;
-
-        if ( req.file ) {
-            // Mete en el body el nombre de la foto para poder guardarla en la base de datos
-            fileUrl = req.file.filename;
-        };
+        let fileName = '';
+        if(req.body.photo) fileName = await saveImage(req.body.photo);
 
         let body = req.body;
-        body.photo = fileUrl;
+        body.photo = fileName;
         
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(body, { transaction });
@@ -950,14 +963,11 @@ const editClaim = async (req, res, next) => {
             };
         }
         else {
-            if(req.body.photo) {
-                body.photo = req.body.photo;
-            }
-            else {
+            if(!req.body.photo || req.body.photo.length > 40) {    //Con esto veo si es un base64 (osea, un archivo nuevo). Se puede mejorar
                 if ( claimToUpdate.length !== 0 ) {
-                    body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+                    body.photo = await photoUpdateHandler(req.body.photo, claimToUpdate[0].photo);
                 } else {
-                    body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+                    body.photo = await photoUpdateHandler(req.body.photo, insecurityFactToUpdate.photo);
                 };
             }
         }
@@ -1373,27 +1383,18 @@ const deleteInsecurityFact = async (req, res, next) => {
 */
 const photoUpdateHandler = async (file, previousPhoto) => {
     try {
-        let newPhoto = "";
-        if ( previousPhoto ) { // Si el reclamo ya tiene foto
-            if ( file ) { // Si el usuario envía una foto
-                // Mete en el body el nombre de la foto para poder guardarla en la base de datos
-                newPhoto = file.filename;
-            } else { // Si el usuario no envía una foto
-                newPhoto = null;
-            };
-
-            // Lo dejo comentado de momento, revisar más adelante como borrar la foto anterior
-
+        let newPhoto = '';
+        if ( previousPhoto ) { // Si el reclamo ya tenía foto
             const filename = previousPhoto;
-            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
+            const pathPreviousPhoto = `${__dirname}\\..\\..\\public\\uploadedImages\\${filename}`;
             // Borra la foto del servidor
             await deleteImage(pathPreviousPhoto);
-        } else { // Si el reclamo no tiene foto
-            if ( file ) { // Si el usuario envía una foto
-                // Mete en el body el nombre de la foto para poder guardarla en la base de datos
-                newPhoto = file.filename;
-            };
         };
+
+        if(file) {
+            newPhoto = await saveImage(file);
+        }
+
         return newPhoto;
     } catch (error) {
         throw error;

@@ -74,14 +74,6 @@ export abstract class ItemPage extends FormPage {
           this.savePostError( reason );
         });
     } else {
-      if (!item.photo) {
-        delete item.photo;
-      }
-      if (item.newPhoto) {
-        const blob = this.pageService.base64toBlob(item.photo);
-        item.photo = blob;
-        delete item.newPhoto;
-      }
 
       let id = item[this.getFieldId()];
       delete ( item[this.getFieldId()] );
