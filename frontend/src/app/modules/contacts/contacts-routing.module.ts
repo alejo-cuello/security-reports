@@ -1,4 +1,3 @@
-import { HttpGuard } from 'src/app/core/http.guard';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
@@ -7,8 +6,7 @@ import { ContactsPage } from './contacts.page';
 const routes: Routes = [
   {
     path: '',
-    component: ContactsPage,
-    canActivate: [HttpGuard]
+    component: ContactsPage
   },
   {
     path: 'add-contact',

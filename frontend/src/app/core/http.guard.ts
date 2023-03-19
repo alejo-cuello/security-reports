@@ -1,29 +1,36 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { GlobalService } from './global.service';
-import { PageService } from 'src/app/core/page.service';
+import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
+import { GlobalService } from '../core/global.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HttpGuard implements CanActivate {
 
-  constructor(
+  constructor (
     private global: GlobalService,
-    private pageService: PageService
-  ) {
-    this.global.checkUser();
-  }
+    private router: Router
+  ) { }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const token = this.global.load(this.global.settings.storage.token);
-    if ( state.url === '/register?role=neighbor' || state.url === '/register?role=municipalAgent' || state.url === 'login' ) {
-      this.pageService.navigateRoute('tabs/claim'); // Si no existe el token, redirige a la pantalla principal
-    }
-    if (token) { // Si existe el token, deja entrar a la ruta
-      return true;
-    } else {
-      this.pageService.navigateRoute('login'); // Si no existe el token, redirige al login
-    }
-  };
+  /**
+   * Can activate
+   */
+  canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
+    return new Promise(async resolve => {
+
+      const user = this.global.checkUser();
+      const data = route.data;
+
+      if (user) {
+        const redirect = [data.redirect || 'home'];
+        if (data.noUser) resolve(this.router.createUrlTree(redirect));
+        else resolve(true);
+      }
+      else {
+        data.noUser
+          ? resolve(true)
+          : resolve(this.router.createUrlTree([data.redirect || 'login']));
+      }
+    });
+  }
 }

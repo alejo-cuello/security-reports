@@ -64,7 +64,9 @@ export class LoginPage extends FormPage {
     const endPoint = this.settings.endPoints.user + this.settings.endPointsMethods.user.login;
     
     this.pageService.httpPost(endPoint, item).then( (res) => {
-      this.pageService.continueLogin(res, this.form.value.role);
+      let role = this.form.value.role;
+      this.formReset();
+      this.pageService.continueLogin(res, role);
     })
     .catch( (reason) => {
       this.pageService.showError(reason.message);
