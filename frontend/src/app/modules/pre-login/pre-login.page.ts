@@ -25,7 +25,7 @@ export class PreLoginPage extends FormPage implements OnInit {
   ) { 
     super(formBuilder, pageService);
     this.form = this.getFormNew();
-    this.menuController.enable(false);
+    this.pageService.enableMenu(false);
   }
 
   ngOnInit() {
@@ -49,7 +49,7 @@ export class PreLoginPage extends FormPage implements OnInit {
       this.global.save(this.settings.storage.token, this.token); // Guarda el token del usuario en el localStorage
       this.global.save(this.settings.storage.contacts, res.neighborContacts);
       this.pageService.showSuccess('Bienvenido!');
-      this.menuController.enable(true);
+      this.pageService.enableMenu(true);
       this.pageService.navigateRoute('tabs/claims');
       this.initializeForm();
     })

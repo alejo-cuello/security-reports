@@ -1386,7 +1386,7 @@ const photoUpdateHandler = async (file, previousPhoto) => {
         let newPhoto = '';
         if ( previousPhoto ) { // Si el reclamo ya tenía foto
             const filename = previousPhoto;
-            const pathPreviousPhoto = `${__dirname}\\..\\..\\public\\uploadedImages\\${filename}`;
+            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
             // Borra la foto del servidor
             await deleteImage(pathPreviousPhoto);
         };

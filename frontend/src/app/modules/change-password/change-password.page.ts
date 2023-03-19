@@ -18,7 +18,7 @@ export class ChangePasswordPage extends FormPage {
   ) {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
-    this.menuController.enable(false);
+    this.pageService.enableMenu(false);
   }
 
   onSubmitPerform(item: any) {

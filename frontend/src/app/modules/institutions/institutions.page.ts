@@ -50,7 +50,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
     if ( loadMore ) {
       this.offsetSecurityInstitutions += 6;
     };
-    this.pageService.httpGetAllWithFilters('institutions/security', this.offsetSecurityInstitutions, this.querySecurityInstitutions)
+    this.pageService.httpGetAllWithFilters('institutions/security', this.offsetSecurityInstitutions, this.querySecurityInstitutions, 6, false)
       .then( (response) => {
         if ( this.offsetSecurityInstitutions > 0 ) {
           this.securityInstitutions.push(...response.institutions);
@@ -70,7 +70,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
     if ( loadMore ) {
       this.offsetHealthInstitutions += 6;
     };
-    this.pageService.httpGetAllWithFilters('institutions/health', this.offsetHealthInstitutions, this.queryHealthInstitutions)
+    this.pageService.httpGetAllWithFilters('institutions/health', this.offsetHealthInstitutions, this.queryHealthInstitutions, 6, false)
       .then( (response) => {
         if ( this.offsetHealthInstitutions > 0 ) {
           this.healthInstitutions.push(...response.institutions);

@@ -19,8 +19,8 @@
      (leafletMapZoomEnd)="refreshMap($event)">
   </div>
   <ion-fab slot="fixed" vertical="top" horizontal="end" *ngIf="!hideMenu">
-    <ion-fab-button (click)="openMapOptions()">
-      <ion-icon name="information-circle-outline" color="white"></ion-icon>
+    <ion-fab-button (click)="openMapOptions()" color="warning">
+      <ion-icon name="information-circle-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 </ion-content>

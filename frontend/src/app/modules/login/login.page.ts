@@ -25,12 +25,12 @@ export class LoginPage extends FormPage {
   ) {
     super(formBuilder, pageService);
     this.form = this.getFormNew();
-    this.menuController.enable(false);
   }
 
   ionViewWillEnter() {
     this.initializeForm();
     this.addKeyboardEvents();
+    this.pageService.enableMenu(false);
   }
 
   showError() {
@@ -123,6 +123,9 @@ export class LoginPage extends FormPage {
                 })
                 .catch((err) => {
                   this.pageService.showError(err);
+                  FacebookLogin.logout()
+                    .then((res) => console.log(res))
+                    .catch((err) => console.log(err));
                 })
           })
       })
@@ -163,6 +166,9 @@ export class LoginPage extends FormPage {
             })
             .catch((err) => {
               this.pageService.showError(err);
+              GoogleAuth.signOut()
+                .then((res) => console.log(res))
+                .catch((err) => console.log(err));
             })
       })
       .catch(err => {

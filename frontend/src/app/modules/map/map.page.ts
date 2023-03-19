@@ -48,7 +48,7 @@ export class MapPage extends BasePage {
   }
 
   ionViewWillEnter() {
-    this.menuController.swipeGesture(false);
+    this.pageService.enableMenu(false);
     this.role = this.global.load(this.settings.storage.role);
     this.hideMenu = this.pageService.router.url.includes('hideMenu=true');
     this.icon = icon({
@@ -58,12 +58,15 @@ export class MapPage extends BasePage {
       iconUrl: "../../../assets/imgs/marker-icon.png",
       shadowUrl: "../../../assets/imgs/marker-shadow.png",
     });
+    setTimeout(() => {
+      this.pageService.showMessage('Presione el botón de información para mostrar reclamos o instituciones en el mapa');
+    }, 500)
   }
 
   ionViewWillLeave() {
     this.removeMarkers();
     this.lastOption = undefined;
-    this.menuController.swipeGesture(true);
+    this.pageService.enableMenu(true);
   }
 
   onMapReady(map: L.Map) {

@@ -135,7 +135,7 @@ export class PageService {
     this.showMessage(message, "warning");
   }
 
-  showMessage(message, color: string) {
+  showMessage(message, color: string = 'medium') {
     let msg = message.message || message;
     let toast = this.toastCtrl.create({
       message: msg,
@@ -289,8 +289,18 @@ export class PageService {
     this.global.save(this.global.settings.storage.token, res.token ); // Guarda el token del usuario en el localStorage
     this.global.save(this.global.settings.storage.contacts, res.neighborContacts );
     this.showSuccess('Bienvenido!');
-    this.menuController.enable(true);
+    this.enableMenu(true);
     this.navigateRoute('tabs/claims');
+  }
+
+  enableMenu(enable: boolean) {
+    this.menuController.swipeGesture(enable)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   logout() {
