@@ -963,7 +963,7 @@ const editClaim = async (req, res, next) => {
             };
         }
         else {
-            if(!req.body.photo || req.body.photo.length > 40) {    //Con esto veo si es un base64 (osea, un archivo nuevo). Se puede mejorar
+            if (!req.body.photo || validator.isBase64(req.body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo). Se puede mejorar
                 if ( claimToUpdate.length !== 0 ) {
                     body.photo = await photoUpdateHandler(req.body.photo, claimToUpdate[0].photo);
                 } else {
