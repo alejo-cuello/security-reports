@@ -296,7 +296,7 @@ export class PageService {
   enableMenu(enable: boolean) {
     this.menuController.swipeGesture(enable)
       .then((res) => {
-        console.log(res);
+        // console.log(res);
       })
       .catch((err) => {
         console.log(err);

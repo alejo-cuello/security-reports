@@ -32,4 +32,18 @@ export class BasePage {
     }
     return queryStrings;
   }
+
+  handleError(error: any) {
+    if(error.status === 401)  {
+      this.pageService.logout();
+      this.pageService.showError(error);
+    }
+    else {
+      this.pageService.showError(error);
+    }
+  }
+
+  initialize() {
+    
+  }
 }

@@ -26,7 +26,6 @@ export class AppComponent {
     public menuController: MenuController,
     private platform: Platform
   ){
-    this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
     this.initialize();
   }
 
@@ -82,15 +81,10 @@ export class AppComponent {
   ];
 
   initialize() {
+    this.pageService.global.getLoadingAsObservable().subscribe( async (result) => result ? await this.showLoading() : this.hideLoading());
+
     this.platform.ready().then(() => {
       this.user = this.pageService.global.getUser();
-
-      if (!this.user) {
-        this.pageService.navigateRoute('login');
-      }
-      else {
-        this.pageService.navigateRoute('tabs/claims');
-      }
     });
   }
 
@@ -125,7 +119,7 @@ export class AppComponent {
       this.userLastName = user.lastName;
       this.userEmail = user.email;
     }
-    const role = this.global.get('securityReports.role');
+    const role = this.global.load(this.global.settings.storage.role);
     this.translateAndSetRole(role);
   }
 

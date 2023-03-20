@@ -173,9 +173,9 @@ export class HttpService {
 
 
   getHeaders( enctype = 'json', fileOptions = null ) {
-    if(this.global.getUser() && this.global.get('securityReports.token')) {
+    if(this.global.getUser() && this.global.load(this.global.settings.storage.token)) {
       let headers: any = {
-        'Authorization': `Bearer ${this.global.get('securityReports.token')}`,
+        'Authorization': `Bearer ${this.global.load(this.global.settings.storage.token)}`,
         'enctype': enctype
       };
 
@@ -192,9 +192,9 @@ export class HttpService {
 
 
   getHeadersForSocialMedia() {
-    if(this.global.get('securityReports.token')) {
+    if(this.global.load(this.global.settings.storage.token)) {
       let headers: any = {
-        'Authorization': `Bearer ${this.global.get('securityReports.token')}`
+        'Authorization': `Bearer ${this.global.load(this.global.settings.storage.token)}`
       };
       return {
         headers: new HttpHeaders(headers)

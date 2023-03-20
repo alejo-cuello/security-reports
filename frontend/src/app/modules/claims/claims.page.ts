@@ -11,9 +11,10 @@ import { FiltersPage } from '../filters/filters.page';
 })
 export class ClaimsPage extends BasePage {
 
-  menu: string;
   filters: any;
   haveFilters: boolean = false;
+  initialized: boolean = false;
+  menu: string;
   prevFilters: any;
   role: string;
   showFilterButton: boolean = false;
@@ -33,14 +34,18 @@ export class ClaimsPage extends BasePage {
     public pageService: PageService
   ) {
     super(pageService);
+    this.initialize();
   }
 
-  ionViewWillEnter() {
-    this.role = this.global.load(this.settings.storage.role);
-    this.global.remove(this.settings.storage.addressInfo);
-    this.getClaimsByRole();
-    
-    if(!this.menu)  this.menu = this.role === 'neighbor' ? 'claim' : 'pendingClaims';
+  initialize() {
+    if(!this.initialized) {
+      this.initialized = true;
+      this.role = this.global.load(this.settings.storage.role);
+      this.global.remove(this.settings.storage.addressInfo);
+      
+      if(!this.menu)  this.menu = this.role === 'neighbor' ? 'claim' : 'pendingClaims';
+      this.getClaimsByRole();
+    }
   }
 
   changeSegment() {
@@ -79,13 +84,7 @@ export class ClaimsPage extends BasePage {
         this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        if(error.status === 401)  {
-          this.pageService.logout();
-          this.pageService.showError(error);
-        }
-        else {
-          this.pageService.showError(error);
-        }
+        this.handleError(error);
       })
   }
 
@@ -108,13 +107,7 @@ export class ClaimsPage extends BasePage {
         this.showFilterButton = response.length > 0;
       })
       .catch( (error) => {
-        if(error.status === 401)  {
-          this.pageService.logout();
-          this.pageService.showError(error);
-        }
-        else {
-          this.pageService.showError(error);
-        }
+        this.handleError(error);
       })
   }
 

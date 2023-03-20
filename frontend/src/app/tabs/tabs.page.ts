@@ -13,7 +13,7 @@ export class TabsPage extends BasePage {
   ionViewWillEnter() {
     try {
       if(this.tabs.outlet.activatedView.stackId != 'map') {
-        this.tabs.outlet.activatedView.ref.instance.ionViewWillEnter();
+        this.tabs.outlet.activatedView.ref.instance.initialize();
       }
     } catch(e) { console.log(e) };
   }

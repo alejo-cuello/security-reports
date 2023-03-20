@@ -22,7 +22,7 @@ export class HttpGuard implements CanActivate {
       const data = route.data;
 
       if (user) {
-        const redirect = [data.redirect || 'home'];
+        const redirect = [data.redirect || 'tabs/claims'];
         if (data.noUser) resolve(this.router.createUrlTree(redirect));
         else resolve(true);
       }
