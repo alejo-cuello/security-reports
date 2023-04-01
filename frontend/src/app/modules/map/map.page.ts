@@ -111,8 +111,7 @@ export class MapPage extends BasePage {
   handleClickOptions(data: any) {
     if(data.originalEvent.target.alt) {
       if(data.originalEvent.target.alt.includes('institution')) {
-        // Acá podemos hacer alguna acción cuando se toca una institución
-        // this.pageService.showSuccess(data.originalEvent.target.alt.split('.')[1]);
+        this.pageService.showMessage(data.originalEvent.target.title);
       }
       else if(data.originalEvent.target.alt.includes('claim')) {
         let id = data.originalEvent.target.alt.split('.')[1];

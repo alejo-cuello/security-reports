@@ -56,6 +56,7 @@ export class LoginPage extends FormPage {
   }
 
   ionViewWillLeave() {
+    this.formSubmitAttempt = false;
     Keyboard.removeAllListeners()
       .catch((error) => this.pageService.showError(error));
   }

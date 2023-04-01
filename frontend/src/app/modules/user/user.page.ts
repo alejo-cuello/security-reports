@@ -68,8 +68,8 @@ export class UserPage extends ItemPage {
         province: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         phoneNumber: [null, Validators.compose([Validators.pattern('^[0-9]*$'), Validators.minLength(10), Validators.maxLength(10)])],
         email: [null, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
-        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
+        password: [null, Validators.compose([Validators.required, Validators.minLength(4), Validators.maxLength(30)])],
+        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4), Validators.maxLength(30)])],
         termsAndConditionsAccepted: [null, Validators.requiredTrue],
         facebookId: [null],
         googleId: [null]
@@ -82,8 +82,8 @@ export class UserPage extends ItemPage {
         lastName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         registrationNumber: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         email: [null, Validators.compose([Validators.required, Validators.email])],
-        password: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
-        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4)])],
+        password: [null, Validators.compose([Validators.required, Validators.minLength(4), Validators.maxLength(30)])],
+        confirmPassword: [null, Validators.compose([Validators.required, Validators.minLength(4), Validators.maxLength(30)])],
         termsAndConditionsAccepted: [null, Validators.requiredTrue]
       });
     };

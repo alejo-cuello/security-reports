@@ -18,7 +18,7 @@ const routes: Routes = [
   {
     path: 'change-password',
     loadChildren: () => import('./modules/change-password/change-password.module').then(m => m.ChangePasswordPageModule),
-    data: { noUser: false },
+    data: { noUser: true },
     canActivate: [HttpGuard]
   },
   {
@@ -29,9 +29,7 @@ const routes: Routes = [
   },
   {
     path: 'emergency-numbers',
-    loadChildren: () => import('./modules/emergency-numbers/emergency-numbers.module').then( m => m.EmergencyNumbersPageModule),
-    data: { noUser: false },
-    canActivate: [HttpGuard]
+    loadChildren: () => import('./modules/emergency-numbers/emergency-numbers.module').then( m => m.EmergencyNumbersPageModule)
   },
   {
     path: 'institutions',
