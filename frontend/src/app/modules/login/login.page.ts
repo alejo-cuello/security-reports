@@ -67,6 +67,7 @@ export class LoginPage extends FormPage {
     this.pageService.httpPost(endPoint, item).then( (res) => {
       let role = this.form.value.role;
       this.formReset();
+      this.global.save(this.settings.storage.initialized, true);
       this.pageService.continueLogin(res, role);
     })
     .catch( (reason) => {

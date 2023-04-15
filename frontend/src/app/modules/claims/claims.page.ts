@@ -38,6 +38,9 @@ export class ClaimsPage extends BasePage {
   }
 
   initialize() {
+    const initialized = this.global.load(this.settings.storage.initialized);
+    if(initialized) this.initialized = false;
+    
     if(!this.initialized) {
       this.initialized = true;
       this.role = this.global.load(this.settings.storage.role);
@@ -46,6 +49,10 @@ export class ClaimsPage extends BasePage {
       if(!this.menu)  this.menu = this.role === 'neighbor' ? 'claim' : 'pendingClaims';
       this.getClaimsByRole();
     }
+  }
+
+  ionViewWillLeave() {
+    this.initialized = false;
   }
 
   changeSegment() {
