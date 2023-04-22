@@ -38,7 +38,7 @@ export class ClaimsPage extends BasePage {
   }
 
   initialize() {
-    const initialized = this.global.load(this.settings.storage.initialized);
+    const initialized = this.global.pop(this.settings.storage.initialized);
     if(initialized) this.initialized = false;
     
     if(!this.initialized) {
@@ -47,6 +47,9 @@ export class ClaimsPage extends BasePage {
       this.global.remove(this.settings.storage.addressInfo);
       
       if(!this.menu)  this.menu = this.role === 'neighbor' ? 'claim' : 'pendingClaims';
+      else if(this.role === 'neighbor' && this.menu != 'claim' && this.menu != 'insecurityFact') this.menu = 'claim';
+      else if(this.role === 'municipalAgent' && this.menu != 'pendingClaims' && this.menu != 'takenClaims') this.menu = 'pendingClaims';
+      
       this.getClaimsByRole();
     }
   }

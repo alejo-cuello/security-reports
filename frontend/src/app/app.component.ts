@@ -31,7 +31,7 @@ export class AppComponent {
 
   public appNeighborPages = [
     {
-      title: 'Mis reclamos favoritos',
+      title: 'Listado de reclamos',
       url: '/tabs/claims',
       icon: 'list-outline'
     },
@@ -59,7 +59,7 @@ export class AppComponent {
 
   public appMunicipalAgentPages = [
     {
-      title: 'Mis reclamos tomados',
+      title: 'Listado de reclamos',
       url: '/tabs/claims',
       icon: 'list-outline'
     },

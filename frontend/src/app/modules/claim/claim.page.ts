@@ -230,6 +230,7 @@ export class ClaimPage extends ItemPage {
 
   savePost(item: any) {
     this.formReset();
+    this.global.save(this.settings.storage.initialized, true);
     this.pageService.navigateRoute('tabs/claims');
   }
 

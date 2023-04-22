@@ -19,7 +19,7 @@ export class ReportsFiltersPage extends BasePage {
   }
 
   sendFilters() {
-    if(moment(this.dateFrom).isAfter(this.dateTo)) {
+    if(this.dateFrom && this.dateTo && moment(this.dateFrom).isAfter(this.dateTo)) {
       this.pageService.showError('La fecha desde no puede ser mayor a la fecha hasta');
       return;
     }

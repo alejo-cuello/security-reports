@@ -101,6 +101,19 @@ export class ReportPage extends BasePage {
           });
           }
       }
+
+      if(series.length) {
+        let data = [];
+        for(let index in series) {
+          data.push(0);
+        };
+        data.push(0);
+
+        series.push({
+          name: "Restantes",
+          data
+        });
+      }
     }
 
     if(("/" + this.endPointMethod) == this.settings.endPointsMethods.reports.byInsecurityFactType) {
