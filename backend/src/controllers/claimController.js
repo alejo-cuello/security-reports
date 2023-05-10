@@ -166,8 +166,8 @@ const getQueryClaimById = (neighbor) => {
 };
 
 
-const getQueryFavoriteByClaimId = (claimId, neighborId) => {
-    return "SELECT * FROM favoritos WHERE idReclamo =" + claimId + " AND idVecino =" + neighborId;
+const getQueryFavoriteByClaimId = () => {
+    return "SELECT * FROM favoritos WHERE idReclamo = ? AND idVecino = ?";
 }
 
 
@@ -608,17 +608,18 @@ const getClaimById = async (req, res, next) => {
                 }
 
                 if ( claim[0].own === false ) {
-                    const queryFavoriteByClaimId = getQueryFavoriteByClaimId(claim[0].claimId, dataFromToken.neighborId);
+                    const queryFavoriteByClaimId = getQueryFavoriteByClaimId();
                     
-                    let favorite = await sequelize.query( queryFavoriteByClaimId, { type: QueryTypes.SELECT } );
+                    const favorite = await sequelize.query(queryFavoriteByClaimId, { 
+                        type: QueryTypes.SELECT,
+                        replacements: [claim[0].claimId, dataFromToken.neighborId]
+                    });
                     
-                    if ( favorite.length === 0 ) {
+                    if (favorite.length) {
+                        claim[0].hasFavorite = true;
+                    } else {
                         claim[0].hasFavorite = false;
                     }
-                    else {
-                        claim[0].hasFavorite = true;
-                    }
-                    
                 }
             };
         } else {
@@ -1269,14 +1270,6 @@ const getInsecurityFactById = async (req, res, next) => {
                         model: models.InsecurityFactType,
                         as: 'insecurityFactType',
                         required: true                      // Para hacer un inner join
-                    },
-                    {
-                        model: models.Favorites,
-                        as: 'favorites',
-                        required: true,
-                        where: {
-                            neighborId: dataFromToken.neighborId
-                        }
                     }
                 ]
             });
@@ -1284,6 +1277,25 @@ const getInsecurityFactById = async (req, res, next) => {
             if ( !insecurityFact ) {
                 throw ApiError.notFound(`El hecho de inseguridad con id '${ req.params.claimId }' no se encontró para este vecino`);
             };
+            
+            if (insecurityFact.neighborId === dataFromToken.neighborId) {
+                insecurityFact.dataValues.own = true;
+            } else {
+                insecurityFact.dataValues.own = false;
+
+                const queryFavoriteByClaimId = getQueryFavoriteByClaimId();
+                    
+                const favorite = await sequelize.query(queryFavoriteByClaimId, { 
+                    type: QueryTypes.SELECT,
+                    replacements: [insecurityFact.claimId, dataFromToken.neighborId]
+                });
+                
+                if (favorite.length) {
+                    insecurityFact.dataValues.hasFavorite = true;
+                } else {
+                    insecurityFact.dataValues.hasFavorite = false;
+                }
+            }
         };
 
         if ( dataFromToken.municipalAgentId ) {

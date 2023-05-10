@@ -221,7 +221,8 @@ export class ClaimsPage extends BasePage {
                 })
             }
             else if(action === 'deleteFavorite') {
-              let endPoint = (this.menu === 'claim') ? this.settings.endPoints.claim : this.settings.endPoints.insecurityFact;
+              let endPoint = this.settings.endPoints.claim;
+              endPoint += this.settings.endPointsMethods.favorites.deleteClaimMarkedAsFavorite;
               endPoint += '/' + id;
               this.pageService.httpDelete(endPoint)
                 .then( (response) => {

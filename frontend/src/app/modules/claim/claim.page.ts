@@ -282,7 +282,7 @@ export class ClaimPage extends ItemPage {
     this.pageService.navigateRoute('/map', { queryParams: {hideMenu: true} });
   }
 
-  hanndleFollow() {
+  handleFollow() {
     let endPoint = this.settings.endPoints.claim + '/';
     let method;
 
