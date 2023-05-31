@@ -489,7 +489,10 @@ const getClaimTracking = async (req, res, next) => {
 };
 
 
-// Devuelve los reclamos creados en las últimas 48hs para mostrarlos en el mapa.
+/**
+ * Devuelve los reclamos que estén en algunos de los siguientes estados para mostrarlos en el mapa.
+ * Estados por los que se filtra: 'Pendiente', 'En Revisión', 'Aceptado', 'En Proceso'.
+*/
 const getClaimsForMap = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
@@ -497,13 +500,10 @@ const getClaimsForMap = async (req, res, next) => {
 
         ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
-        // Lo que buscamos es que se muestren los reclamos hechos el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
-        const tomorrow = calculateDate(dayjs(), 1);
-        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
-
+        const statusIdFilter = [1, 2, 3, 4];
         const query = getSelectOfGenericalQuery()
                       + getFromOfQuery()
-                      + ` WHERE rec.fechaHoraCreacion BETWEEN '${dateTwoDaysAgo}' AND '${tomorrow}'`;
+                      + ` WHERE est.idEstado IN (${statusIdFilter})`;
 
         const claimsForMap = await sequelize.query(query, {type: QueryTypes.SELECT});
 
@@ -525,7 +525,6 @@ const getPendingClaims = async (req, res, next) => {
         replacements = [];
         where = " WHERE est.descripcionEST = 'Pendiente'";
 
-        // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
         let query = getSelectOfGenericalQuery()
                     + ", vec.nombre 'neighborFirstName', "
                     + " vec.apellido 'neighborLastName'";
@@ -556,7 +555,6 @@ const getTakenClaims = async (req, res, next) => {
         replacements.push(dataFromToken.municipalAgentId);
         where = " WHERE rec.idAgenteMunicipal = ?";
         
-        // FIXME: Posiblemente haya que agregar un LIMIT y OFFSET a la query para que no traiga todos los registros de una.
         let queryTakenClaims = getSelectOfGenericalQuery()
                                + ", vec.nombre 'neighborFirstName', "
                                + " vec.apellido 'neighborLastName'";
@@ -1171,7 +1169,9 @@ const getFavoriteInsecurityFacts = async (req, res, next) => {
 };
 
 
-// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa para un vecino.
+/**
+ * Devuelve los hechos de inseguridad creados en el último mes para mostrarlos en el mapa para un vecino.
+*/
 const getInsecurityFactsForMapForNeighbor = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
@@ -1179,14 +1179,14 @@ const getInsecurityFactsForMapForNeighbor = async (req, res, next) => {
 
         ValidateAuthorization.oneUserHasAuthorization(dataFromToken.neighborId);
 
-        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
+        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 30 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 30 (dateOneMonthAgo)
         const tomorrow = calculateDate(dayjs(), 1);
-        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
+        const dateOneMonthAgo = calculateDate(dayjs(), -30);
         
         const insecurityFactsForMap = await models.Claim.findAll({
             where: {
                 dateTimeCreation: {
-                    [Op.between]: [dateTwoDaysAgo, tomorrow]
+                    [Op.between]: [dateOneMonthAgo, tomorrow]
                 },
                 insecurityFactTypeId: {
                     [Op.not]: null
@@ -1207,7 +1207,9 @@ const getInsecurityFactsForMapForNeighbor = async (req, res, next) => {
 };
 
 
-// Devuelve los hechos de inseguridad creados en las últimas 48hs para mostrarlos en el mapa para un agente municipal.
+/**
+ * Devuelve los hechos de inseguridad creados en el último mes para mostrarlos en el mapa para un agente municipal.
+*/
 const getInsecurityFactsForMapForMunicipalAgent = async (req, res, next) => {
     try {
         // Obtiene la información contenida en el token para poder usar el neighborId
@@ -1215,14 +1217,14 @@ const getInsecurityFactsForMapForMunicipalAgent = async (req, res, next) => {
 
         ValidateAuthorization.oneUserHasAuthorization(dataFromToken.municipalAgentId);
 
-        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 2 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 2 (dateTwoDaysAgo)
+        // Lo que buscamos es que se muestren los HI realizados el mismo día y hace 30 días, por eso le sumo un día a la fecha de hoy (tomorrow) y le resto 30 (dateOneMonthAgo)
         const tomorrow = calculateDate(dayjs(), 1);
-        const dateTwoDaysAgo = calculateDate(dayjs(), -2);
+        const dateOneMonthAgo = calculateDate(dayjs(), -30);
         
         const insecurityFactsForMap = await models.Claim.findAll({
             where: {
                 dateTimeCreation: {
-                    [Op.between]: [dateTwoDaysAgo, tomorrow]
+                    [Op.between]: [dateOneMonthAgo, tomorrow]
                 },
                 insecurityFactTypeId: {
                     [Op.not]: null
