@@ -260,7 +260,7 @@ export class PageService {
 
   // (+) Loading
 
-  async showLoading(content = 'Procesando...'){
+  async showLoading(){
     this.global.showLoading();
   }
 
