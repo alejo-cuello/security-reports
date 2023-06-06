@@ -238,6 +238,7 @@ const confirmEmailChangePassword = async (req, res, next) => {
 
         // Verifica que el usuario con el email a confirmar exista
         if ( !user ) {
+            await transaction.rollback();
             return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
         };
 
@@ -264,11 +265,13 @@ const confirmEmailSignup = async (req, res, next) => {
 
         // Verifica que el usuario con el email a confirmar exista
         if ( !user ) {
+            await transaction.rollback();
             return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
         };
 
         // Verifica que el usuario no tenga ya una cuenta activa
         if ( user.emailIsVerified ) {
+            await transaction.rollback();
             return res.sendFile(path.join(__dirname, '../../public/emailAlreadyVerified.html'));
         };
         
