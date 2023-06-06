@@ -1,6 +1,6 @@
 const ApiError = require('./apiError');
 
-const nonEditableAttributesArray = ['neighborId', 'dni', 'tramiteNumberDNI', 'email', 'password', 'emailIsVerified', 'municipalAgentId', 'registrationNumber'];
+const nonEditableAttributesArray = ['neighborId', 'dni', 'email', 'password', 'emailIsVerified', 'municipalAgentId', 'registrationNumber'];
 
 /**
  * Función que permite comparar los atributos de un modelo con un array de atributos que no se pueden editar.

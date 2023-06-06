@@ -14,11 +14,6 @@ const Neighbor = sequelize.define('vecino', {
             allowNull: false,
             field: 'dni'
         },
-        tramiteNumberDNI: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-            field: 'nroTramiteDNI'
-        },
         firstName: {
             type: DataTypes.STRING(45),
             allowNull: false,

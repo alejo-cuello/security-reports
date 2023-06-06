@@ -59,7 +59,6 @@ export class UserPage extends ItemPage {
         firstName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         lastName: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         dni: [null, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
-        tramiteNumberDNI: [null, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
         street: [null, Validators.compose([Validators.required, Validators.maxLength(30)])],
         streetNumber: [null, Validators.compose([Validators.required, Validators.maxLength(10)])],
         apartment: [null, Validators.maxLength(3)],
@@ -96,7 +95,6 @@ export class UserPage extends ItemPage {
         firstName: [user.firstName, Validators.compose([Validators.required, Validators.maxLength(30)])],
         lastName: [user.lastName, Validators.compose([Validators.required, Validators.maxLength(30)])],
         dni: [user.dni, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
-        tramiteNumberDNI: [user.tramiteNumberDNI, Validators.compose([Validators.required, Validators.min(1), Validators.max(999999999)])],
         street: [user.street, Validators.compose([Validators.required, Validators.maxLength(30)])],
         streetNumber: [user.streetNumber, Validators.compose([Validators.required, Validators.maxLength(10)])],
         apartment: [user.apartment, Validators.maxLength(3)],
@@ -138,7 +136,6 @@ export class UserPage extends ItemPage {
     if(!this.creating) {
       if(this.role == 'neighbor') {
         delete item.dni;
-        delete item.tramiteNumberDNI;
         delete item.email;
         if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
       }
@@ -149,7 +146,6 @@ export class UserPage extends ItemPage {
 
     if ( this.role === 'neighbor' && this.creating ) {
       item.dni = item.dni.toString();
-      item.tramiteNumberDNI = item.tramiteNumberDNI.toString();
       if(item.phoneNumber)  item.phoneNumber = item.phoneNumber.toString();
       if(item.googleId || item.facebookId)  item.emailIsVerified = true;
     }

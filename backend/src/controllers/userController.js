@@ -97,10 +97,6 @@ const signup = async (req, res, next) => {
             if ( !validator.isNumeric(req.body.dni) ) {
                 throw ApiError.badRequest('El DNI debe contener sólo números');
             };
-    
-            if ( !validator.isNumeric(req.body.tramiteNumberDNI) ) {
-                throw ApiError.badRequest('El número de trámite del DNI debe contener sólo números');
-            };
 
             const dniExists = await models.Neighbor.findOne({
                 where: {
@@ -232,6 +228,8 @@ const changePassword = async (req, res, next) => {
 
 
 const confirmEmailChangePassword = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+
     try {
         // Obtener los datos del token
         const data = await getTokenData(req.params.token);
@@ -242,8 +240,6 @@ const confirmEmailChangePassword = async (req, res, next) => {
         if ( !user ) {
             return res.sendFile(path.join(__dirname, '../../public/emailNotFound.html'));
         };
-
-        const transaction = await sequelize.transaction();
 
         await updatePassword(data, transaction);
 
@@ -258,6 +254,8 @@ const confirmEmailChangePassword = async (req, res, next) => {
 
 
 const confirmEmailSignup = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+
     try {
         // Obtener los datos del token
         const data = await getTokenData(req.params.token);
@@ -274,8 +272,6 @@ const confirmEmailSignup = async (req, res, next) => {
             return res.sendFile(path.join(__dirname, '../../public/emailAlreadyVerified.html'));
         };
         
-        const transaction = await sequelize.transaction();
-
         // Actualiza el email como verificado
         await updateConfirmedEmail(data, transaction);
 
@@ -479,7 +475,7 @@ const updatePassword = async (userData, transaction) => {
 */
 const requiredFieldsAreCompleted = (body) => {
     if ( body.role === NEIGHBOR ) {
-        const missingAttributes = checkMissingRequiredAttributes(body, ['dni', 'tramiteNumberDNI', 'firstName', 'lastName', 'street', 'streetNumber', 'city', 'province', 'email', 'password']);
+        const missingAttributes = checkMissingRequiredAttributes(body, ['dni', 'firstName', 'lastName', 'street', 'streetNumber', 'city', 'province', 'email', 'password']);
         return (missingAttributes.length > 0) ? false : true;
     };
 
@@ -500,7 +496,6 @@ const userWithoutPassword = (user) => {
     if ( user.neighborId ) {
         newUser.neighborId = user.neighborId;
         newUser.dni = user.dni;
-        newUser.tramiteNumberDNI = user.tramiteNumberDNI;
         newUser.street = user.street;
         newUser.streetNumber = user.streetNumber;
         newUser.floor = user.floor;
