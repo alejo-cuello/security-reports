@@ -272,6 +272,10 @@ export class ClaimPage extends ItemPage {
     this.picture = null;
   }
 
+  isLoading() {
+    return this.pageService.global.isLoading();
+  }
+
   goToMap() {
     if(this.form.value.latitude && this.form.value.longitude && this.form.value.street && this.form.value.streetNumber) {
       let coordinates = [ this.form.value.latitude, this.form.value.longitude ];

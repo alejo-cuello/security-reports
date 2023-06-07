@@ -1,41 +1,48 @@
-<ion-header>
-    <ion-toolbar color="tertiary">
-      <ion-buttons slot="start">
-        <ion-back-button></ion-back-button>
-      </ion-buttons>
-      <ion-title *ngIf="creating">Nuevo {{settings.types[type].label}}</ion-title>
-      <ion-title *ngIf="!creating && action === 'watch'">Detalles del {{settings.types[type].label}}</ion-title>
-      <ion-title *ngIf="!creating && action === 'edit' && role === 'neighbor'">Editar {{settings.types[type].label}}</ion-title>
-      <ion-title *ngIf="!creating && action === 'edit' && role === 'municipalAgent'">Tomar {{settings.types[type].label}}</ion-title>
-    </ion-toolbar>
+<ion-header *ngIf="!isLoading()">
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="creating">Nuevo {{settings.types[type].label}}</ion-title>
+    <ion-title *ngIf="!creating && action === 'watch'">Detalles del {{settings.types[type].label}}</ion-title>
+    <ion-title *ngIf="!creating && action === 'edit' && role === 'neighbor'">Editar
+      {{settings.types[type].label}}</ion-title>
+    <ion-title *ngIf="!creating && action === 'edit' && role === 'municipalAgent'">Tomar
+      {{settings.types[type].label}}</ion-title>
+  </ion-toolbar>
 </ion-header>
-  
-<ion-content>
+
+<ion-content *ngIf="!isLoading()">
   <ion-item class="align-items-end" *ngIf="role == 'neighbor' && action === 'watch' && !item?.own">
     <ion-button color="primary" slot="end" (click)="handleFollow()" shape="round">
       {{item?.hasFavorite ? 'Dejar de seguir' : 'Seguir'}}
-      <ion-icon color="warning" name="star" slot="end"  class="favorite" *ngIf="!item?.hasFavorite"></ion-icon>
+      <ion-icon color="warning" name="star" slot="end" class="favorite" *ngIf="!item?.hasFavorite"></ion-icon>
     </ion-button>
   </ion-item>
 
   <ion-item class="align-items-end" *ngIf="role == 'neighbor' && action === 'watch' && item?.own">
-    <ion-button slot="end" color="success" class="ion-no-padding custom-btn-round" shape="round" (click)="shareWhatsApp()">
+    <ion-button slot="end" color="success" class="ion-no-padding custom-btn-round" shape="round"
+      (click)="shareWhatsApp()">
       <ion-icon color="light" name="logo-whatsapp"></ion-icon>
     </ion-button>
   </ion-item>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-   
+
     <div class="container-img">
       <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'" (click)="changePicture()">
-      <ion-icon name="close-circle" class="delete-button" color="danger" (click)="removePicture()" *ngIf="picture && action !== 'watch' && role === 'neighbor'"></ion-icon>
+      <ion-icon name="close-circle" class="delete-button" color="danger" (click)="removePicture()"
+        *ngIf="picture && action !== 'watch' && role === 'neighbor'"></ion-icon>
     </div>
 
     <!-- Selects para reclamos -->
     <div class="fields">
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select mode="ios"[(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}" (ionChange)="onChangeClaimType()" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" cancelText="Cancelar">
+        <ion-select mode="ios" [(ngModel)]="selectedClaimType" [ngModelOptions]="{standalone: true}"
+          (ionChange)="onChangeClaimType()"
+          [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"
+          cancelText="Cancelar">
           <ion-select-option *ngFor="let category of categories" [value]="category.claimTypeId">
             {{category?.CTdescription}}
           </ion-select-option>
@@ -44,9 +51,10 @@
 
       <ion-item *ngIf="type === 'claim'">
         <ion-label position="stacked">Subcategoría</ion-label>
-        <ion-select mode="ios"[disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" formControlName="claimSubcategoryId" cancelText="Cancelar">
-          <ion-select-option *ngFor="let subcategory of subcategories"
-            [value]="subcategory?.claimSubcategoryId">
+        <ion-select mode="ios"
+          [disabled]="(!selectedClaimType || action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"
+          formControlName="claimSubcategoryId" cancelText="Cancelar">
+          <ion-select-option *ngFor="let subcategory of subcategories" [value]="subcategory?.claimSubcategoryId">
             {{subcategory?.CSCdescription}}
           </ion-select-option>
         </ion-select>
@@ -55,7 +63,8 @@
       <!-- Select para hechos de inseguridad -->
       <ion-item *ngIf="type === 'insecurityFact'">
         <ion-label position="stacked">Tipo</ion-label>
-        <ion-select mode="ios"formControlName="insecurityFactTypeId" [disabled]="action === 'watch' || role === 'municipalAgent'" cancelText="Cancelar">
+        <ion-select mode="ios" formControlName="insecurityFactTypeId"
+          [disabled]="action === 'watch' || role === 'municipalAgent'" cancelText="Cancelar">
           <ion-select-option *ngFor="let category of categories" [value]="category?.insecurityFactTypeId">
             {{category?.IFTdescription}}
           </ion-select-option>
@@ -64,20 +73,26 @@
       <div *ngIf="!isFieldValid('category')" class="invalid-input-message">
         {{getFieldError('category')}}
       </div>
-        
+
       <ion-row>
         <ion-col (click)="showMapMessage()" class="ion-no-padding">
           <ion-item class="class-input">
             <ion-label position="floating">Calle</ion-label>
-            <ion-input type="text" readonly=true formControlName="street" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"> </ion-input>
+            <ion-input type="text" readonly=true formControlName="street"
+              [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5">
+            </ion-input>
           </ion-item>
           <ion-item class="class-input">
             <ion-label position="floating">Número</ion-label>
-            <ion-input type="text" readonly=true formControlName="streetNumber" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"> </ion-input>
+            <ion-input type="text" readonly=true formControlName="streetNumber"
+              [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5">
+            </ion-input>
           </ion-item>
         </ion-col>
         <ion-col class="centering">
-          <ion-button type="button" color="tertiary" size="small" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5" (click)="goToMap()">
+          <ion-button type="button" color="tertiary" size="small"
+            [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"
+            (click)="goToMap()">
             Localizar
           </ion-button>
         </ion-col>
@@ -89,16 +104,18 @@
 
       <ion-item>
         <ion-label position="floating">Comentario</ion-label>
-        <ion-input type="text" formControlName="comment" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-input>
+        <ion-input type="text" formControlName="comment"
+          [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('comment')" class="invalid-input-message">
         {{getFieldError('comment')}}
       </div>
-      
+
       <ion-item>
         <ion-label position="floating">Fecha de ocurrencia</ion-label>
-        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"  min="2021-01-01T00:00:00" [max]="today"
-          formControlName="dateTimeObservation" [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
+        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
+          min="2021-01-01T00:00:00" [max]="today" formControlName="dateTimeObservation"
+          [disabled]="(action === 'watch' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
       </ion-item>
       <div *ngIf="!isFieldValid('dateTimeObservation')" class="invalid-input-message">
         {{getFieldError('dateTimeObservation')}}
@@ -109,7 +126,9 @@
       <!-- Solo se muestra si el estado del reclamo es 'Terminado' -->
       <ion-item *ngIf="!creating && form.value.statusId === 5">
         <ion-label position="floating">Calificación de la resolución</ion-label>
-        <ion-input type="number" min='1' max='10' formControlName="resolutionRating" [disabled]="action === 'watch' || role === 'municipalAgent'" (ionBlur)="pageService.validateNumber($event)"></ion-input>
+        <ion-input type="number" min='1' max='10' formControlName="resolutionRating"
+          [disabled]="action === 'watch' || role === 'municipalAgent'"
+          (ionBlur)="pageService.validateNumber($event)"></ion-input>
       </ion-item>
       <div *ngIf="!isFieldValid('resolutionRating')" class="invalid-input-message">
         {{getFieldError('resolutionRating')}}
@@ -117,19 +136,24 @@
 
       <ion-item *ngIf="!creating">
         <ion-label position="floating">Fecha de creación</ion-label>
-        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar" formControlName="dateTimeCreation" [disabled]="(action === 'watch' || action === 'edit' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
+        <ion-datetime mode="ios" displayFormat="DD/MM/YYYY" done-text="Aceptar" cancel-text="Cancelar"
+          formControlName="dateTimeCreation"
+          [disabled]="(action === 'watch' || action === 'edit' || role === 'municipalAgent') || action === 'edit' && form.value.statusId === 5"></ion-datetime>
       </ion-item>
-      
+
       <ion-item *ngIf="!creating && role==='municipalAgent' && type == 'claim'">
         <ion-label position="floating">Estado</ion-label>
-        <ion-select mode="ios"formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'" cancelText="Cancelar">
-          <ion-select-option *ngFor="let status of statuses" [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
+        <ion-select mode="ios" formControlName="statusId" (ionChange)="onChangeStatus()" [disabled]="action === 'watch'"
+          cancelText="Cancelar">
+          <ion-select-option *ngFor="let status of statuses"
+            [value]="status?.statusId">{{status?.STAdescription}}</ion-select-option>
         </ion-select>
       </ion-item>
     </div>
   </form>
 </ion-content>
-<ion-footer>
+
+<ion-footer *ngIf="!isLoading()">
   <div *ngIf="action !== 'watch'" class="submit-button">
     <ion-button expand="block" color="primary" shape="round" [disabled]="!enableButton" (click)="onSubmit()">
       <ion-text color="light">
@@ -138,3 +162,67 @@
     </ion-button>
   </div>
 </ion-footer>
+
+
+<ion-header *ngIf="isLoading()">
+  <ion-toolbar color="tertiary">
+    <ion-buttons slot="start">
+      <ion-skeleton-text [animated]="true" style="width: 80px"></ion-skeleton-text>
+    </ion-buttons>
+    <ion-skeleton-text [animated]="true" style="width: 80px"></ion-skeleton-text>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="isLoading()">
+  <div class="container-img">
+    <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+  </div>
+
+  <div class="fields">
+    <ion-item *ngIf="type === 'claim'">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item *ngIf="type === 'claim'">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item *ngIf="type === 'insecurityFact'">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-row>
+      <ion-col (click)="showMapMessage()" class="ion-no-padding">
+        <ion-item class="class-input">
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </ion-item>
+        <ion-item class="class-input">
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </ion-item>
+      </ion-col>
+      <ion-col class="centering">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-col>
+    </ion-row>
+
+    <ion-item>
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item>
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item *ngIf="!creating && form.value.statusId === 5">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item *ngIf="!creating">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+
+    <ion-item *ngIf="!creating && role==='municipalAgent' && type == 'claim'">
+      <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+    </ion-item>
+  </div>
+</ion-content>

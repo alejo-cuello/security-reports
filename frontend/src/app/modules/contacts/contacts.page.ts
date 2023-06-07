@@ -28,10 +28,6 @@ export class ContactsPage extends BasePage {
       })
   }
 
-  refreshContacts() {
-    this.pageService.showSuccess('¡Contactos actualizados exitosamente!');
-  }
-
   deleteContact(contactId: number) {
     const endPoint = this.settings.endPoints.contacts
       + '/' + contactId;
@@ -55,6 +51,10 @@ export class ContactsPage extends BasePage {
     else {
       this.pageService.navigateRoute('/contacts/add-contact');
     }
+  }
+
+  isLoading() {
+    return this.pageService.global.isLoading();
   }
 
 }

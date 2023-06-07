@@ -16,7 +16,7 @@
         <ion-icon name="create-outline"></ion-icon>
         <ion-label>Reclamos</ion-label>
       </ion-segment-button>
-  
+
       <ion-segment-button value="insecurityFact">
         <ion-icon name="alert-circle-outline"></ion-icon>
         <ion-label>Inseguridad</ion-label>
@@ -34,7 +34,7 @@
         </ion-text>
       </ion-button>
     </ion-item>
-    
+
   </ion-toolbar>
 
   <ion-toolbar class="custom-toolbar" *ngIf="role === 'municipalAgent'">
@@ -43,7 +43,7 @@
         <ion-icon name="create-outline"></ion-icon>
         <ion-label>Pendientes</ion-label>
       </ion-segment-button>
-  
+
       <ion-segment-button value="takenClaims">
         <ion-icon name="alert-circle-outline"></ion-icon>
         <ion-label>Tomados</ion-label>
@@ -61,83 +61,92 @@
         </ion-text>
       </ion-button>
     </ion-item>
-    
+
   </ion-toolbar>
 
-  <ion-grid>
+  <ion-grid *ngIf="!isLoading()">
 
     <!-- Muestra mensaje de que no hay reclamos para mostrar -->
     <ion-item *ngIf="menu !== 'insecurityFact' && claims.length === 0" class="ion-margin-top">
       <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
       <p>No hay reclamos para mostrar</p>
     </ion-item>
-  
-  
+
+
     <!-- Muestra mensaje de que no hay hechos de inseguridad para mostrar -->
     <ion-item *ngIf="menu === 'insecurityFact' && insecurityFacts.length === 0" class="ion-margin-top">
       <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
       <p>No hay hechos de inseguridad para mostrar</p>
     </ion-item>
-  
- 
+
+
 
     <!-- Esta card es de ejemplo para un reclamo -->
     <ng-container *ngIf="menu !== 'insecurityFact' && claims.length !== 0">
-      <ion-card *ngFor="let claim of claims" class="ion-margin"  (click)="openOptions(claim?.claimId, claim?.neighborId)">
+      <ion-card *ngFor="let claim of claims" class="ion-margin"
+        (click)="openOptions(claim?.claimId, claim?.neighborId)">
         <ion-item class="favorite-item" *ngIf="claim.neighborId != user.neighborId && role === 'neighbor'">
-          <ion-icon color="warning" name="star" slot="end"  class="favorite"></ion-icon>
+          <ion-icon color="warning" name="star" slot="end" class="favorite"></ion-icon>
         </ion-item>
 
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium"><strong>Creado: </strong> {{ claim?.dateTimeCreation | date: 'dd/MM/yy' }}</ion-text>
           <!-- Podemos hacer que según el estado cambie de color -->
-          <ion-badge class="badge-border ion-no-margin" [color]="getColor(claim?.statusId)" slot="end">{{ claim?.STAdescription }}</ion-badge>
+          <ion-badge class="badge-border ion-no-margin" [color]="getColor(claim?.statusId)" slot="end">{{
+            claim?.STAdescription }}</ion-badge>
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Observado:</strong> {{ claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+          <ion-text color="medium"><strong>Observado:</strong> {{ claim?.dateTimeObservation | date: 'dd/MM/yy'
+            }}</ion-text>
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Dirección:</strong> {{ claim?.street + ' ' + claim?.streetNumber }}</ion-text>
+          <ion-text color="medium"><strong>Dirección:</strong> {{ claim?.street + ' ' + claim?.streetNumber
+            }}</ion-text>
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
             <strong>{{ claim?.CTdescription }}:</strong> {{ claim?.CSCdescription }}
-          </ion-text>        
+          </ion-text>
         </ion-item>
       </ion-card>
     </ng-container>
-  
-  
+
+
     <!-- Esta card es de ejemplo para un hecho de inseguridad -->
     <ng-container *ngIf="menu === 'insecurityFact' && insecurityFacts.length !== 0">
-      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin" (click)="openOptions(insecurityFact?.claimId, insecurityFact?.claim.neighborId, true)">
-        <ion-item class="favorite-item" *ngIf="insecurityFact.claim.neighborId !== user.neighborId && role === 'neighbor'">
+      <ion-card *ngFor="let insecurityFact of insecurityFacts" class="ion-margin"
+        (click)="openOptions(insecurityFact?.claimId, insecurityFact?.claim.neighborId, true)">
+        <ion-item class="favorite-item"
+          *ngIf="insecurityFact.claim.neighborId !== user.neighborId && role === 'neighbor'">
           <ion-icon color="warning" name="star" slot="end" class="favorite"></ion-icon>
         </ion-item>
 
         <ion-item>
           <ion-icon color="primary" name="calendar-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Creado:</strong> {{ insecurityFact?.claim?.dateTimeCreation | date: 'dd/MM/yy' }}</ion-text>
+          <ion-text color="medium"><strong>Creado:</strong> {{ insecurityFact?.claim?.dateTimeCreation | date:
+            'dd/MM/yy' }}</ion-text>
 
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="eye-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Observado:</strong> {{ insecurityFact?.claim?.dateTimeObservation | date: 'dd/MM/yy' }}</ion-text>
+          <ion-text color="medium"><strong>Observado:</strong> {{ insecurityFact?.claim?.dateTimeObservation | date:
+            'dd/MM/yy' }}</ion-text>
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="location-outline" slot="start" class="ion-margin-end"></ion-icon>
-          <ion-text color="medium"><strong>Dirección:</strong> {{ insecurityFact?.claim?.street + ' ' + insecurityFact?.claim?.streetNumber }}</ion-text>
+          <ion-text color="medium"><strong>Dirección:</strong> {{ insecurityFact?.claim?.street + ' ' +
+            insecurityFact?.claim?.streetNumber }}</ion-text>
         </ion-item>
-  
+
         <ion-item>
           <ion-icon color="primary" name="pricetag-outline" slot="start" class="ion-margin-end"></ion-icon>
           <ion-text color="medium">
@@ -149,11 +158,32 @@
 
   </ion-grid>
 
+  <ion-grid *ngIf="isLoading()">
+    <ion-card>
+      <ion-item>
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-item>
 
-  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end" *ngIf="role === 'neighbor'">
+      <ion-item>
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-item>
+
+      <ion-item>
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-item>
+
+      <ion-item>
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-item>
+    </ion-card>
+  </ion-grid>
+
+
+  <ion-fab (click)="goToClaim()" slot="fixed" vertical="bottom" horizontal="end"
+    *ngIf="role === 'neighbor' && !isLoading()">
     <ion-fab-button>
       <ion-icon name="add" color="white"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  
+
 </ion-content>
