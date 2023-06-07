@@ -51,8 +51,12 @@ export class ClaimPage extends ItemPage {
 
   async initializePre() {
     this.enableButton = (this.role === 'municipalAgent') ? false : true;    
-    await this.getCategories().catch(error => this.pageService.showError(error));
-    await this.getStatus().catch(error => this.pageService.showError(error));
+    await this.getCategories().catch(error => {
+      this.handleError(error);
+    });
+    await this.getStatus().catch(error => {
+      this.handleError(error);
+    });
   }
 
   ionViewWillEnter() {
@@ -101,7 +105,7 @@ export class ClaimPage extends ItemPage {
           this.base64File = res;
         })
         .catch( (err) => {
-          this.pageService.showError(err);
+          this.handleError(err);
         })
     }
   }

@@ -21,7 +21,7 @@ export class EmergencyNumbersPage extends BasePage {
         this.emergencyTelephones = response;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 

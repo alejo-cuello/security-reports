@@ -103,7 +103,7 @@ export class MapPage extends BasePage {
           this.streetNumber = response.streetNumber;
         })
         .catch( (error) => {
-          this.pageService.showError(error);
+          this.handleError(error);
         })
     }
   }
@@ -211,7 +211,7 @@ export class MapPage extends BasePage {
         }
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 
@@ -228,7 +228,7 @@ export class MapPage extends BasePage {
       this.setMarkers('claim');
     })
     .catch( (error) => {
-      this.pageService.showError(error);
+      this.handleError(error);
     })
   }
 
@@ -245,7 +245,7 @@ export class MapPage extends BasePage {
       this.setMarkers('insecurityFact');
     })
     .catch( (error) => {
-      this.pageService.showError(error);
+      this.handleError(error);
     })
   }
 

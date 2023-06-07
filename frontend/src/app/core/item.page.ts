@@ -69,8 +69,7 @@ export abstract class ItemPage extends FormPage {
           this.savePost( response );
         })
         .catch( (reason) => {
-          this.pageService.showError( reason );
-          this.savePostError( reason );
+          this.handleError(reason);
         });
     } else {
 
@@ -83,7 +82,7 @@ export abstract class ItemPage extends FormPage {
           this.savePost( response );
         })
         .catch((reason) => {
-          this.pageService.showError( reason );
+          this.handleError(reason)
           this.savePostError( reason );
         });
     }
@@ -183,7 +182,7 @@ export abstract class ItemPage extends FormPage {
       this.loadItemPost();
     })
     .catch((reason) => {
-      this.pageService.showError(reason);
+      this.handleError(reason);
     });
   }
 

@@ -217,7 +217,7 @@ export class ClaimsPage extends BasePage {
                   this.getClaims();
                 })
                 .catch( (error) => {
-                  this.pageService.showError(error);
+                  this.handleError(error);
                 })
             }
             else if(action === 'deleteFavorite') {
@@ -230,7 +230,7 @@ export class ClaimsPage extends BasePage {
                   this.getClaims();
                 })
                 .catch( (error) => {
-                  this.pageService.showError(error);
+                  this.handleError(error);
                 })
             }
             else {

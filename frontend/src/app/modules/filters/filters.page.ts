@@ -52,7 +52,7 @@ export class FiltersPage extends BasePage {
         if(firstTime) this.selectedStatuses = this.prevFilters.status;
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 
@@ -68,7 +68,7 @@ export class FiltersPage extends BasePage {
         }
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 
@@ -84,7 +84,7 @@ export class FiltersPage extends BasePage {
         }
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 

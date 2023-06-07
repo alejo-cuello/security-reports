@@ -30,7 +30,7 @@ export class ChangePasswordPage extends FormPage {
         this.pageService.navigateBack();
       })
       .catch( (error) => {
-        this.pageService.showError(error);
+        this.handleError(error);
       })
   }
 

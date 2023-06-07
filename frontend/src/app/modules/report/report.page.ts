@@ -68,8 +68,8 @@ export class ReportPage extends BasePage {
       .then( (res) => {
         this.cleanEmptyValues(res);
       })
-      .catch( (err) => {
-        this.pageService.showError(err);
+      .catch( (error) => {
+        this.handleError(error);
       })
   }
 

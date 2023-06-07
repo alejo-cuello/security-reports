@@ -62,6 +62,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
       })
       .catch( (error) => {
         this.securityInstitutions = [];
+        this.handleError(error);
       })
   };
 
@@ -82,6 +83,7 @@ export class InstitutionsPage extends BasePage implements OnInit {
       })
       .catch( (error) => {
         this.healthInstitutions = [];
+        this.handleError(error);
       })
   };
 
