@@ -8,7 +8,7 @@
 </ion-header>
 
 
-<ion-content>
+<ion-content *ngIf="!isLoading()">
 
   <ion-item *ngIf="contacts?.length === 0" class="ion-margin-top">
     <ion-icon color="warning" name="alert-circle-outline" slot="start"></ion-icon>
@@ -20,18 +20,18 @@
       <ng-container *ngFor="let contact of contacts">
 
         <ion-item-group>
-            <ion-item class="ion-margin-end ion-margin-start">
-              <ion-label>
-                <h2>{{ contact.name}}</h2>
-                <p>{{ contact.phoneNumber }}</p>
-              </ion-label>
+          <ion-item class="ion-margin-end ion-margin-start">
+            <ion-label>
+              <h2>{{ contact.name}}</h2>
+              <p>{{ contact.phoneNumber }}</p>
+            </ion-label>
 
-              <ion-button (click)="deleteContact(contact.contactId)" color="danger" slot="end" size="small">
-                <ion-icon name="close-outline"> </ion-icon>
-              </ion-button>
-            </ion-item>
+            <ion-button (click)="deleteContact(contact.contactId)" color="danger" slot="end" size="small">
+              <ion-icon name="close-outline"> </ion-icon>
+            </ion-button>
+          </ion-item>
         </ion-item-group>
-      
+
       </ng-container>
     </ion-list>
   </ion-grid>
@@ -40,8 +40,15 @@
     <ion-fab-button (click)="addContact()">
       <ion-icon name="add" color="white"></ion-icon>
     </ion-fab-button>
-    <!-- <ion-fab-button (click)="refreshContacts()" color="light">
-      <ion-icon name="refresh-outline"></ion-icon>
-    </ion-fab-button> -->
   </ion-fab>
+</ion-content>
+
+<ion-content *ngIf="isLoading()">
+  <ion-list>
+    <ng-container *ngFor="let i of [1,2,3]">
+      <ion-item class="ion-margin-end ion-margin-start">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </ion-item>
+    </ng-container>
+  </ion-list>
 </ion-content>

@@ -121,6 +121,10 @@ export class ClaimsPage extends BasePage {
       })
   }
 
+  isLoading() {
+    return this.pageService.global.isLoading();
+  }
+
   goToClaim(action?: string, id?: string) {
     const role = this.global.load(this.settings.storage.role);
     const type = this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
