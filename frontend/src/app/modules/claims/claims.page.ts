@@ -129,6 +129,7 @@ export class ClaimsPage extends BasePage {
     const role = this.global.load(this.settings.storage.role);
     const type = this.menu === 'insecurityFact' ? 'insecurityFact' : 'claim';
 
+    this.initialized = false;
     this.pageService.navigateRoute( 'claim', { queryParams: { action, id, role, type: type } } );
   }
 
@@ -254,6 +255,7 @@ export class ClaimsPage extends BasePage {
   }
 
   goToStatustracking(id: string) {
+    this.initialized = false;
     this.pageService.navigateRoute('status-tracking/' + id);
   }
 }
