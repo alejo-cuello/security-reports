@@ -6,10 +6,10 @@ export const environment = {
   production: false,
   // filesUrl: 'http://localhost:3000/files/',
   // serverUrl: 'http://localhost:3000/',
-  filesUrl: 'http://192.168.100.20:3000/files/',
-  serverUrl: 'http://192.168.100.20:3000/',
-  // filesUrl: 'https://proyecto-final.fly.dev/files/',
-  // serverUrl: 'https://proyecto-final.fly.dev/'
+  // filesUrl: 'http://192.168.100.4:3000/files/',
+  // serverUrl: 'http://192.168.100.4:3000/',
+  filesUrl: 'https://proyecto-final-ezp5.onrender.com/files/',
+  serverUrl: 'https://proyecto-final-ezp5.onrender.com/'
 };
 
 /*
