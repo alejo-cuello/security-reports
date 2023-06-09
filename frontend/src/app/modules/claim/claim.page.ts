@@ -253,7 +253,7 @@ export class ClaimPage extends ItemPage {
 
   changePicture() {
     if(this.action === 'watch' || this.role === 'municipalAgent') return;
-    if(!this.creating && this.item.statusId !== 1) return;
+    if(this.type === 'claim' && !this.creating && this.item.statusId !== 1) return;
     
     this.pageService.showImageUpload()
       .then( (response) => {
