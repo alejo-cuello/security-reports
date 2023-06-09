@@ -83,6 +83,7 @@ export class ClaimPage extends ItemPage {
   setCategory() {
     let category = this.categories.find( category => !!category.claimSubcategory.find( subcategory => subcategory.claimSubcategoryId === this.item.claimSubcategoryId));
     this.selectedClaimType = category.claimTypeId;
+    this.onChangeClaimType();
   }
 
   getButtonName() {
