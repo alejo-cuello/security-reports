@@ -1114,13 +1114,13 @@ const deleteClaim = async (req, res, next) => {
             transaction
         });
 
-        await transaction.commit();
-
         if ( claimToDelete[0].photo ) {
             // Arma el path donde está alojada la foto en el servidor para eliminarla cuando se elimina el reclamo
             const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${claimToDelete[0].photo}`;
             await deleteImage(pathPreviousPhoto);
         };
+
+        await transaction.commit();
 
         return res.status(200).json({
             message: 'Reclamo eliminado correctamente'
