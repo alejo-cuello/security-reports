@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
+const morgan = require('morgan')
 
 
 const PORT = process.env.PORT || 8080;
@@ -17,6 +18,8 @@ app.use(express.static('../public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+// Format --> Request Method, URL, Status Code, Response Time - Size of the response body.
+app.use(morgan("dev"));
 
 
 // Routes
