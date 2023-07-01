@@ -159,7 +159,7 @@
   </ion-grid>
 
   <ion-grid *ngIf="isLoading()">
-    <ion-card>
+    <ion-card *ngFor="let i of [1,2,3]">
       <ion-item>
         <ion-skeleton-text [animated]="true"></ion-skeleton-text>
       </ion-item>

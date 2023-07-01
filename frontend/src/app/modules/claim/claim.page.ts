@@ -292,7 +292,7 @@ export class ClaimPage extends ItemPage {
   }
 
   handleFollow() {
-    let endPoint = this.settings.endPoints.claim + '/';
+    let endPoint = this.settings.endPoints.claim;
     let method;
 
     if(this.item.hasFavorite) {

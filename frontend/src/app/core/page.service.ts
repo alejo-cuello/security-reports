@@ -208,7 +208,7 @@ export class PageService {
       element.click();
     } else {
       let cameraOptions: CameraOptions = {
-        quality: 85,
+        quality: 25,
         destinationType: this.camera.DestinationType.DATA_URL,
         encodingType: this.camera.EncodingType.JPEG,
         mediaType: this.camera.MediaType.PICTURE,

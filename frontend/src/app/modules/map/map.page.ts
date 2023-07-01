@@ -59,7 +59,7 @@ export class MapPage extends BasePage {
       shadowUrl: "../../../assets/imgs/marker-shadow.png",
     });
     setTimeout(() => {
-      this.pageService.showMessage('Presione el botón de información para mostrar reclamos o instituciones en el mapa');
+      if(!this.hideMenu)  this.pageService.showMessage('Presione el botón de información para mostrar reclamos o instituciones en el mapa');
     }, 500)
   }
 
