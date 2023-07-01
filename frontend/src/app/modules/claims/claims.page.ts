@@ -54,6 +54,10 @@ export class ClaimsPage extends BasePage {
     }
   }
 
+  ionViewWillEnter() {
+    this.initialize();
+  }
+
   ionViewWillLeave() {
     this.initialized = false;
   }
