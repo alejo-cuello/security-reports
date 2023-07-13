@@ -685,8 +685,8 @@ const createClaim = async (req, res, next) => {
 
         let imageUrl;
         if (req.body.photo) {
-            await saveImage(req.body.photo);
-            imageUrl = await imageUtil.saveImage();
+            const imageName = await saveImage(req.body.photo);
+            imageUrl = await imageUtil.saveImage(imageName);
         }
 
         let body = req.body;
