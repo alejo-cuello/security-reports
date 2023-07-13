@@ -6,6 +6,7 @@ const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 const fs = require('fs/promises');
+const imageUtil = require('../utils/imageUtil');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 const ValidateAuthorization = require('../utils/validateAuthorization');
 
@@ -682,11 +683,13 @@ const createClaim = async (req, res, next) => {
             };
         };
 
-        let fileName = '';
-        if(req.body.photo) fileName = await saveImage(req.body.photo);
+        let imageUrl;
+        if (req.body.photo) {
+            imageUrl = await imageUtil.saveImage(req.body.photo);
+        }
 
         let body = req.body;
-        body.photo = fileName;
+        body.photo = imageUrl;
         
         // Crea el nuevo reclamo
         const newClaim = await models.Claim.create(body, { transaction });
