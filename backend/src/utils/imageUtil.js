@@ -13,6 +13,7 @@ const saveImage = async (image) => {
         const result = await cloudinary.uploader.upload(image, options);
         return result.secure_url;
     } catch (error) {
+        console.log('ERROR LA SUBIR IMAGEN:', error);
         throw error;
     }
 }
