@@ -30,9 +30,12 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <div class="container-img">
-      <img [src]="picture" onError="this.src='assets/imgs/no-image.jpg'" (click)="changePicture()">
-      <ion-icon name="close-circle" class="delete-button" color="danger" (click)="removePicture()"
-        *ngIf="picture && action !== 'watch' && role === 'neighbor'"></ion-icon>
+      <img [src]="item.photo" onError="this.src='assets/imgs/no-image.jpg'" 
+           (click)="changePicture()">
+      <ion-icon name="close-circle" class="delete-button" 
+                color="danger" (click)="removePicture()" 
+                *ngIf="picture && action !== 'watch' && role === 'neighbor'">
+      </ion-icon>
     </div>
 
     <!-- Selects para reclamos -->
