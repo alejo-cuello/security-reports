@@ -2,16 +2,27 @@ const cloudinary = require('cloudinary').v2;
 const fs = require('fs/promises');
 
 
-const saveImage = async (image) => {
-    const imageName = await saveImageInLocal(image);
+const saveImage = async (image, previousImage = null) => {
+    let imageName;
+    if (previousImage) {
+        imageName = getImageName(previousImage)
+    }
+    console.log('IMAGENAME: ', imageName);
+    imageName = await saveImageInLocal(image, imageName);
     return await uploadImage(imageName);
-};
+}
 
 
-const saveImageInLocal = async (file) => {
+const getImageName = (image) => {
+    const imageUrlPartsArray = image.split('/');
+    return imageUrlPartsArray[imageUrlPartsArray.length - 1];
+}
+
+
+const saveImageInLocal = async (file, imageName = null) => {
     try {
         const destination = './public/uploadedImages/';
-        const newFileName = Date.now() + '.jpg';
+        const newFileName = imageName || Date.now() + '.jpg';
         // FIXME: Si el nombre coincide en la url de la imagen, ver si puedo recuperarlo así le seteo la misma imagen
         console.log('FILENAME: ', newFileName);
 
@@ -29,7 +40,6 @@ const saveImageInLocal = async (file) => {
 
 const uploadImage = async (imageName) => {
     const options = {
-        // use_filename: true,
         overwrite: true
     };
 

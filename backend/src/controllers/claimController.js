@@ -5,7 +5,6 @@ const dayjs = require('dayjs');
 const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
-const fs = require('fs/promises');
 const uploadImageUtil = require('../utils/uploadImageUtil');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 const ValidateAuthorization = require('../utils/validateAuthorization');
@@ -390,23 +389,6 @@ const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'D
 };
 
 
-// const saveImageInLocal = async (file) => {
-//     try {
-//         const destination = './public/uploadedImages/';
-//         const newFileName = Date.now() + '.jpg';
-
-//         await fs.writeFile(destination + newFileName, file, 'base64').catch((error) => {
-//             throw error;
-//         });
-
-//         return newFileName;
-//     }
-//     catch(error) {
-//         throw error;
-//     }
-// }
-
-
 // Listar todos los reclamos favoritos del vecino
 const getFavoriteClaims = async (req, res, next) => {
     try {
@@ -685,8 +667,6 @@ const createClaim = async (req, res, next) => {
 
         let imageUrl;
         if (req.body.photo) {
-            // const imageName = await saveImageInLocal(req.body.photo);
-            // imageUrl = await imageUtil.saveImage(imageName);
             imageUrl = await uploadImageUtil.saveImage(req.body.photo);
         }
 
@@ -735,9 +715,6 @@ const createClaim = async (req, res, next) => {
         }
     } catch (error) {
         await transaction.rollback();
-        if ( req.file ) {
-            await deleteImage(req.file.path);
-        };
         next(error);
     }
 };
@@ -961,25 +938,17 @@ const editClaim = async (req, res, next) => {
 
         if  ( req.file ) {
             if ( claimToUpdate.length !== 0 ) {
-                // body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
-
-                body.photo = await uploadImageUtil.saveImage(req.file);
+                body.photo = await uploadImageUtil.saveImage(req.file, claimToUpdate[0].photo);
             } else {
-                // body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
-                body.photo = await uploadImageUtil.saveImage(req.file);
-
+                body.photo = await uploadImageUtil.saveImage(req.file, insecurityFactToUpdate.photo);
             };
         }
         else {
             if (!req.body.photo || validator.isBase64(req.body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
                 if ( claimToUpdate.length !== 0 ) {
-                    // body.photo = await photoUpdateHandler(req.body.photo, claimToUpdate[0].photo);
-                    body.photo = await uploadImageUtil.saveImage(req.body.photo);
-
+                    body.photo = await uploadImageUtil.saveImage(req.body.photo, claimToUpdate[0].photo);
                 } else {
-                    // body.photo = await photoUpdateHandler(req.body.photo, insecurityFactToUpdate.photo);
-                    body.photo = await uploadImageUtil.saveImage(req.body.photo);
-
+                    body.photo = await uploadImageUtil.saveImage(req.body.photo, insecurityFactToUpdate.photo);
                 };
             }
         }
@@ -1007,9 +976,6 @@ const editClaim = async (req, res, next) => {
         }
     } catch (error) {
         await transaction.rollback();
-        if ( req.file ) {
-            await deleteImage(req.file.path);
-        };
         next(error);
     }
 };
@@ -1126,12 +1092,6 @@ const deleteClaim = async (req, res, next) => {
             },
             transaction
         });
-
-        if ( claimToDelete[0].photo ) {
-            // Arma el path donde está alojada la foto en el servidor para eliminarla cuando se elimina el reclamo
-            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${claimToDelete[0].photo}`;
-            await deleteImage(pathPreviousPhoto);
-        };
 
         await transaction.commit();
 
@@ -1385,12 +1345,6 @@ const deleteInsecurityFact = async (req, res, next) => {
             transaction
         });
 
-        if ( insecurityFactToDelete.photo ) {
-            // Arma el path donde está alojada la foto en el servidor para eliminarla cuando se elimina el hecho de inseguridad
-            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${insecurityFactToDelete.photo}`;
-            await deleteImage(pathPreviousPhoto);
-        };
-
         await transaction.commit();
 
         return res.status(200).json({
@@ -1401,32 +1355,6 @@ const deleteInsecurityFact = async (req, res, next) => {
         next(error);
     }
 };
-
-
-/**
- * Maneja la actualización de la foto de un reclamo
- * @param {object} file - Objeto con la imagen que envía el usuario
- * @param {string|null} previousPhoto - Ruta donde se encuentra la foto antigua del reclamo. Null si no tiene foto
-*/
-// const photoUpdateHandler = async (file, previousPhoto) => {
-//     try {
-//         let newPhoto = '';
-//         if ( previousPhoto ) { // Si el reclamo ya tenía foto
-//             const filename = previousPhoto;
-//             const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
-//             // Borra la foto del servidor
-//             await deleteImage(pathPreviousPhoto);
-//         };
-
-//         if(file) {
-//             newPhoto = await saveImageInLocal(file);
-//         }
-
-//         return newPhoto;
-//     } catch (error) {
-//         throw error;
-//     }
-// };
 
 
 /**
@@ -1477,19 +1405,6 @@ const calculateHoursOfDifference = (dateTimeCreation) => {
     const todayInHours = today.getTime() / 1000 / 60 / 60;
     const dateTimeCreationInHours = dateTimeCreation.getTime() / 1000 / 60 / 60;
     return todayInHours - dateTimeCreationInHours;
-};
-
-
-/**
- * Elimina la imagen almacenada en el servidor
- * @param {string} path - Ruta donde está alojada la imagen
-*/
-const deleteImage = async (path) => {
-    try {
-        await fs.unlink(path);
-    } catch (error) {
-        throw error;
-    }
 };
 
 
