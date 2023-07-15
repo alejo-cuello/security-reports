@@ -5,8 +5,11 @@ const fs = require('fs/promises');
 const saveImage = async (image, previousImage = null) => {
     try {
         let imageName = '';
+        console.log('IMAGE PARAM: ', image);
+        console.log('IMAGE PARAM: ', previousImage);
         if (image) {
             if (previousImage) {
+                console.log('PREVIOUS IMAGE EXISTE');
                 imageName = getImageName(previousImage)
             }
             console.log('IMAGENAME: ', imageName);
