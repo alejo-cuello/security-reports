@@ -3,13 +3,20 @@ const fs = require('fs/promises');
 
 
 const saveImage = async (image, previousImage = null) => {
-    let imageName;
-    if (previousImage) {
-        imageName = getImageName(previousImage)
+    try {
+        let imageName = '';
+        if (image) {
+            if (previousImage) {
+                imageName = getImageName(previousImage)
+            }
+            console.log('IMAGENAME: ', imageName);
+            imageName = await saveImageInLocal(image, imageName);
+            return await uploadImage(imageName);
+        }
+        return imageName;
+    } catch (error) {
+        throw error;
     }
-    console.log('IMAGENAME: ', imageName);
-    imageName = await saveImageInLocal(image, imageName);
-    return await uploadImage(imageName);
 }
 
 
