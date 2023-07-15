@@ -6,7 +6,8 @@ const saveImage = async (image, previousImage = null) => {
     try {
         let imageName = '';
         console.log('IMAGE PARAM: ', image);
-        console.log('IMAGE PARAM: ', previousImage);
+        console.log('IMAGE PARAM typeof: ', typeof image);
+        console.log('PREVIOUS IMAGE PARAM: ', previousImage);
         if (image) {
             if (previousImage) {
                 console.log('PREVIOUS IMAGE EXISTE');
