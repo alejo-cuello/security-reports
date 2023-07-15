@@ -938,7 +938,6 @@ const editClaim = async (req, res, next) => {
 
         if  ( req.file ) {
             if ( claimToUpdate.length !== 0 ) {
-                console.log('IF EDIT RECLAMO');
                 body.photo = await uploadImageUtil.saveImage(req.file, claimToUpdate[0].photo);
             } else {
                 body.photo = await uploadImageUtil.saveImage(req.file, insecurityFactToUpdate.photo);
@@ -948,7 +947,6 @@ const editClaim = async (req, res, next) => {
             body.photo = body.photo === 'null' ? null : body.photo;
             if (!body.photo || validator.isBase64(body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
                 if ( claimToUpdate.length !== 0 ) {
-                    console.log('ELSE EDIT RECLAMO');
                     body.photo = await uploadImageUtil.saveImage(body.photo, claimToUpdate[0].photo);
                 } else {
                     body.photo = await uploadImageUtil.saveImage(body.photo, insecurityFactToUpdate.photo);
