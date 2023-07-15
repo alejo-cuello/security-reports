@@ -945,12 +945,13 @@ const editClaim = async (req, res, next) => {
             };
         }
         else {
-            if (!req.body.photo || validator.isBase64(req.body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
+            body.photo = body.photo === 'null' ? null : body.photo;
+            if (!body.photo || validator.isBase64(body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
                 if ( claimToUpdate.length !== 0 ) {
                     console.log('ELSE EDIT RECLAMO');
-                    body.photo = await uploadImageUtil.saveImage(req.body.photo, claimToUpdate[0].photo);
+                    body.photo = await uploadImageUtil.saveImage(body.photo, claimToUpdate[0].photo);
                 } else {
-                    body.photo = await uploadImageUtil.saveImage(req.body.photo, insecurityFactToUpdate.photo);
+                    body.photo = await uploadImageUtil.saveImage(body.photo, insecurityFactToUpdate.photo);
                 };
             }
         }
