@@ -6,7 +6,7 @@ const validator = require('validator');
 const ApiError = require('../utils/apiError');
 const getDataFromToken = require('../utils/getDataFromToken');
 const fs = require('fs/promises');
-const imageUtil = require('../utils/imageUtil');
+const uploadImageUtil = require('../utils/uploadImageUtil');
 const checkMissingRequiredAttributes = require('../utils/checkMissingRequiredAttributes');
 const ValidateAuthorization = require('../utils/validateAuthorization');
 
@@ -390,21 +390,21 @@ const setFiltersForMunicipalAgent = (filter, query, where, orderByDirection = 'D
 };
 
 
-const saveImage = async (file) => {
-    try {
-        const destination = './public/uploadedImages/';
-        const newFileName = Date.now() + '.jpg';
+// const saveImageInLocal = async (file) => {
+//     try {
+//         const destination = './public/uploadedImages/';
+//         const newFileName = Date.now() + '.jpg';
 
-        await fs.writeFile(destination + newFileName, file, 'base64').catch((error) => {
-            throw error;
-        });
+//         await fs.writeFile(destination + newFileName, file, 'base64').catch((error) => {
+//             throw error;
+//         });
 
-        return newFileName;
-    }
-    catch(error) {
-        throw error;
-    }
-}
+//         return newFileName;
+//     }
+//     catch(error) {
+//         throw error;
+//     }
+// }
 
 
 // Listar todos los reclamos favoritos del vecino
@@ -685,8 +685,9 @@ const createClaim = async (req, res, next) => {
 
         let imageUrl;
         if (req.body.photo) {
-            const imageName = await saveImage(req.body.photo);
-            imageUrl = await imageUtil.saveImage(imageName);
+            // const imageName = await saveImageInLocal(req.body.photo);
+            // imageUrl = await imageUtil.saveImage(imageName);
+            imageUrl = await uploadImageUtil.saveImage(req.body.photo);
         }
 
         let body = req.body;
@@ -960,17 +961,25 @@ const editClaim = async (req, res, next) => {
 
         if  ( req.file ) {
             if ( claimToUpdate.length !== 0 ) {
-                body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+                // body.photo = await photoUpdateHandler(req.file, claimToUpdate[0].photo);
+
+                body.photo = await uploadImageUtil.saveImage(req.file);
             } else {
-                body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+                // body.photo = await photoUpdateHandler(req.file, insecurityFactToUpdate.photo);
+                body.photo = await uploadImageUtil.saveImage(req.file);
+
             };
         }
         else {
-            if (!req.body.photo || validator.isBase64(req.body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo). Se puede mejorar
+            if (!req.body.photo || validator.isBase64(req.body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
                 if ( claimToUpdate.length !== 0 ) {
-                    body.photo = await photoUpdateHandler(req.body.photo, claimToUpdate[0].photo);
+                    // body.photo = await photoUpdateHandler(req.body.photo, claimToUpdate[0].photo);
+                    body.photo = await uploadImageUtil.saveImage(req.body.photo);
+
                 } else {
-                    body.photo = await photoUpdateHandler(req.body.photo, insecurityFactToUpdate.photo);
+                    // body.photo = await photoUpdateHandler(req.body.photo, insecurityFactToUpdate.photo);
+                    body.photo = await uploadImageUtil.saveImage(req.body.photo);
+
                 };
             }
         }
@@ -1399,25 +1408,25 @@ const deleteInsecurityFact = async (req, res, next) => {
  * @param {object} file - Objeto con la imagen que envía el usuario
  * @param {string|null} previousPhoto - Ruta donde se encuentra la foto antigua del reclamo. Null si no tiene foto
 */
-const photoUpdateHandler = async (file, previousPhoto) => {
-    try {
-        let newPhoto = '';
-        if ( previousPhoto ) { // Si el reclamo ya tenía foto
-            const filename = previousPhoto;
-            const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
-            // Borra la foto del servidor
-            await deleteImage(pathPreviousPhoto);
-        };
+// const photoUpdateHandler = async (file, previousPhoto) => {
+//     try {
+//         let newPhoto = '';
+//         if ( previousPhoto ) { // Si el reclamo ya tenía foto
+//             const filename = previousPhoto;
+//             const pathPreviousPhoto = `${__dirname}/../../public/uploadedImages/${filename}`;
+//             // Borra la foto del servidor
+//             await deleteImage(pathPreviousPhoto);
+//         };
 
-        if(file) {
-            newPhoto = await saveImage(file);
-        }
+//         if(file) {
+//             newPhoto = await saveImageInLocal(file);
+//         }
 
-        return newPhoto;
-    } catch (error) {
-        throw error;
-    }
-};
+//         return newPhoto;
+//     } catch (error) {
+//         throw error;
+//     }
+// };
 
 
 /**
