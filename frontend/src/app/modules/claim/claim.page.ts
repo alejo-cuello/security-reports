@@ -94,20 +94,22 @@ export class ClaimPage extends ItemPage {
   loadItemPost() {
     if(this.type == 'claim')  this.setCategory();
     if(this.item.photo) {
-      let fileOptions = {
-        fileName: this.item.photo.split('.')[0],
-        fileExtension: this.item.photo.split('.')[1]
-      }
+      this.picture = this.item.photo;
 
-      const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
-      this.pageService.httpGet(endPoint, false, fileOptions)
-        .then( (res) => {
-          this.picture = this.pageService.trustResourceUrl(res);
-          this.base64File = res;
-        })
-        .catch( (err) => {
-          this.handleError(err);
-        })
+      // let fileOptions = {
+      //   fileName: this.item.photo.split('.')[0],
+      //   fileExtension: this.item.photo.split('.')[1]
+      // }
+
+      // const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
+      // this.pageService.httpGet(endPoint, false, fileOptions)
+      //   .then( (res) => {
+      //     this.picture = this.pageService.trustResourceUrl(res);
+      //     this.base64File = res;
+      //   })
+      //   .catch( (err) => {
+      //     this.handleError(err);
+      //   })
     }
   }
 

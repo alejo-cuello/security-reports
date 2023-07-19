@@ -936,15 +936,17 @@ const editClaim = async (req, res, next) => {
             ...req.body
         };
 
-        if  ( req.file ) {
-            if ( claimToUpdate.length !== 0 ) {
-                body.photo = await uploadImageUtil.saveImage(req.file, claimToUpdate[0].photo);
-            } else {
-                body.photo = await uploadImageUtil.saveImage(req.file, insecurityFactToUpdate.photo);
-            };
-        }
-        else {
+        // if  ( req.file ) {
+        //     console.log('file',req.file);
+        //     // if ( claimToUpdate.length !== 0 ) {
+        //     //     body.photo = await uploadImageUtil.saveImage(req.file, claimToUpdate[0].photo);
+        //     // } else {
+        //     //     body.photo = await uploadImageUtil.saveImage(req.file, insecurityFactToUpdate.photo);
+        //     // };
+        // }
+        // else {
             body.photo = body.photo === 'null' ? null : body.photo;
+
             if (!body.photo || validator.isBase64(body.photo)) {    //Con esto veo si es un base64 (osea, un archivo nuevo).
                 if ( claimToUpdate.length !== 0 ) {
                     body.photo = await uploadImageUtil.saveImage(body.photo, claimToUpdate[0].photo);
@@ -952,29 +954,29 @@ const editClaim = async (req, res, next) => {
                     body.photo = await uploadImageUtil.saveImage(body.photo, insecurityFactToUpdate.photo);
                 };
             }
-        }
+        // }
 
         // Actualiza el reclamo
-        await models.Claim.update(body, { 
-            where: {
-                claimId: req.params.claimId,
-                neighborId: dataFromToken.neighborId
-            },
-            transaction });
+        // await models.Claim.update(body, { 
+        //     where: {
+        //         claimId: req.params.claimId,
+        //         neighborId: dataFromToken.neighborId
+        //     },
+        //     transaction });
 
-        await transaction.commit();
+        // await transaction.commit();
 
-        if ( req.body.claimSubcategoryId ) {
-            return res.status(200).json({
-                message: 'Reclamo actualizado correctamente'
-            });
-        };
+        // if ( req.body.claimSubcategoryId ) {
+        //     return res.status(200).json({
+        //         message: 'Reclamo actualizado correctamente'
+        //     });
+        // };
 
-        if ( req.body.insecurityFactTypeId ) {
+        // if ( req.body.insecurityFactTypeId ) {
             return res.status(200).json({
                 message: 'Hecho de inseguridad actualizado correctamente'
             });
-        }
+        // }
     } catch (error) {
         await transaction.rollback();
         next(error);
