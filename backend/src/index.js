@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
-const morgan = require('morgan')
+const morgan = require('morgan');
+require('./config/imageCloudServer');
 
 
 const PORT = process.env.PORT || 8080;
