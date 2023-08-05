@@ -9,8 +9,12 @@ const getSecurityInstitutions = async (req, res, next) => {
         // Trae los datos de las comisarías y centros de denuncias
         const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=2b62f9d3-2d77-4c0a-a030-c237a0ee8aee&limit=${ limit }&offset=${ offset }&query=${ query }`);
 
-        let institutions = response.data.result.records;
-        const total = response.data.result.total;
+        let institutions = [];
+        let total = 0;
+        if (response.data.result) {
+            institutions = response.data.result.records;
+            total = response.data.result.total;
+        }
         
         return res.status(200).json({
             institutions,
@@ -31,8 +35,12 @@ const getHealthInstitutions = async (req, res, next) => {
         // Trae los datos de los centros de salud
         const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=7e14955e-8ef4-4ce8-a7d1-3bb19793f53a&limit=${ limit }&offset=${ offset }&query=${ query }`);
 
-        const institutions = response.data.result.records;
-        const total = response.data.result.total;
+        let institutions = [];
+        let total = 0;
+        if (response.data.result) {
+            institutions = response.data.result.records;
+            total = response.data.result.total;
+        }
 
         return res.status(200).json({
             institutions,
