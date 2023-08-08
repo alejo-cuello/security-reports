@@ -19,7 +19,6 @@ export class ClaimPage extends ItemPage {
   role: string;
   type: string;
 
-  base64File: any;
   categories: any[];
   enableButton: boolean;
   picture: any;
@@ -94,20 +93,7 @@ export class ClaimPage extends ItemPage {
   loadItemPost() {
     if(this.type == 'claim')  this.setCategory();
     if(this.item.photo) {
-      let fileOptions = {
-        fileName: this.item.photo.split('.')[0],
-        fileExtension: this.item.photo.split('.')[1]
-      }
-
-      const endPoint = this.settings.endPoints.files + '/' + this.item.photo;
-      this.pageService.httpGet(endPoint, false, fileOptions)
-        .then( (res) => {
-          this.picture = this.pageService.trustResourceUrl(res);
-          this.base64File = res;
-        })
-        .catch( (err) => {
-          this.handleError(err);
-        })
+      this.picture = this.item.photo;
     }
   }
 
@@ -315,18 +301,6 @@ export class ClaimPage extends ItemPage {
       .finally( () => this.global.hideLoading() )
   }
 
-  shareFacebook() {
-    let message = this.item.comment;
-    let picture = this.item.picture || null;
-    this.pageService.socialSharing.shareViaFacebookWithPasteMessageHint(message, picture)
-      .then(res => {
-        console.log(res);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }
-
   async shareWhatsApp() {
     let type = this.item.insecurityFactTypeId ? 'Hecho' : 'Reclamo';
     let message = 'Report & Alert \n '
@@ -342,15 +316,19 @@ export class ClaimPage extends ItemPage {
       + ' \n '
       + (this.item.comment ? ('Descripción: ' + this.item.comment) : '');
 
-      const image = this.base64File
-        ? "data:image/jpg;base64," + this.base64File
-        : null;
-
-    this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
-      .then((res) => {
-        console.log(res);
+    const endPoint = this.settings.endPoints.files + `?imageUrl=${this.picture}`;
+    this.pageService.httpGet(endPoint, false)
+      .then(({ base64Image }) => {
+        const image = base64Image ? "data:image/jpg;base64," + base64Image : null;
+        this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => this.pageService.showError(err));
       })
-      .catch((err) => this.pageService.showError(err));
+      .catch((err) => {
+        this.handleError(err);
+      })
   }
 
 }
