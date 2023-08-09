@@ -8,8 +8,8 @@ export const environment = {
   // serverUrl: 'http://localhost:3000/',
   // filesUrl: 'http://192.168.100.4:3000/files/',
   // serverUrl: 'http://192.168.100.4:3000/',
-  filesUrl: 'https://proyecto-final-ezp5.onrender.com/files/',
-  serverUrl: 'https://proyecto-final-ezp5.onrender.com/'
+  filesUrl: 'https://proyecto-final-v2-7y48.onrender.com/files/',
+  serverUrl: 'https://proyecto-final-v2-7y48.onrender.com/'
 };
 
 /*
