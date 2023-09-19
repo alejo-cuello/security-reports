@@ -316,19 +316,28 @@ export class ClaimPage extends ItemPage {
       + ' \n '
       + (this.item.comment ? ('Descripción: ' + this.item.comment) : '');
 
-    const endPoint = this.settings.endPoints.files + `?imageUrl=${this.picture}`;
-    this.pageService.httpGet(endPoint, false)
-      .then(({ base64Image }) => {
-        const image = base64Image ? "data:image/jpg;base64," + base64Image : null;
-        this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
-          .then((res) => {
-            console.log(res);
-          })
-          .catch((err) => this.pageService.showError(err));
+    if(this.picture) {
+      const endPoint = this.settings.endPoints.files + `?imageUrl=${this.picture}`;
+      this.pageService.httpGet(endPoint, false)
+        .then(({ base64Image }) => {
+          const image = base64Image ? "data:image/jpg;base64," + base64Image : null;
+          this.pageService.socialSharing.shareViaWhatsApp(message, image, null)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => this.pageService.showError(err));
+        })
+        .catch((err) => {
+          this.handleError(err);
+        })
+    }
+    else {
+      this.pageService.socialSharing.shareViaWhatsApp(message)
+      .then((res) => {
+        console.log(res);
       })
-      .catch((err) => {
-        this.handleError(err);
-      })
+      .catch((err) => this.pageService.showError(err));
+    }
   }
 
 }

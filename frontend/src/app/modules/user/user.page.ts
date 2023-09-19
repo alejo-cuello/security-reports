@@ -176,4 +176,10 @@ export class UserPage extends ItemPage {
       this.pageService.navigateRoute('tabs/claims');
     }
   }
+
+  ionViewWillLeave() {
+    if(this.user) {
+      this.global.save(this.settings.storage.fromTab, true);
+    }
+  }
 }

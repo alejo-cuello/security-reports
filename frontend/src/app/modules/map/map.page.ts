@@ -58,15 +58,20 @@ export class MapPage extends BasePage {
       iconUrl: "../../../assets/imgs/marker-icon.png",
       shadowUrl: "../../../assets/imgs/marker-shadow.png",
     });
-    setTimeout(() => {
-      this.pageService.showMessage('Presione el botón de información para mostrar reclamos o instituciones en el mapa');
-    }, 500)
+    if(!this.hideMenu) {
+      setTimeout(() => {
+        this.pageService.showMessage('Presione el botón de información para mostrar reclamos o instituciones en el mapa');
+      }, 500)
+    }
   }
 
   ionViewWillLeave() {
     this.removeMarkers();
     this.lastOption = undefined;
     this.pageService.enableMenu(true);
+    if(!this.hideMenu) {
+      this.global.save(this.settings.storage.fromTab, true);
+    }
   }
 
   onMapReady(map: L.Map) {

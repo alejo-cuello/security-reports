@@ -58,6 +58,11 @@ export class ClaimsPage extends BasePage {
     this.initialized = false;
   }
 
+  ionViewWillEnter() {
+    const initialized = this.global.pop(this.settings.storage.fromTab);
+    if(initialized) this.getClaimsByRole();
+  }
+
   changeSegment() {
     this.prevFilters = null;
     this.haveFilters = false;
