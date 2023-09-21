@@ -35,7 +35,7 @@ const getEmailTemplateSignup = (firstName, token) => {
         <h1>Hola ${ firstName }, gracias por registrarse</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="https://proyecto-final-ezp5.onrender.com/user/signup/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme su correo electrónico haciendo click <a href="${process.env.REMOTE_HOST_URL}/user/signup/confirmEmail/${ token }">aquí</a>.
         </p>
     </div>
     `
@@ -48,7 +48,7 @@ const getEmailTemplateChangePassword = (firstName, token) => {
         <h1>Hola ${ firstName }, has solicitado cambiar la contraseña</h1>
         <br>
         <p>
-            Para continuar es necesario que confirme el cambio de contraseña haciendo click <a href="https://proyecto-final-ezp5.onrender.com/user/changePassword/confirmEmail/${ token }">aquí</a>.
+            Para continuar es necesario que confirme el cambio de contraseña haciendo click <a href="${process.env.REMOTE_HOST_URL}/user/changePassword/confirmEmail/${ token }">aquí</a>.
         </p>
         <p>
             Si no has solicitado este cambio, ignora este correo.
