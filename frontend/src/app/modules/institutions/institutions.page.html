@@ -25,7 +25,9 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <ion-searchbar inputmode="search" placeholder="Nombre de la institución" 
+          <ion-searchbar inputmode="search" 
+                         [debounce]="500" 
+                         placeholder="Nombre de la institución" 
                          (ionChange)="onSearchChange($event)">
           </ion-searchbar>
         </ion-col>

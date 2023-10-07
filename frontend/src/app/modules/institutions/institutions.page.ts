@@ -25,32 +25,31 @@ export class InstitutionsPage extends BasePage implements OnInit {
   offsetSecurityInstitutions: number = 0;
   offsetHealthInstitutions: number = 0;
 
-  querySecurityInstitutions: string = '';
-  queryHealthInstitutions: string = '';
+  queryString: string = '';
 
   @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
 
   ngOnInit(): void {
     this.getSecurityInstitutions();
-    this.getHealthInstitutions();
   }
 
   segmentChanged() {
     this.content.scrollToTop(0);
     if ( this.menu === 'security' ) {
-      this.querySecurityInstitutions = '';
+      this.healthInstitutions = [];
       this.getSecurityInstitutions();
     } else {
-      this.queryHealthInstitutions = '';
+      this.securityInstitutions = [];
       this.getHealthInstitutions();
     }
   }
 
   getSecurityInstitutions(loadMore = false) {
+    this.loadingSecurity = true;
     if ( loadMore ) {
       this.offsetSecurityInstitutions += 6;
     };
-    this.pageService.httpGetAllWithFilters('institutions/security', this.offsetSecurityInstitutions, this.querySecurityInstitutions, 6, false)
+    this.pageService.httpGetAllWithFilters('institutions/security', this.offsetSecurityInstitutions, this.queryString, 6, false)
       .then( (response) => {
         if ( this.offsetSecurityInstitutions > 0 ) {
           this.securityInstitutions.push(...response.institutions);
@@ -58,20 +57,23 @@ export class InstitutionsPage extends BasePage implements OnInit {
           this.securityInstitutions = response.institutions;
         };
         this.totalSecurityInstitutions = response.total;
-        this.loadingSecurity = false;
       })
       .catch( (error) => {
         this.securityInstitutions = [];
         this.handleError(error);
       })
+      .finally(() => {
+        this.loadingSecurity = false;
+      })
   };
 
 
   getHealthInstitutions(loadMore = false) {
+    this.loadingHealth = true;
     if ( loadMore ) {
       this.offsetHealthInstitutions += 6;
     };
-    this.pageService.httpGetAllWithFilters('institutions/health', this.offsetHealthInstitutions, this.queryHealthInstitutions, 6, false)
+    this.pageService.httpGetAllWithFilters('institutions/health', this.offsetHealthInstitutions, this.queryString, 6, false)
       .then( (response) => {
         if ( this.offsetHealthInstitutions > 0 ) {
           this.healthInstitutions.push(...response.institutions);
@@ -79,11 +81,13 @@ export class InstitutionsPage extends BasePage implements OnInit {
           this.healthInstitutions = response.institutions;
         };
         this.totalHealthInstitutions = response.total;
-        this.loadingHealth = false;
       })
       .catch( (error) => {
         this.healthInstitutions = [];
         this.handleError(error);
+      })
+      .finally(() => {
+        this.loadingHealth = false;
       })
   };
 
@@ -120,18 +124,11 @@ export class InstitutionsPage extends BasePage implements OnInit {
     if ( this.infiniteScroll ) {
       this.infiniteScroll.disabled = false;
     };
-    if ( value === '' ) {
-      this.querySecurityInstitutions = '';
-      this.getSecurityInstitutions();
-      this.queryHealthInstitutions = '';
-      this.getHealthInstitutions();
-      return;
-    };
     if ( this.menu === 'security' ) {
-      this.querySecurityInstitutions = value;
+      this.queryString = value;
       this.getSecurityInstitutions();
     } else {
-      this.queryHealthInstitutions = value;
+      this.queryString = value;
       this.getHealthInstitutions();
     };
   };

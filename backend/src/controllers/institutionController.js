@@ -7,13 +7,19 @@ const getSecurityInstitutions = async (req, res, next) => {
         const query = req.query.query || ""; // Si no se especifió un query, se asigna una cadena vacía por defecto
 
         // Trae los datos de las comisarías y centros de denuncias
-        const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=2b62f9d3-2d77-4c0a-a030-c237a0ee8aee&limit=${ limit }&offset=${ offset }&query=${ query }`);
+        const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/1/datastore/query/7b66561a-29e3-527b-ba2f-7901236f4ffb`);
 
         let institutions = [];
         let total = 0;
-        if (response.data.result) {
-            institutions = response.data.result.records;
-            total = response.data.result.total;
+        if (response.data.results) {
+            if (query !== '') {
+                institutions = response.data.results.filter((result) => {
+                    return result.name.toLowerCase().includes(query.toLowerCase());
+                })
+            } else {
+                institutions = response.data.results;
+            }
+            total = institutions.length;
         }
         
         return res.status(200).json({
@@ -33,13 +39,19 @@ const getHealthInstitutions = async (req, res, next) => {
         const query = req.query.query || ""; // Si no se especifió un query, se asigna una cadena vacía por defecto
         
         // Trae los datos de los centros de salud
-        const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/action/datastore/search.json?resource_id=7e14955e-8ef4-4ce8-a7d1-3bb19793f53a&limit=${ limit }&offset=${ offset }&query=${ query }`);
+        const response = await axios.get(`https://datosabiertos.rosario.gob.ar/api/1/datastore/query/78e9b54a-5063-563f-88f8-81c1a30e7df5`);
 
         let institutions = [];
         let total = 0;
-        if (response.data.result) {
-            institutions = response.data.result.records;
-            total = response.data.result.total;
+        if (response.data.results) {
+            if (query !== '') {
+                institutions = response.data.results.filter((result) => {
+                    return result.name.toLowerCase().includes(query.toLowerCase());
+                })
+            } else {
+                institutions = response.data.results;
+            }
+            total = institutions.length;
         }
 
         return res.status(200).json({
