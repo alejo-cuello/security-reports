@@ -1,5 +1,5 @@
 # Report & Alert
-Final project of Systems Engineering (UTN FRRo)
+Final Project for our Information Systems Engineering degree (National Technological University)
 
 ## Members:
 * Bertone Andres
